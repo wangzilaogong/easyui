@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>task01</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/icon.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/index8.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.easyui.min.js"></script>
+</head>
+<body id="box" class="easyui-layout"  style="overflow: hidden" scroll="no">
+<noscript>你的浏览器不支持JavaScript！</noscript>
+
+<div region="north" split="true" border="false" style="overflow: hidden;height: 100px;
+         background:  #7f99be ;
+        line-height: 20px;color: #fff; font-family: Verdana, 微软雅黑,黑体">
+        <span style="float:right; padding-right:50px;padding-top: 20px" class="head">欢迎管理员 <a href="#" id="loginOut" style="text-decoration:none;color:white;">安全退出</a></span>
+</div>
+
+<div region="south" split="true" style="height: 30px; background: #D2E0F2;">
+</div>
+<div id="west" region="west" split="true" hide="true" title="导航菜单" style="width: 180px;">
+    <div id="nav" class="easyui-accordion" fit="true" border="false">
+        <!--  导航内容 -->
+        <div title="系统管理" iconCls="icon-ok" style="overflow:auto;padding:10px;">
+            <h3 style="color:#0099FF;">Accordion for jQuery</h3>
+            <p>Accordion is a part of easyui framework for jQuery. It lets you define your accordion component on web page more easily.</p>
+        </div>
+        <div title="设备管理" iconCls="icon-reload"  style="padding:10px;">
+            easyui help you build your web page easily
+        </div>
+        <div title="房间管理" iconCls="icon-ok" style="overflow:auto;padding:10px;">
+            <h3 style="color:#0099FF;">Accordion for jQuery</h3>
+            <p>Accordion is a part of easyui framework for jQuery. It lets you define your accordion component on web page more easily.</p>
+            <li>超链接点一点</li>
+        </div>
+        <div title="人员管理" iconCls="icon-ok" selected="true" style="overflow:auto;padding:10px;">
+            <div title="Tree Menu">
+                <ul id="tt1" class="easyui-tree">
+                    <li>
+                        <span>人员定位</span>
+                        <ul>
+                            <li>
+                                <span>Sub Folder 1</span>
+                                <ul>
+                                    <li><span>File 11</span></li>
+                                    <li><span>File 12</span></li>
+                                    <li><span>File 13</span></li>
+                                </ul>
+                            </li>
+                            <li><span>File 2</span></li>
+                            <li><span>File 3</span></li>
+                        </ul>
+                    </li>
+                    <li><span>File2</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+        <!--面板即主要内容-->
+<div id="mainPanle" region="center"  style="background: #eee; overflow-y: hidden;color:red;">
+    <div class="easyui-layout" fit="true">
+            <div id="tabs" class="easyui-tabs"  fit="true" border="false" >
+                <div title="首页" style="padding:20px;overflow:hidden; color:red; " ></div>
+            </div>
+        <!--toolbar-->
+        <div id="tb" align="right" >
+            <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:alert('Add')">Add</a>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-cut" plain="true" onclick="javascript:alert('Cut')">Cut</a>
+            <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:alert('Save')">Save</a>
+        </div>
+        </div>
+
+        <!--menu-->
+<div id="mm" class="easyui-menu" style="width:150px;">
+    <div id="mm-tabupdate">刷新</div>
+    <div class="menu-sep"></div>
+    <div id="mm-tabclose">关闭</div>
+    <div id="mm-tabcloseall">全部关闭</div>
+    <div id="mm-tabcloseother">除此之外全部关闭</div>
+    <div class="menu-sep"></div>
+    <div id="mm-tabcloseright">当前页右侧全部关闭</div>
+    <div id="mm-tabcloseleft">当前页左侧全部关闭</div>
+    <div class="menu-sep"></div>
+    <div id="mm-exit">退出</div>
+</div>
+</body>
+</html>
