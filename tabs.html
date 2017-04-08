@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>panel</title>
+    <title>tabs</title>
     <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/icon.css">
     <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="js/index10.js"></script>
+    <script type="text/javascript" src="js/index11.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.easyui.min.js"></script>
 </head>
 <body>
-<div id ="box">
-<p>内容区域</p>
+<div id ="box" style="width500px;height: 300px;">
+    <div title="tab1">
+        tab1
+    </div>
+    <div title="tab2" data-options="closable:true">
+        tab2
+    </div>
+    <div title="tab3">
+        tab3
+    </div>
 </div>
+
 <div id="tt">
     <a class="icon-add" onclick="javascript:alert('add')"></a>
     <a class="icon-edit" onclick="javascript:alert('edit')"></a>
     <a class="icon-cut" onclick="javascript:alert('cut')"></a>
     <a class="icon-help" onclick="javascript:alert('help')"></a>
 </div>
+
+
 </body>
 </html>
