@@ -6,6 +6,7 @@ $(function(){
         width:500,
         height:150,
         title:'My Panel',
+        fit:true,
         tools:[
             {
             iconCls:'icon-add',
