@@ -2,7 +2,10 @@
  * Created by wk on 2017-04-06.
  */
 $(function(){
-    $("#box").dialog();
-
-
+    $('#dd').datebox({
+        required:true
+    });
+    $('#dd2').datebox({
+        required:true
+    });
 });

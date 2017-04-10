@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>log</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/icon.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.easyui.min.js"></script>
+</head>
+<body >
+
+<div class="easyui-layout" fit="true">
+    <div data-options="region:'north'"style="height:30px;padding-left:30px;padding-top: 5px; overflow:hidden;" >
+        <span style="margin-left: 20px">功能:</span>
+        <select id="selectFun">
+            <option value="1" selected="selected">日志功能</option>
+            <option value="2">2...</option>
+            <option value="3">3...</option>
+            <option value="4">4...</option>
+            <option value="5">5...</option>
+        </select>
+        <span style="margin-left: 20px; ">开始时间:</span>
+        <input id="dd" type="text">
+        <span style="margin-left: 20px; ">结束时间:</span>
+        <input id="dd2" type="text">
+        <span style="margin-left: 20px; ">用户姓名:</span>
+        <input id="findName" type="text">
+        <input type="button" value="查询">
+        <input type="button" value="导出Excel">
+
+    </div>
+    <div data-options="region:'south',split:true" style="height:50px;"></div>
+    <div data-options="region:'center',title:'日志列表'">
+        <table class="easyui-datagrid" data-options="url:'###.json',method:'get',border:false,singleSelect:true,fit:true,fitColumns:true,toolbar:'#tb'">
+            <thead>
+            <tr>
+                <th data-options="field:'itemid'" width="80">Item ID</th>
+                <th data-options="field:'productid'" width="100">Product ID</th>
+                <th data-options="field:'listprice',align:'right'" width="80">List Price</th>
+                <th data-options="field:'unitcost',align:'right'" width="80">Unit Cost</th>
+                <th data-options="field:'attr1'" width="150">Attribute</th>
+                <th data-options="field:'status',align:'center'" width="60">Status</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+            <!--数据列表的toolbar-->
+<div id="tb" style="height:auto">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="append()">Append</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">Remove</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">Accept</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="reject()">Reject</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="getChanges()">GetChanges</a>
+</div>
+
+</body>
+</html>
