@@ -35,20 +35,45 @@ $(function(){
         fit:true,
         tools:[
             {
-                iconCls:'icon-add',
+                iconCls:'icon-home3',
                 handler:function(){
-                    alert('添加');
+                    $('#tabs').tabs('add',{
+                        title:'home',
+                        content:'aaa',
+                        href:'home.html',
+                        closable:true
+                    });
+
+
                 },
             },{
-                iconCls:'icon-edit',
-                handler:function(){
-                    alert('edit');
+                iconCls:'icon-loop2',
+                handler:function(){//刷新当前页面
+                    var currentTab = $('#tabs').tabs('getSelected');
+                    var url = $(currentTab.panel('options')).attr('href');
+                    $('#tabs').tabs('update', {
+                        tab: currentTab,
+                        options: {
+                        href: url
+                    }
+                           });
+                    currentTab.panel('refresh');
                 }},
             {
-                iconCls:'icon-edit',
-                handler:function() {
-                    alert('edit');
-                } }
+                iconCls:'icon-cross',
+                handler:function() {//关闭当前选择的tabs
+                                    //var tab = $('#tabs').tabs('getSelected');
+                                    //if (tab){
+                                    //    var index = $('#tabs').tabs('getTabIndex', tab);
+                                    //    $('#tabs').tabs('close', index);
+                    $("#tabs li").each(function(index, obj) {
+                         //获取所有可关闭的选项卡
+                     var tab = $(".tabs-closable", this).text();
+                         $("#tabs").tabs('close', tab);
+                });
+                    }
+                }
+
         ]});
 
     $('#mainPanle').panel({
