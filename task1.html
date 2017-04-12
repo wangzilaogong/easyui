@@ -24,48 +24,22 @@
     <div id="nav" class="easyui-accordion" fit="true" border="false">
         <!--  导航内容 -->
         <div title="系统管理" iconCls="icon-terminal" style="overflow:auto;padding:10px;">
-            <h3 style="color:#0099FF;">Accordion for jQuery</h3>
-            <p>Accordion is a part of easyui framework for jQuery. It lets you define your accordion component on web page more easily.</p>
+            <ul id="ttSystem" class="easyui-tree"></ul>
         </div>
-        <div title="设备管理" iconCls="icon-office"  style="padding:10px;">
-            easyui help you build your web page easily
-        </div>
-        <div title="房间管理" iconCls="icon-ok" style="overflow:auto;padding:10px;">
-            <h3 style="color:#0099FF;">Accordion for jQuery</h3>
-            <p>Accordion is a part of easyui framework for jQuery. It lets you define your accordion component on web page more easily.</p>
-            <li>超链接点一点</li>
+        <div title="基础信息" iconCls="icon-ok" style="overflow:auto;padding:10px;">
+          <ul id="ttBase" class="easyui-tree"></ul>
         </div>
         <div title="人员管理" iconCls="icon-users"  style="overflow:auto;padding:10px;">
-            <div title="Tree Menu">
-                <ul id="tt1" class="easyui-tree">
-                    <li>
-                        <span>人员定位</span>
-                        <ul>
-                            <li>
-                                <span>Sub Folder 1</span>
-                                <ul>
-                                    <li><span>File 11</span></li>
-                                    <li><span>File 12</span></li>
-                                    <li><span>File 13</span></li>
-                                </ul>
-                            </li>
-                            <li><span>File 2</span></li>
-                            <li><span>File 3</span></li>
-                        </ul>
-                    </li>
-                    <li><span>File2</span></li>
-                </ul>
-            </div>
+                <ul id="ttPeople" class="easyui-tree"></ul>
         </div>
-        <div title="消息通知" iconCls="icon-reload"  style="padding:10px;">
-            <ul id="tt3" class="easyui-tree " >
-
-            </ul>
+        <div title="报警设置" iconCls="icon-reload"  style="padding:10px;">
+            <ul id="ttSetting" class="easyui-tree " ></ul>
+        </div>
+        <div title="消息推送" iconCls="icon-reload"  style="padding:10px;">
+            <ul id="ttMessage" class="easyui-tree " ></ul>
         </div>
         <div title="系统日志" iconCls="icon-reload"  style="padding:10px;">
-            <ul id="tt2" class="easyui-tree " >
-                <li iconCls="icon-chart-organisation"><a href="javascript:void(0)"  data-icon="icon-chart-organisation" style="text-decoration: none">系统日志</a></li>
-            </ul>
+            <ul id="ttLog" class="easyui-tree " ></ul>
         </div>
     </div>
 </div>

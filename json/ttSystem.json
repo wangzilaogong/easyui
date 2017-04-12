@@ -1,0 +1,15 @@
+[{
+  "id":1,
+  "text":"部门管理",
+  "attributes":{
+    "url":"Dialog.html"
+  }
+
+},{
+  "id":2,
+  "text":"用户管理",
+  "attributes":{
+    "url":"log.html"
+  }
+}
+]
