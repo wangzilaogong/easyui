@@ -2,10 +2,16 @@
  * Created by wk on 2017-04-06.
  */
 $(function(){
-
     $('#box').layout({
         fit : true//布局组件适应父容器
     });
+    /*安全退出*/
+    $('#loginOut').click(function() {
+        $.messager.confirm('系统提示', '您确定要退出本次登录吗?', function(r) {
+            if (r) {
+                location.href = '/ajax/loginout.ashx';
+            }
+        });});
     /*tabs工具栏*/
     $('#tabs').tabs({
         fit:true,
@@ -63,7 +69,6 @@ $(function(){
             }
         }
     });
-
     /*系统管理*/
     $('#ttSystem').tree({
         url:'json/ttSystem.json'
@@ -88,7 +93,4 @@ $(function(){
     $('#ttMessage').tree({
         url:'json/ttMessage.json'
     });
-
-
-
 });

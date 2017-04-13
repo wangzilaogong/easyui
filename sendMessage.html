@@ -5,24 +5,89 @@
     <title>sendMessage</title>
     <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.1/themes/icon.css">
+    <link rel="stylesheet " type="text/css" href="fonts/style.css">
     <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.5.1/jquery.easyui.min.js"></script>
 </head>
 <body >
 <div class="easyui-layout" fit="true" >
-    <div data-options="region:'north'" style="height:100px">
+    <div data-options="region:'north'" style="height:100px ">
+         <div class="north-div" style="margin-top: 10px">
+             <span>部门:</span>
+             <select>
+                 <option>部门管理</option>
+             </select>
+         </div>
+        <div  class="north-div" style="margin-top: 10px" >
+            <span>人员:</span>
+            <select>
+                <option>aaaaa</option>
+            </select>
+        </div>
+        <div  class="north-div" style="margin-top: 10px">
+            <span>设备编号:</span>
+            <select>
+                <option>ASXADAS</option>
+            </select>
+        </div>
+
 
     </div>
-
     <div data-options="region:'center',title:'消息内容'" style="overflow: hidden;">
-        <textarea  id="conditionId" name="condition" class="easyui-validatebox" data-options="required:true" style="width: 100%; height: 100%;" autofocus="autofocus">
-
-
+        <textarea  id="conditionId" name="condition" class="easyui-validatebox" data-options="required:true" style="width: 100%; height: 100%;" autofocus>
         </textarea>
     </div>
-    <div data-options="region:'south',split:true" title="发送方式" style="height:15%;"></div>
-</div>
 
+    <div data-options="region:'south',split:true" title="发送方式" style="height:15%;">
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-drawer'" onclick="">选择模板</a>
+        <a href="javascript:void(0)" id="sendNow" class="easyui-linkbutton" data-options="iconCls:'icon-envelop'" onclick="sendNow()">即刻发送</a>
+        <a href="javascript:void(0)" id="sendLater" class="easyui-linkbutton" data-options="iconCls:'icon-clock'" onclick="sendLater()">定时发送</a>
+    </div>
+    <!--Dialog-->
+    <div id="dialog">
+        <span style="margin-left: 20px; ">发送时间:</span>
+        <input id="dd"  type="text">
+    </div>
+</div>
+    <script>
+        /*即刻发送*/
+        function sendNow(){
+            $.messager.confirm('即刻发送','确认是否现在发送？', function (flag) {
+                if (flag) {
+                    alert('发送成功！');
+                }
+            });
+        }
+        /*定时发送*/
+        function sendLater(){
+            /*dialog*/
+            $("#dialog").dialog({
+                title:'选择时间',
+                modal:'true',
+                width:400,
+                height:100,
+                buttons : [{
+                    text : '保存',
+                    iconCls : 'icon-checkmark',
+                    handler : function () {
+                        alert('成功！');
+                        $('#dialog').dialog('close');
+                    }
+                },{
+                    text:'取消',
+                    iconCls:'icon-cross',
+                    handler: function () {
+                        $('#dialog').dialog('close');
+                    }
+                }]
+            });
+
+            $('#dd').datetimebox({
+                required:true
+            });
+        }
+
+
+    </script>
 </body>
 </html>
