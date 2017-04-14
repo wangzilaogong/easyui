@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>部门管理</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="stylesheet" href="">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
+        <script>
+            function loadjscssfile(filename, filetype) {
+                if (filetype == "js") {
+                    var fileref = document.createElement('script');
+                    fileref.setAttribute("type", "text/javascript");
+                    fileref.setAttribute("src", filename);
+                } else if (filetype == "css") {
+
+                    var fileref = document.createElement('link');
+                    fileref.setAttribute("rel", "stylesheet");
+                    fileref.setAttribute("type", "text/css");
+                    fileref.setAttribute("href", filename);
+                }
+                if (typeof fileref != "undefined") {
+                    document.getElementsByTagName("head")[0].appendChild(fileref);
+                }
+            }
+            if(langStore=='zh'){
+                loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
+            }
+        </script>
+    </head>
+    <body>
+    <p>fmafma;fmam</p>
+    <script>
+        $(function () {
+            window.top.location = '../template/login.html';
+        });
+    </script>
+    </body>
+</html>

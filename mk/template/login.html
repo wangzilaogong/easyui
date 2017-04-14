@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+            <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <a onclick="dologin()">登陆</a>
+    <a onclick="getUser()">获取用户信息</a>
+</body>
+
+<script>
+    var access_token = '84f265cfc853f7baa847ea7b22da14a34';
+
+    function getUser() {
+         $.support.cors = true;
+        var param = {"access_token":access_token};
+         $.ajax({
+            type:'GET',
+            url:'http://192.168.0.104:8080/rs/username',
+            cache:false,
+            data:param,
+            dataType:'jsonp',
+            success:function (data) {
+                console.log(data);
+            },
+            error: function (data) {
+                console.log(data);
+//                if(xhr.status==403) {
+//                    //handle error
+//                }
+            },
+            complete: function(XMLHttpRequest, textStatus) {
+                console.log('complate');
+                console.log(XMLHttpRequest);
+                                console.log(textStatus);
+            }
+        });
+    }
+
+    function dologin() {
+
+        var param = {"client_id":"test","client_secret":"test","grant_type":"password","scope":"read write","username":"test","password":"test"};
+        $.ajax({
+            type:'POST',
+            url:'http://192.168.0.104:8080/os/oauth/token/',
+            cache:false,
+            dataType:"json",
+            contentType:"application/x-www-form-urlencoded",
+            data:param,
+            success:function (data) {
+                console.log(data);
+                access_token = data.access_token;
+            },
+            error:function () {
+                
+            }
+        });
+    }
+</script>
+</html>

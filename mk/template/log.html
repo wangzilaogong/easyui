@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>日志系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script>
+        function loadjscssfile(filename, filetype) {
+            if (filetype == "js") {
+                var fileref = document.createElement('script');
+                fileref.setAttribute("type", "text/javascript");
+                fileref.setAttribute("src", filename);
+            } else if (filetype == "css") {
+
+                var fileref = document.createElement('link');
+                fileref.setAttribute("rel", "stylesheet");
+                fileref.setAttribute("type", "text/css");
+                fileref.setAttribute("href", filename);
+            }
+            if (typeof fileref != "undefined") {
+                document.getElementsByTagName("head")[0].appendChild(fileref);
+            }
+        }
+        if(langStore=='zh'){
+            loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
+        }
+        $(function(){
+            $('#dd').datebox({
+                required:true
+            });
+            $('#dd2').datebox({
+                required:true
+            });
+            $('#logtable').datagrid({
+                pagination:"true"
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="easyui-layout" fit="true">
+    <div data-options="region:'north'"style="height:8%;padding-left:30px;padding-top:10px; overflow:hidden;" >
+        <span style="margin-left: 20px">功能:</span>
+
+        <span style="margin-left: 20px; ">开始时间:</span>
+        <input id="dd" type="text">
+        <span style="margin-left: 20px; ">结束时间:</span>
+        <input id="dd2" type="text">
+        <span style="margin-left: 20px; ">用户姓名:</span>
+        <input id="findName" type="text">
+        <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px">搜索</a>
+    </div>
+    <div data-options="region:'center',title:'日志列表'">
+        <table id="logtable" class="easyui-datagrid" data-options="url:'###.json',method:'get',border:false,singleSelect:true,fit:true,fitColumns:true,toolbar:'#tb'" fit="true">
+            <thead>
+            <tr>
+                <th data-options="field:'itemid'" width="10%">序号</th>
+                <th data-options="field:'ck',checkbox:'true'" width="10%">选择框</th>
+                <th data-options="field:'logtime',align:'center'" width="20%">时间</th>
+                <th data-options="field:'logfunc',align:'center'" width="20%">功能</th>
+                <th data-options="field:'logoperation',align:'center'" width="20%">操作</th>
+                <th data-options="field:'logmark',align:'center'" width="20%">备注</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+<!--数据列表的toolbar-->
+<div id="tb" style="height:auto">
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" onclick="removeit()">删除</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cloud-download'" onclick="printlog()">导出</a>
+</div>
+
+
+</body>
+</html>

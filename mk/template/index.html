@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>辅助系统</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="stylesheet" href="">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
+        <script>
+            function loadjscssfile(filename, filetype) {
+                if (filetype == "js") {
+                    var fileref = document.createElement('script');
+                    fileref.setAttribute("type", "text/javascript");
+                    fileref.setAttribute("src", filename);
+                } else if (filetype == "css") {
+
+                    var fileref = document.createElement('link');
+                    fileref.setAttribute("rel", "stylesheet");
+                    fileref.setAttribute("type", "text/css");
+                    fileref.setAttribute("href", filename);
+                }
+                if (typeof fileref != "undefined") {
+                    document.getElementsByTagName("head")[0].appendChild(fileref);
+                }
+            }
+            if(langStore=='zh'){
+                loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
+            }
+        </script>
+    </head>
+
+    <body>
+        <div class="body-container" style="width: 100%;height: 100%;position: absolute;overflow: hidden;  " >
+            <div id="main_layout" class="easyui-layout" style="width:100%;height:100%;">
+
+                <!--顶部标题拦-->
+                <div data-options="region:'north'" style="height:60px;background-color: rgba(0,0,0,0.8);overflow: hidden">
+                    <img src="../static/images/ship.svg" style="width: 80px;height: 40px;padding: 10px;float: left;margin-left: 15px;">
+                    <span style="line-height: 70px;font-size: 20px;color: white;font-weight: 400" data-localize="navtitle"></span>
+                    <div class="nav_menu" style="float: right;color: white;line-height: 60px;font-size: 15px;margin-right: 15px">
+                        <span id="username"></span>|
+                        <span onclick="swichLanguage()" data-localize="Chiness"></span> |
+                        <span data-localize="logout"></span>
+                    </div>
+                </div>
+
+                <!--左边导航栏-->
+                <div id="main_left_panel" data-options="region:'west',split:true" title="mainnav" style="width:20%;overflow: hidden;">
+                    <div id="main_let_accordion" class="easyui-accordion" style="width:100%;height: 100%">
+
+                    </div>
+                </div>
+
+                <!--内容区域-->
+                <div data-options="region:'center'">
+
+                    <!--选项卡工具组-->
+                    <div id="tab-tools">
+                        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-loop2'" onclick="refreshTab()"></a>
+                        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-cross'" onclick="closeTab()"></a>
+                    </div>
+
+                    <!--选项卡-->
+                    <div id="main_tab" class="easyui-tabs" style="width:100%;height:100%" data-options="tools:'#tab-tools'">
+
+                    </div>
+
+                </div>
+
+	        </div>
+
+        </div>
+    </body>
+
+    <script>
+
+        //全局变量
+        var main_tab = $("#main_tab");
+
+        //tabs操作
+        var tabtool = {};
+        //获取当前选中tab
+        tabtool.getSelectedTab = function () {
+          var tab =  main_tab.tabs('getSelected');
+          if(typeof(tab)=="undefined") return false;
+          return tab;
+        };
+        //获取当前选中tab的索引
+        tabtool.getSelectedIndex = function () {
+          var tab = tabtool.getSelectedTab();
+          if(!tab) return -1;
+          var index = main_tab.tabs('getTabIndex',tab);
+          return index;
+        };
+        //判断tab是否已经存在
+        tabtool.isexit = function (title) {
+           var flag = main_tab.tabs('exists', title);
+            return flag;
+        };
+        //打开tab
+        tabtool.opentab = function (title,iconCls,src) {
+          if(tabtool.isexit(title)){
+              main_tab.tabs('select', title);
+          }else {
+              var content;
+              if(src){
+                  content =$("<iframe scrolling='no' frameborder='0'  style='width:100%;height:100%;'></iframe>");
+                  content.attr('src',src);
+              }else {
+                  content = '';
+              }
+              main_tab.tabs('add',{
+                title: title,
+                iconCls:iconCls,
+                selected: true,
+                closable:true,
+                content:content,
+               });
+          }
+        };
+
+
+        //刷新tab
+        function refreshTab() {
+            var currentTab = tabtool.getSelectedTab();
+            if(!currentTab) return;
+            var url = $(currentTab.panel('options')).attr('href');
+            main_tab.tabs('update', {
+                tab: currentTab,
+                options: {
+                    href: url
+                }
+            });
+            currentTab.panel('refresh');
+        }
+
+        //关闭tab
+        function closeTab(index) {
+            if(!index){
+                index = tabtool.getSelectedIndex();
+            }
+            if(index>=0){
+                main_tab.tabs('close',index);
+            }
+        }
+
+
+       $(function () {
+           //easyui title field 国际化
+            if(langStore=='zh'){
+                  var main_left_panel_dom = $('#main_left_panel');
+                  var main_left_panel_opts = main_left_panel_dom.panel("options");
+                  var main_left_pannel_title = $.language[main_left_panel_opts.title][langStore];
+                  main_left_panel_dom.panel({title:main_left_pannel_title});
+            }
+
+            //获取nav
+           function getNav() {
+               $.ajax({
+                   url:'../api/nav.json',
+                   type:"GET",
+                   cache:false,
+                   dataType:"json",
+                   contentType:"application/json",
+                   success:function (data) {
+                        if(data.success == true){
+                            var items = data.data;
+                            for(var i=0;i<items.length;i++){
+                                var selected = false;
+                                if(i==0){
+                                    selected = true;
+                                }
+                                var item = items[i];
+                                var name;
+                                var treedata;
+                                for(var k in item){
+                                    name = k;
+                                    treedata = item[k];
+                                    break;
+                                }
+                                var temp = [];
+                                for(var j=0;j<treedata.length;j++){
+                                    var dic = {};
+                                    dic.text = $.language.i18n(treedata[j]);
+                                    dic.iconCls = $.language.icon(treedata[j]);
+                                    dic.url = $.language.url(treedata[j]);
+                                    temp.push(dic);
+                                }
+                                var treeId = "accordion_tree_"+i;
+                                var div = $("<div style='padding:10px'></div>");
+                                var ul = $("<ul class='easyui-tree' ></ul>");
+                                ul.attr('id',treeId);
+                                ul.appendTo(div);
+                                $('#main_let_accordion').accordion('add', {
+                                    title : $.language.i18n(name),
+                                    iconCls : $.language.icon(name),
+                                    selected : selected,
+                                    content : div,
+                                });
+                                $("#"+treeId).tree({
+                                    data:temp,
+                                    lines : true,
+                                    onClick:function (node) {
+                                        tabtool.opentab(node.text,node.iconCls,node.url);
+                                    },
+                                })
+                            }
+                        }
+                   },
+                   error:function (data) {
+
+                   }
+               });
+           }
+
+           getNav();
+       });
+
+    </script>
+</html>

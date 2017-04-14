@@ -1,0 +1,10 @@
+{"success":true,
+  "data":[
+    {"sysManage":["department","user","role"]},
+    {"baseInfoManage":["equipmentManage","personnelManage","tieHis","equipmentScene","cabinManage","mapManage"]},
+    {"personnelState":["personnelLocation","healthyReport","personnelAlarm","personnelCourse","overworked"]},
+    {"alarmManage":["alarmParameter","YLScope"]},
+    {"msgPush":["pushHis","makePush"]},
+    {"sysLog":["Log"]}
+  ]
+}
