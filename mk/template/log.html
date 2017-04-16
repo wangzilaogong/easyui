@@ -11,7 +11,6 @@
     <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
     <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
     <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
-    <script type="text/javascript" src="../static/js/extJs.js"></script>
     <script type="text/javascript" src="../static/js/language.js"></script>
     <script>
         function loadjscssfile(filename, filetype) {
@@ -33,17 +32,7 @@
         if(langStore=='zh'){
             loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
         }
-        $(function(){
-            $('#dd').datebox({
-                required:true
-            });
-            $('#dd2').datebox({
-                required:true
-            });
-            $('#logtable').datagrid({
-                pagination:"true"
-            });
-        });
+
     </script>
 </head>
 <body>

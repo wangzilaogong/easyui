@@ -31,24 +31,15 @@
         <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px">搜索</a>
     </div>
     <div data-options="region:'center',title:'日志列表'">
-        <table id="logtable" class="easyui-datagrid" data-options="url:'###.json',method:'get',border:false,singleSelect:true,fit:true,fitColumns:true,toolbar:'#tb'" fit="true">
-            <thead>
-                 <tr>
-                    <th data-options="field:'itemid'" width="10%">序号</th>
-                    <th data-options="field:'ck',checkbox:'true'" width="10%">选择框</th>
-                    <th data-options="field:'logtime',align:'center'" width="20%">时间</th>
-                    <th data-options="field:'logfunc',align:'center'" width="20%">功能</th>
-                    <th data-options="field:'logoperation',align:'center'" width="20%">操作</th>
-                    <th data-options="field:'logmark',align:'center'" width="20%">备注</th>
-                 </tr>
-             </thead>
+        <table id="logtable">
+
+            <!--数据列表的toolbar-->
+            <div id="tb" style="height:auto">
+                <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" onclick="removeit()">删除</a>
+                <a href="#" class="easyui-linkbutton" data-options="iconCls:'icon-cloud-download'" onclick="ExporterExcel()">导出</a>
+            </div>
         </table>
     </div>
-</div>
-            <!--数据列表的toolbar-->
-<div id="tb" style="height:auto">
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" onclick="removeit()">删除</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cloud-download'" onclick="printlog()">导出</a>
 </div>
 
 <script>
@@ -59,10 +50,94 @@
         $('#dd2').datebox({
             required:true
         });
+
         $('#logtable').datagrid({
-            pagination:"true"
+            fit:true,
+            url:'json/data_log.json',
+            fitColumns :'true' ,
+            pagination :'true' ,
+            rownumbers:'true',
+
+            border : 'false',
+            striped :'true',
+            logMsg:'数据加载中',
+            columns:[[
+             {
+                field:'ck',
+                checkbox:'true',
+                title:'选择框',
+                width:'10%'
+            },{
+                field:'logtime',
+                title:'时间 ',
+                width:'20%'
+
+            },{
+                field:'logfunc',
+                title:'功能',
+                width:'20%'
+            },{
+                field:'logoperation',
+                title:'操作',
+                width:'20%'
+            },{
+                field:'logmark',
+                title:'备注',
+                width:'20%'
+
+            }]],
+            toolbar:'#tb',
         });
     });
+    $.ajax({
+         url:'',//请求地址
+        method:'GET',
+        async:'false',
+        dataType:'json',
+        success: function (data) {
+            for(var machine in data){
+                var a =[{
+                    'itemid':data[machine].itemid,
+                    'ck':data[machine].ck,
+                    'logtime':data[machine].logtime,
+                    'logfunc':data[machine].logfunc,
+                    'logoperation':data[machine].logoperation,
+                    'logmark':data[machine].logmark
+                }];
+                $('#logtable').datagrid('loadData', a);
+            }
+
+        },
+        error: function () {
+                console.log('error');
+        }
+
+
+
+    });
+
+//    function ExporterExcel() {
+//        //获取Datagride的列
+//        var rows = $('#logtable').datagrid('getRows');
+//        var columns = $("#logtable").datagrid("options").columns[0];
+//        var oXL = new ActiveXObject("Excel.Application"); //创建AX对象excel
+//        var oWB = oXL.Workbooks.Add(); //获取workbook对象
+//        var oSheet = oWB.ActiveSheet; //激活当前sheet
+//        //设置工作薄名称
+//        oSheet.name = "导出Excel报表";
+//        //设置表头
+//        for (var i = 0; i < columns.length; i++) {
+//            oSheet.Cells(1, i+1).value = columns[i].title;
+//        }
+//        //设置内容部分
+//        for (var i = 0; i < rows.length; i++) {
+//            //动态获取每一行每一列的数据值
+//            for (var j = 0; j < columns.length; j++) {
+//                oSheet.Cells(i + 2, j+1).value = rows[i][columns[j].field];
+//            }
+//        }
+//        oXL.Visible = true; //设置excel可见属性
+//    }
 </script>
 
 </body>
