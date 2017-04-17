@@ -28,7 +28,7 @@ $.language = {
      pushHis:{"en":"pushHis","zh":"推送历史","icon":"icon-msg2","url":"../template/pushhis.html"},
      makePush:{"en":"makePush","zh":"发送推送","icon":"icon-msgsend2","url":"../template/makepush.html"},
      Log:{"en":"Log","zh":"日志","icon":"icon-log4","url":"../template/log.html"},
-    //
+     message:{"en":"Message","zh":"消息内容"},
 };
 $.language.i18n = function (str) {
     if($.language[str]){

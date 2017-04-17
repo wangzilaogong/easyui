@@ -1,10 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>pushhis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script>
+        function loadjscssfile(filename, filetype) {
+            if (filetype == "js") {
+                var fileref = document.createElement('script');
+                fileref.setAttribute("type", "text/javascript");
+                fileref.setAttribute("src", filename);
+            } else if (filetype == "css") {
+
+                var fileref = document.createElement('link');
+                fileref.setAttribute("rel", "stylesheet");
+                fileref.setAttribute("type", "text/css");
+                fileref.setAttribute("href", filename);
+            }
+            if (typeof fileref != "undefined") {
+                document.getElementsByTagName("head")[0].appendChild(fileref);
+            }
+        }
+        if(langStore=='zh'){
+            loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
+        }
+
+    </script>
 </head>
 <body>
+<div class="easyui-layout" fit="true">
+    <div class="easyui-layout" fit="true">
+        <div data-options="region:'north'"style="height:15%;padding-left:30px;padding-top:10px;overflow: hidden;" >
+            <table style="border: 1px solid #b3b3b3;width:100%;margin-bottom: 100px;border-collapse:collapse">
+                <tr style="height: 25px; border: 1px">
+                    <td  data-localize="department" style="background:#b7d2ff ;border: solid 1px darkgray;" align="right"><span>部门 ：</span></td>
+                    <td style="padding-left: 5px;"><select>
+                            <option>1比如说什么</option>
+                            <option>2....</option>
+                            <option>3....</option>
+                        </select>
+                    </td>
+                    <td  data-localize="staff" style="background:#b7d2ff;border: solid 1px darkgray" align="right">人员 ：</td>
+                    <td style="padding-left: 5px;"><select>
+                        <option>1比如说什么</option>
+                        <option>2....</option>
+                        <option>3....</option>
+                    </select></td>
+                </tr>
+                <tr style="border: 1px solid darkgray;height: auto; ">
+                    <td   data-localize="time" style="background:#b7d2ff ;border: solid 1px darkgray;" align="right">开始时间 ：</td>
+                    <td style="padding-left: 5px;">
+                        <input id="dd" type="text">
+                    </td>
+                    <td  data-localize="confirmtime" style="background:#b7d2ff;border: solid 1px darkgray;" align="right">结束时间 ：</td>
+                    <td style="padding-left: 5px;">
+                        <input id="dd2" type="text">
+                    </td>
+                </tr>
+                <tr style="border: 1px solid darkgray;height: auto; ">
+                    <td   align="center" colspan="4">
+                        <a id="searchbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px">搜索</a>
+                        <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px">清空</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="layout" data-options="region:'center'" style="overflow: hidden;">
+            <table id="logtable" >
+                <!--数据列表的toolbar-->
+                <div id="tb" style="height:auto">
+                    <a id="deletebtn" href="javascript:void(0)" class="easyui-linkbutton"  data-options="iconCls:'icon-bin'" onclick="delRows()"></a>
+                </div>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    //i18n
+    $.language.department = {"en":"Department ","zh":"部门 "};
+    $.language.staff = {"en":"Staff  ","zh":"人员 "};
+    $.language.source = {"en":"Source  ","zh":"来源 "};
+    $.language.content = {"en":"	Content  ","zh":"内容 "};
+    $.language.confirmcontent = {"en":"Confirm content","zh":"确认内容"};
+    $.language.time = {"en":"CreateTime","zh":"创建时间"};
+    $.language.confirmtime = {"en":"Confirm time","zh":"确认时间"};
+    $.language.clock = {"en":"clocked","zh":"定时"};
+    $.language.loglist = {"en":"LogList","zh":"日志列表"};
+    $.language.searchbtn={"en":"Search","zh":"搜索"};
+    $.language.clearbtn={"en":"Clear","zh":"清空"};
 
+
+
+
+    $("#layout").attr('title',$.language.i18n("loglist"));
+    $("#searchbtn").text($.language.i18n("searchbtn"));
+    $("#clearbtn").text($.language.i18n("clearbtn"));
+
+
+    $(function(){
+        //时间控件
+        $('#dd').datebox({
+            required:true
+        });
+        $('#dd2').datebox({
+            required:true
+        });
+        //数据列表
+        $('#logtable').datagrid({
+            fit:true,
+            url:'../api/data_pushhis.json',
+            fitColumns :'true' ,
+            pagination :'true' ,
+            rownumbers:'true',
+            border : 'false',
+            striped :'true',
+            logMsg:'数据加载中',
+            columns:[[
+                {
+                    field:'ck',
+                    checkbox:'true',
+                    width:100,
+
+                },{
+                    field:'department',
+                    title:$.language.i18n("department"),
+                    width:100,
+                    align:'center'
+
+                },{
+                    field:'staff',
+                    title:$.language.i18n("staff"),
+                    width:100,
+                    align:'center'
+                },{
+                    field:'source',
+                    title:$.language.i18n("source"),
+                    width:100,
+                    align:'center'
+                },{
+                    field:'content',
+                    title:$.language.i18n("content"),
+                    width:100,
+                    align:'center'
+
+                },{
+                    field:'confirmcontent',
+                    title:$.language.i18n("confirmcontent"),
+                    width:100,
+                    align:'center'
+                },{
+                    field:'time',
+                    title:$.language.i18n("time"),
+                    width:100,
+                    align:'center'
+                },{
+                    field:'confirmtime',
+                    title:$.language.i18n("confirmtime"),
+                    width:100,
+                    align:'center'
+                },{
+                    field:'clock',
+                    title:$.language.i18n("clock"),
+                    width:100,
+                    align:'center'
+                }]],
+            toolbar:'#tb',
+        });
+    });
+    $.ajax({
+        url:'',//请求地址
+        method:'GET',
+        async:'false',
+        dataType:'json',
+        success: function (data) {
+            for(var machine in data){
+                var a =[{
+                    'itemid':data[machine].itemid,
+                    'ck':data[machine].ck,
+                    'logtime':data[machine].logtime,
+                    'logfunc':data[machine].logfunc,
+                    'logoperation':data[machine].logoperation,
+                    'logmark':data[machine].logmark
+                }];
+                $('#logtable').datagrid('loadData', a);
+            }
+
+        },
+        error: function () {
+            console.log('error');
+        }
+    });
+    //删除选中的行
+    function delRows(){
+
+        $.messager.confirm('确认删除','确认删除？', function (row) {
+            if (row){
+                var rows = $('#logtable').datagrid("getSelections");
+                $.ajax({
+                    url:'',
+                    success:function(){
+                        var copyRows = [];
+                        for ( var j= 0; j < rows.length; j++) {
+                            copyRows.push(rows[j]);
+                        }
+                        for(var i =0;i<copyRows.length;i++){
+                            var index = $('#logtable').datagrid('getRowIndex',copyRows[i]);
+                            $('#logtable').datagrid('deleteRow',index);
+                        }
+                    }
+                });
+
+
+            }
+        });
+    }
+    function exportExecel(){
+        $.messager.confirm('到出表格','确认导出吗？',function(row){
+            if (row){
+
+            }
+
+        });
+    }
+
+
+</script>
 </body>
 </html>
