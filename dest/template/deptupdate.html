@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑部门</title>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true,border:false" >
+        <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+            <form id="orgUpdateForm" method="post" onsubmit="return preventForm()">
+                <table class="grid">
+                    <tr>
+                        <td data-localize="orgtitle"></td>
+                        <td><input id="depttitle" name="title" type="text" style="height: 25px;width: 292px;" placeholder="请输入部门名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    </tr>
+                    <tr>
+                        <td data-localize="TopOrg"></td>
+                        <td>
+                            <select id="superdept" style="width: 300px">
+
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script>
+     $.language.orgtitle = {'en':'DeptName','zh':'部门名称'};
+     $.language.TopOrg = {'en':'TopOrg','zh':'上级部门'};
+     $.language.SuperOrg = {'en':'SuperOrg','zh':'顶级部门'};
+     //调用刷新方法 局部刷新
+     $.language.updateDom($("#orgUpdateForm"));
+
+     function ajaxComplate() {
+          progressClose();
+          parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+          parent.$.modalDialog.handler.dialog('close');
+    }
+    //根据id查找org
+     var orgid = $.mkUtil.param.orgid;
+
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+        var title = $('#depttitle').val();
+        var parent = $('#superdept').combotree('getValue');
+        if(title.length<1||!parent||orgid.length<1) return false;
+        var param = {title:title,parent:parent,id:orgid};
+        $.mkUtil.ajax({
+            type:"POST",
+            url:'/org/update',
+            data:JSON.stringify(param),
+            success:function () {
+                ajaxComplate();
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+
+   (function getdept() {
+           $.ajax({
+               type:'GET',
+               url:'../api/dept.json',
+               dataType:'json',
+               contentType:'application/json',
+               success:function (data) {
+                   if(data.success = true){
+                       data.data.push({"title":$.language.i18n('SuperOrg'),'parent':'0','id':'0'});
+                       for(var i=0;i<data.data.length;i++){
+                           var id = data.data[i].id;
+                           if(id==orgid){
+                               $("#depttitle").val(data.data[i].title);
+                           }
+                           var parent = data.data[i].parent;
+                           data.data[i].iconCls = parent=='0'?'icon-dept2':'icon-dept3';
+                           data.data[i].text = data.data[i].title;
+                       }
+                       initCombtree(data.data);
+                   }
+               }
+           });
+       })();
+
+
+        function initCombtree(data) {
+           $("#superdept").combotree({
+                        data:data,
+                        parentField : 'parent',
+                        lines : true,
+                        panelHeight : 'auto',
+                        required:true,
+                        value:orgid,
+//                        onSelect:function (node) {
+//                            var parent = node.id;
+//                            console.log(parent);
+//                        }
+           })
+        }
+</script>
+</body>
+</html>

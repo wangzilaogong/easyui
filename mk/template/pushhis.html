@@ -68,7 +68,7 @@
                 <tr style="border: 1px solid darkgray;height: auto; ">
                     <td   align="center" colspan="4">
                         <a id="searchbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px">搜索</a>
-                        <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px">清空</a>
+                        <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px" onclick="clear()">清空</a>
                     </td>
                 </tr>
             </table>
@@ -85,14 +85,14 @@
 </div>
 <script>
     //i18n
-    $.language.department = {"en":"Department ","zh":"部门 "};
-    $.language.staff = {"en":"Staff  ","zh":"人员 "};
-    $.language.source = {"en":"Source  ","zh":"来源 "};
+    $.language.department = {"en":"Department:","zh":"部门: "};
+    $.language.staff = {"en":"Staff:  ","zh":"人员: "};
+    $.language.source = {"en":"Source:  ","zh":"来源: "};
     $.language.content = {"en":"	Content  ","zh":"内容 "};
     $.language.confirmcontent = {"en":"Confirm content","zh":"确认内容"};
-    $.language.time = {"en":"CreateTime","zh":"创建时间"};
-    $.language.confirmtime = {"en":"Confirm time","zh":"确认时间"};
-    $.language.clock = {"en":"clocked","zh":"定时"};
+    $.language.time = {"en":"CreateTime:","zh":"创建时间:"};
+    $.language.confirmtime = {"en":"Confirm time:","zh":"确认时间:"};
+    $.language.clock = {"en":"clocked","zh" :"定时"};
     $.language.loglist = {"en":"LogList","zh":"日志列表"};
     $.language.searchbtn={"en":"Search","zh":"搜索"};
     $.language.clearbtn={"en":"Clear","zh":"清空"};
@@ -183,12 +183,7 @@
         success: function (data) {
             for(var machine in data){
                 var a =[{
-                    'itemid':data[machine].itemid,
-                    'ck':data[machine].ck,
-                    'logtime':data[machine].logtime,
-                    'logfunc':data[machine].logfunc,
-                    'logoperation':data[machine].logoperation,
-                    'logmark':data[machine].logmark
+                   //......
                 }];
                 $('#logtable').datagrid('loadData', a);
             }
@@ -222,15 +217,17 @@
             }
         });
     }
+    //导出表格未完成
     function exportExecel(){
         $.messager.confirm('到出表格','确认导出吗？',function(row){
             if (row){
-
             }
-
         });
     }
-
+    //clear 按钮
+    function clear(){
+        $("#dd").datebox('setValue','');
+    }
 
 </script>
 </body>

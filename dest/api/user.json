@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "data": [{
+    "id": 2,
+    "username": "yq",
+    "password": "12f551f35b58cb54dfc36f389f498f86",
+    "salt": "c35b34a30313959b3d9808f47e5eb44a",
+    "roleIds": [],
+    "locked": 1,
+    "able": 1,
+    "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
+    "roleIdsStr": ""
+   },
+    {
+      "id": 1,
+      "username": "yq3",
+      "password": "12f551f35b58cb54dfc36f389f498f86",
+      "salt": "c35b34a30313959b3d9808f47e5eb44a",
+      "roleIds": [],
+      "locked": 1,
+      "able": 1,
+      "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
+      "roleIdsStr": ""
+    },
+    {
+      "id": 3,
+      "username": "yq3",
+      "password": "12f551f35b58cb54dfc36f389f498f86",
+      "salt": "c35b34a30313959b3d9808f47e5eb44a",
+      "roleIds": [],
+      "locked": 1,
+      "able": 1,
+      "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
+      "roleIdsStr": ""
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test</title>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.11.0.css" />
+            <script type="text/javascript" src="../static/js/util.js"></script>
+    <script src="http://code.jquery.com/qunit/qunit-1.11.0.js"></script>
+</head>
+<body>
+<span onclick="addorg()">添加部门</span>
+
+<style>
+    span{
+        display: block;
+        background-color: green;
+    }
+</style>
+<script>
+
+    function addorg () {
+        var param = {title:'ccc',parent:'0'};
+        $.mkUtil.ajax({
+           type:'POST',
+           url:"http://192.168.0.151:8080/org/add",
+           data:JSON.stringify(param),
+           success:function (data) {
+               console.log(data);
+           },
+           error:function () {
+
+           }
+        });
+    }
+
+    function format(string, values) {
+        for (var key in values) {
+            string = string.replace(new RegExp("{" + key + "}",'gm'), values[key]);
+        }
+        return string;
+    }
+
+    test("basics", function() {
+        var values = {
+            name: "World"
+        };
+        equal( format("Hello, {name}", values), "Hello, World", "单个匹配" );
+        equal( format("Hello, {name}, how is {name} today?", values),
+            "Hello, World, how is World today?", "多个匹配" );
+    });
+
+
+</script>
+    <h1 id="qunit-header">QUnit测试</h1>
+    <h2 id="qunit-banner"></h2>
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <div id="qunit-fixture">测试标记</div>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+            <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+            <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+            <script type="text/javascript" src="../static/js/util.js"></script>
+            <script type="text/javascript" src="../static/js/respond.js"></script>
+            <script type="text/javascript" src="../static/js/language.js"></script>
+</head>
+
+<body>
+<div class="top_div"></div>
+<div style="background: rgb(255, 255, 255); margin: -100px auto auto; border: 1px solid rgb(231, 231, 231);border-image:none;width:400px;text-align: center;">
+    <form method="post" id="loginform" action="">
+        <input type="checkbox" style="display: none" name="rememberMe" value="true">
+        <div style="width: 165px; height: 96px; position: absolute;">
+            <div class="tou"></div>
+            <div class="initial_left_hand" id="left_hand"></div>
+            <div class="initial_right_hand" id="right_hand"></div>
+        </div>
+        <P style="padding: 30px 0px 10px; position: relative;">
+            <span class="u_logo"></span>
+            <input id="username" class="ipt" type="text" name="username"  data-localize="usernamePlaceholder" placeholder=""/>
+        </P>
+        <P style="position: relative;">
+            <span class="p_logo"></span>
+            <input id="password" class="ipt" id="password" type="password" data-localize="passwordPlaceholder" name="password" placeholder=""/>
+        </P>
+
+        <div style="min-height: 50px; padding: 10px 0;line-height: 50px; margin-top: 10px;border-top-color: rgb(231, 231, 231); border-top-width: 1px; border-top-style: solid; text-align: center">
+            <div class="error"></div>
+            <span  onclick="submitForm()" style="width: 290px;height: 40px; margin: 5px auto;border: none;background-color: rgb(0, 142, 173);color: white;border-radius: 5px;display: block;line-height: 40px;cursor: pointer" data-localize="login" ></span>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    // 判断时候在Iframe框架内,在则刷新父页面
+    if (self != top) {
+        parent.location.reload(true);
+        if (!!(window.attachEvent && !window.opera)) {
+            document.execCommand("stop");
+        } else {
+            window.stop();
+        }
+    }
+
+    //国际化
+    $.language.usernamePlaceholder = {"en":"please input username","zh":"请输入用户名"};
+    $.language.passwordPlaceholder = {"en":"please input password","zh":"请输入密码"};
+    $.language.login = {"en":"login","zh":"登 陆"};
+
+    $(function () {
+        // 得到焦点
+        $("#password").focus(function () {
+            $("#left_hand").animate({
+                left: "150",
+                top: " -38"
+            }, {
+                step: function () {
+                    if (parseInt($("#left_hand").css("left")) > 140) {
+                        $("#left_hand").attr("class", "left_hand");
+                    }
+                }
+            }, 2000);
+            $("#right_hand").animate({
+                right: "-64",
+                top: "-38px"
+            }, {
+                step: function () {
+                    if (parseInt($("#right_hand").css("right")) > -70) {
+                        $("#right_hand").attr("class", "right_hand");
+                    }
+                }
+            }, 2000);
+        });
+        // 失去焦点
+        $("#password").blur(function () {
+            $("#left_hand").attr("class", "initial_left_hand");
+            $("#left_hand").attr("style", "left:100px;top:-12px;");
+            $("#right_hand").attr("class", "initial_right_hand");
+            $("#right_hand").attr("style", "right:-112px;top:-12px");
+        });
+
+    });
+    function submitForm(){
+//        $('#loginform').submit();
+        var param = {username:$("#username").val(),password:$("#password").val()};
+        console.log(param);
+        $.mkUtil.doLogin(param);
+    }
+    function clearForm(){
+        $('#loginform').form('clear');
+    }
+    //回车登录
+//    function enterlogin(){
+//        if (event.keyCode == 13){
+//            event.returnValue=false;
+//            event.cancel = true;
+//            var param = $("loginform").serialize();
+//            console.log(param);
+//            $.mkUtil.doLogin(param);
+//        }
+//    }
+
+
+
+</script>
+<style>
+    body {
+        background: #ebebeb;
+        font-family: "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei", "\9ED1\4F53", Arial, sans-serif;
+        color: #222;
+        font-size: 12px;
+    }
+    * {
+        padding: 0px;
+        margin: 0px;
+    }
+    .top_div {
+        background: #008ead;
+        width: 100%;
+        height: 300px;
+    }
+    .ipt {
+        border: 1px solid #d3d3d3;
+        padding: 10px 10px;
+        width: 290px;
+        border-radius: 4px;
+        padding-left: 35px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+    }
+    .ipt:focus {
+        border-color: #66afe9;
+        outline: 0;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6)
+    }
+    .captcha {
+        border: 1px solid #d3d3d3;
+        padding: 10px 10px;
+        width: 216px;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+        -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+        -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
+    }
+    .u_logo {
+        background: url("../static/images/username.png") no-repeat;
+        padding: 10px 10px;
+        position: absolute;
+        top: 43px;
+        left:45px;
+
+    }
+    .p_logo {
+        background: url("../static/images/password.png") no-repeat;
+        padding: 10px 10px;
+        position: absolute;
+        top: 12px;
+        left: 45px;
+    }
+    a {
+        text-decoration: none;
+    }
+    .tou {
+        background: url("../static/images/tou.png") no-repeat;
+        width: 97px;
+        height: 92px;
+        position: absolute;
+        top: -87px;
+        left: 140px;
+    }
+    .left_hand {
+        background: url("../static/images/left_hand.png") no-repeat;
+        width: 32px;
+        height: 37px;
+        position: absolute;
+        top: -38px;
+        left: 150px;
+    }
+    .right_hand {
+        background: url("../static/images/right_hand.png") no-repeat;
+        width: 32px;
+        height: 37px;
+        position: absolute;
+        top: -38px;
+        right: -64px;
+    }
+    .initial_left_hand {
+        background: url("../static/images/hand.png") no-repeat;
+        width: 30px;
+        height: 20px;
+        position: absolute;
+        top: -12px;
+        left: 100px;
+    }
+    .initial_right_hand {
+        background: url("../static/images/hand.png") no-repeat;
+        width: 30px;
+        height: 20px;
+        position: absolute;
+        top: -12px;
+        right: -112px;
+    }
+    .left_handing {
+        background: url("../static/images/left-handing.png") no-repeat;
+        width: 30px;
+        height: 20px;
+        position: absolute;
+        top: -24px;
+        left: 139px;
+    }
+    .right_handinging {
+        background: url("../static/images/right_handing.png") no-repeat;
+        width: 30px;
+        height: 20px;
+        position: absolute;
+        top: -21px;
+        left: 210px;
+    }
+    .error{
+        color:red;
+        line-height: 20px;
+    }
+</style>
+
+<script>
+    var access_token = '84f265cfc853f7baa847ea7b22da14a34';
+
+    function getUser() {
+         $.support.cors = true;
+//        var param = {"access_token":access_token};
+         $.ajax({
+            type:'GET',
+            url:'http://192.168.0.100:8080/user/findUsers?idOrUsername=admin',
+            cache:false,
+            dataType:'json',
+            success:function (data) {
+                console.log(data);
+            },
+            error: function (xhr) {
+                console.log(a);
+                console.log(b);
+                console.log(c);
+                if(xhr.status==401) {
+                    //去登陆
+                    //handle error
+                }else if(xhr.status==403){
+                    //token 过期
+                }
+            }
+        });
+    }
+
+//    function dologin() {
+//
+//       var param =  {username:"admin",password:"admin"};
+////       $.ajax.setRequestHeader("content-type","application/x-www-form-urlencoded");
+////        var param = {"client_id":"test","client_secret":"test","grant_type":"password","scope":"read write","username":"test","password":"test"};
+//        $.ajax({
+//            type:'POST',
+////            url:'http://192.168.0.104:8080/os/oauth/token/',
+//            url:'http://192.168.0.100:8080/login',//?username=admin&password=admin
+//            cache:false,
+//            dataType:"json",
+//            contentType:"application/json",
+//            data:JSON.stringify(param),
+//            success:function (data) {
+//                console.log(data);
+//                access_token = data.access_token;
+//            },
+//            error:function () {
+//
+//            }
+//        });
+//    }
+</script>
+</html>
