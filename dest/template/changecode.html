@@ -45,7 +45,7 @@
         var param = {id:changecodeid, password:code};//key value
         $.mkUtil.ajax({
             type:"POST",
-            url:'/user/update',
+            url:'/user/changePassword',
             data:JSON.stringify(param),
             success:function () {
                 ajaxComplate();

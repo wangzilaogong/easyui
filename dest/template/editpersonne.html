@@ -7,7 +7,7 @@
 <body>
 <div class="easyui-layout" data-options="fit:true,border:false" >
     <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
-        <form id="editUserForm" method="post" onsubmit="return preventForm()">
+        <form id="personneAddForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
                     <td data-localize="username">登录名</td>
@@ -85,6 +85,8 @@
     //根据id查找org
     var orgid = $.mkUtil.param.orgid;
     var editid = $.mkUtil.param.editid;
+    var choosedatarow = $.mkUtil.param.choosedatarow;
+    console.log(choosedatarow);
 
     //阻止表单提交 改成ajax提交
     function preventForm() {

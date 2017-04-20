@@ -2,9 +2,369 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>人员管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+
 </head>
 <body>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
+        <a id="personneadd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addPersonne()"></a>
+        <a id="personneedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editPersonne()"></a>
+        <a id="personnedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="delSelectedRow()"></a>
+    </div>
+    <div>
+        <span data-localize="personneNum">证件号:</span>
+        <input id="personneNum" class="easyui-textbox" >
+        <span data-localize="personneName">姓名:</span>
+        <input id="personneName" class="easyui-textbox" >
+        <span data-localize="personneDept">部门:</span>
+        <select id="personneDept" style="width: 100px">
+        </select>
+        <span data-localize="personneAble">状态:</span>
+        <input id="personneAble" class="easyui-textbox" >
 
+        <a id="personneSearchBtn" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonneByLike()">搜索</a>
+        <a id="personneClearBtn" href="#" class="easyui-linkbutton" iconCls="icon-bin" onclick="clearPersonneForm()">清除</a>
+
+    </div>
+</div>
+<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+    <table id="personne_datagrid"  style="width:100%;">
+
+    </table>
+</div>
 </body>
+
+<script>
+
+    //调试的时候需要设置url
+    remoteBaseUrl = "http://192.168.0.153:8080";
+
+    $.mkUtil.console('equipment.html');
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+
+    //i18n
+    $.language.personneNum = {'en':"Num:","zh":"证件号:"};
+    $.language.personneName = {'en':"Name:","zh":"姓名:"};
+    $.language.personneDept = {'en':"Departmen:","zh":"部门:"};
+    $.language.personneAble = {'en':"Able:","zh":"状态:"};
+
+    $.language.personneadd = {'en':"Add","zh":"添加"};
+    $.language.personneedit = {'en':"Edit","zh":"编辑"};
+    $.language.personnedel = {'en':"Delete","zh":"删除"};
+    $.language.personneSearch = {'en':"Search","zh":"搜索"};
+    $.language.personneClear = {'en':"Clear","zh":"清除"};
+
+
+    $("#personneadd").text($.language.i18n("personneadd"));
+    $("#personneedit").text($.language.i18n("personneedit"));
+    $("#personnedel").text($.language.i18n("personnedel"));
+
+
+    $("#personneSearchBtn").text($.language.i18n("personneSearch"));
+    $("#personneClearBtn").text($.language.i18n("personneClear"));
+
+
+
+
+    $(function () {
+
+        //获取设备
+        function getEquipment() {
+            $.mkUtil.ajax({
+                url:'',
+                type:'GET',
+                contentType:'json',
+                dataTpye: 'application/json',
+                success:function (data) {
+
+                },
+                error:function () {
+
+                }
+            });
+        }
+
+
+
+    });
+    //清除
+    function clearPersonneForm(){
+        $("#personneNum").textbox('clear');
+        $("#personneName").textbox('clear');
+        $("#personneNum").textbox('clear');
+        $("#personneAble").textbox('clear');
+
+    }
+    //模糊查询
+    function searchPersonneByLike(){
+        var keystr = $.trim($('#text_username').val()) ;
+        var param={name:keystr};
+        $.mkUtil.ajax({
+            type:"GET",
+            url:'',
+            data:JSON.stringify(param),
+            success:function(data){
+                if(data.success==true){
+                    $('#personne_datagrid').datagrid('loadData',data);
+                }
+            },
+            error:function () {
+                console.log('模糊查询 error');
+            }
+
+        });
+    }
+
+    //获取列表数据
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'../api/personne.json',
+        cache:false,
+        contentType:'application/json',
+        success:function(data){
+            if (data.success==true){
+                initPersonneGrid(data.data);
+            }
+        }
+
+    });
+    //初始化人员列表datagrid
+    function initPersonneGrid (data){
+        $("#personne_datagrid").datagrid({
+//                remoteSort:false,
+            data:data,
+            singleSelect:true,
+            rownumbers:true,
+            fitColumns:true,
+            pagination:true,
+            pageSize:30,
+            toolbar:"#tb",
+            fit:true,
+            columns : [ [ {
+                width : '100',
+                title :'证件号',
+                field : 'loginName',
+                align : 'center'
+            },
+                {
+                    width : '100',
+                    title : '证件类型',
+                    field : '1',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'姓名',
+                    field : '2',
+                    align : 'center'
+
+                }
+                ,
+                {
+                    width : '80',
+                    title : '性别',
+                    field : '3',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'国籍',
+                    field : 'name',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '部级',
+                    field : '4',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '职务',
+                    field : '5',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'状态',
+                    field : '6',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '单位',
+                    field : '7',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '人员类型',
+                    field : '8',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '设备编号',
+                    field : '9',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '入院时间',
+                    field : '10',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '出院时间',
+                    field : '11',
+                    align : 'center'
+                }
+            ]]
+        });
+        var p = $('#personne_datagrid').datagrid('getPager');
+        p.pagination({
+            showRefresh:false,
+            showPageList:false,
+            onSelectPage:function (page,pageSize) {
+                $.mkUtil.console(page+",...."+pageSize);
+            }
+        });
+
+    }
+    initPersonneGrid([]);
+    //删除所选行数据
+    function delSelectedRow(){
+        if($("#personne_datagrid").datagrid('getSelected')){
+            $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+                if (flag) {
+                    var row = $('#personne_datagrid').datagrid('getSelected');
+                    if (row) {
+                        var searchid=row.loginName;
+                        var param={id:searchid};
+                        $.mkUtil.ajax({
+                            type:"DELET",
+                            url:'/user/delete',
+                            data:JSON.stringify(param),
+                            success:function(){
+                                $('#personne_datagrid').datagrid('deleteRow', index);
+                                $('#personne_datagrid').datagrid('reload');
+                            },
+                            error:function () {
+                                console.log('personne.html del error');
+                            }
+
+                        });
+                    }
+
+                }
+            });
+        }else {
+            alert('请选中你要删除的行');
+        }
+
+    }
+    //添加personne
+    function addPersonne() {
+        parent.$.modalDialog({
+            title :'add',
+            width : 500,
+            height : 260,
+            href : '../template/addpersonne.html',
+            buttons : [ {
+                text : $.language.i18n('personneadd'),
+                handler : function() {
+                    parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#personneAddForm');
+                    f.submit();
+                }
+            } ]
+        });
+
+    }
+    //编辑设备
+    function editPersonne() {
+        var choosedatarow = $("#personne_datagrid").datagrid('getSelected');
+        $.mkUtil.param ={choosedatarow:choosedatarow};
+        parent.$.modalDialog({
+            title :'edit',
+            width : 500,
+            height : 260,
+            href : '../template/editpersonne.html',
+            buttons : [ {
+                text : $.language.i18n('personneadd'),
+                handler : function() {
+                    parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#personneAddForm');
+                    f.submit();
+                }
+            } ]
+        });
+    }
+    //初始化部门
+    (function getdept() {
+        $.ajax({
+            type:'GET',
+            url:'../api/dept.json',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                if(data.success = true){
+                    data.data.push({"title":$.language.i18n('SuperOrg'),'parent':'0','id':'0'});
+                    for(var i=0;i<data.data.length;i++){
+                        var id = data.data[i].id;
+                        if(id==orgid){
+                            $("#personneDept").val(data.data[i].title);
+                        }
+                        var parent = data.data[i].parent;
+                        data.data[i].iconCls = parent=='0'?'icon-dept2':'icon-dept3';
+                        data.data[i].text = data.data[i].title;
+                    }
+                    initCombtree(data.data);
+                }
+            }
+        });
+    })();
+    function initCombtree(data) {
+        $("#personneDept").combotree({
+            data:data,
+            parentField : 'parent',
+            lines : true,
+            panelHeight : 'auto',
+            required:true,
+            value:orgid,
+//                        onSelect:function (node) {
+//                            var parent = node.id;
+//                            console.log(parent);
+//                        }
+        })
+    }
+
+
+</script>
+
+
 </html>

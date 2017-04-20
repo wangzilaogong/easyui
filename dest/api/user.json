@@ -1,37 +1,23 @@
 {
   "success": true,
   "data": [{
-    "id": 2,
-    "username": "yq",
-    "password": "12f551f35b58cb54dfc36f389f498f86",
-    "salt": "c35b34a30313959b3d9808f47e5eb44a",
-    "roleIds": [],
-    "locked": 1,
-    "able": 1,
-    "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
-    "roleIdsStr": ""
-   },
-    {
-      "id": 1,
-      "username": "yq3",
-      "password": "12f551f35b58cb54dfc36f389f498f86",
-      "salt": "c35b34a30313959b3d9808f47e5eb44a",
-      "roleIds": [],
-      "locked": 1,
-      "able": 1,
-      "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
-      "roleIdsStr": ""
-    },
-    {
-      "id": 3,
-      "username": "yq3",
-      "password": "12f551f35b58cb54dfc36f389f498f86",
-      "salt": "c35b34a30313959b3d9808f47e5eb44a",
-      "roleIds": [],
-      "locked": 1,
-      "able": 1,
-      "credentialsSalt": "yqc35b34a30313959b3d9808f47e5eb44a",
-      "roleIdsStr": ""
-    }
-  ]
+    "userId": null,
+    "username": "wl2",
+    "name": "张二",
+    "orgId": null,
+    "title": "管理组",
+    "type": "管理员",
+    "sex": "女",
+    "able": 1
+  },{
+    "userId": null,
+    "username": "wl2",
+    "name": "张二",
+    "orgId": null,
+    "title":"管理组",
+    "type": "管理员",
+    "sex": "女",
+    "able":1
+  }
+    ]
 }
