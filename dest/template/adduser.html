@@ -92,8 +92,12 @@
             type:"POST",
             url:'/user/addUser',
             data:JSON.stringify(param),
-            success:function () {
-                ajaxComplate();
+            success:function (data) {
+                if(data.success==true){
+                    ajaxComplate();
+                }else {
+                    alert1(data.error);
+                }
             },
             error:function () {
                 ajaxComplate();

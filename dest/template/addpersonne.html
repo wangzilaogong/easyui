@@ -7,41 +7,67 @@
 <body>
 <div class="easyui-layout" data-options="fit:true,border:false" >
     <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
-        <form id="addUserForm" method="post" onsubmit="return preventForm()">
+        <form id="personneAddForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td data-localize="username1" >登录名</td>
-                    <td><input id="username" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-                    <td data-localize="password18n">登录密码</td>
-                    <td><input id="password" name="name" type="password" style="height: 25px;width: 100px;" placeholder="请输入密码" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><select id="numtype">
+                    <option >证件类型</option>
+                        <option>bbbbbb</option>
+                        <option>cccccc</option>
+                    </select></td>
+                    <td><input id="num"  type="text" style="height: 15px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td >姓名</td>
+                    <td><input id="name"  type="text" style="height: 15px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
                 </tr>
                 <tr>
-                    <td data-localize="dept">所属部门</td>
+                    <td >所属部门</td>
                     <td>
                         <select id="superdept" style="width: 100px">
                         </select>
                     </td>
-                    <td data-localize="name">姓名</td>
-                    <td><input id="name" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td >国家</td>
+                    <td><input id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
                 </tr>
                 <tr>
-                    <td data-localize="sex">性别</td>
+                    <td >性别</td>
                     <td>
-                        <span data-localize="male">男</span> <input type="radio" checked="checked" name="Sex" value="男" />
-                        <span data-localize="female">女</span><input type="radio" name="Sex" value="女" />
+                        <span>男</span> <input type="radio" checked="checked" name="Sex" value="男" />
+                        <span>女</span><input type="radio" name="Sex" value="女" />
                     </td>
-                    <td data-localize="type">类型</td>
+                    <td >设备编号</td>
                     <td>
-                        <select id="type" style="width: 100px">
+                        <select id="watch" style="width: 100px">
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td data-localize="role">角色</td>
+                    <td >状态</td>
                     <td>
-                        <select id="roleIds" style="width: 100px">
+                        <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
+                        <span >able0</span><input type="radio" name="able" value="2" />
+                    </td>
+                    <td >人员类型</td>
+                    <td>
+                        <select id="renyuanleixing" style="width: 100px">
                         </select>
                     </td>
+                </tr>
+                <tr>
+                    <td>入院时间</td>
+                    <td>
+                        <input id="dd" type="text">
+                    </td>
+                    <td >出院时间</td>
+                    <td>
+                        <input id="dd2" type="text">
+                    </td>
+                </tr>
+                <tr>
+                    <td >单位</td>
+                    <td colspan="4" align="right">
+                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:400px; overflow: hidden;" >
+                    </td>
+
                 </tr>
             </table>
         </form>
@@ -49,26 +75,26 @@
 </div>
 <script>
     //i18n
-    $.language.clear = {"en":"clear","zh":"清除"};
-    $.language.male = {"en":"man","zh":"男"};
-    $.language.female = {"en":"felmale","zh":"女"};
-    $.language.searchbtn={"en":"Search","zh":"搜索"};
-    $.language.userName={"en":"Name","zh":"用户姓名"};
-    $.language.operation={"en":"Operation","zh":"操作"};
-    $.language.state = {"en":"State","zh":"状态"};
-    $.language.sex = {"en":"Sex","zh":"性别"};
-    $.language.type = {"en":"Type","zh":"类别"};
-    $.language.dept = {"en":"Department","zh":"部门"};
-    $.language.name = {"en":"Name","zh":"姓名"};
-    $.language.username1 = {"en":"Username","zh":"登录名"};
-    $.language.add = {"en":"Add ","zh":"添加"};
-    $.language.edit = {"en":"Edit ","zh":"编辑"};
-    $.language.delerow = {"en":"delete ","zh":"删除"};
-    $.language.changecode = {"en":"changecode ","zh":"修改密码"};
-    $.language.deledlg = {"en":"Do you want to delete it? ","zh":"确定删除吗？"};
-    $.language.deledlgTitle = {"en":"warn ","zh":"确认删除"};
-    $.language.role = {"en":"role ","zh":"角色"};
-    $.language.password18n = {"en":"password ","zh":"密码"};
+//    $.language.clear = {"en":"clear","zh":"清除"};
+//    $.language.male = {"en":"man","zh":"男"};
+//    $.language.female = {"en":"felmale","zh":"女"};
+//    $.language.searchbtn={"en":"Search","zh":"搜索"};
+//    $.language.userName={"en":"Name","zh":"用户姓名"};
+//    $.language.operation={"en":"Operation","zh":"操作"};
+//    $.language.state = {"en":"State","zh":"状态"};
+//    $.language.sex = {"en":"Sex","zh":"性别"};
+//    $.language.type = {"en":"Type","zh":"类别"};
+//    $.language.dept = {"en":"Department","zh":"部门"};
+//    $.language.name = {"en":"Name","zh":"姓名"};
+//    $.language.username1 = {"en":"Username","zh":"登录名"};
+//    $.language.add = {"en":"Add ","zh":"添加"};
+//    $.language.edit = {"en":"Edit ","zh":"编辑"};
+//    $.language.delerow = {"en":"delete ","zh":"删除"};
+//    $.language.changecode = {"en":"changecode ","zh":"修改密码"};
+//    $.language.deledlg = {"en":"Do you want to delete it? ","zh":"确定删除吗？"};
+//    $.language.deledlgTitle = {"en":"warn ","zh":"确认删除"};
+//    $.language.role = {"en":"role ","zh":"角色"};
+//    $.language.password18n = {"en":"password ","zh":"密码"};
 
     //ajax complete
     function ajaxComplate() {
@@ -76,25 +102,41 @@
         parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
         parent.$.modalDialog.handler.dialog('close');
     }
+    //时间控件
+    $('#dd,#dd2').datebox({
+        required:true
+    });
 
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var username = $.trim($('#username').val());
-        var password = $('#password').val();
-        var orgId = $('#superdept').combotree('getValue');
+        var numtype = $('#numtype').find("option:selected").text();
+        var num =  $.trim($('#num').val());
         var name = $.trim($('#name').val());
-        var type =  $("#type").find("option:selected").text();
+        var orgId = $('#superdept').combotree('getValue');
+        var country =  $("#country").find("option:selected").text();
         var sex = $("input[type='radio']:checked").val();
-        var roleIds = $("#roleIds").find("option:selected").text();
+        var watch =  $("#watch").find("option:selected").text();
+        var able =  $("input[name='able']:checked").val();
+        var danwei =$.trim($('#danwei').val());
+        var gohospital =$('#dd').datebox('getValue');
+        var outhospital =$('#dd2').datebox('getValue');
 
-        var param = {username:username,password:password,orgId:orgId,name:name,type:type,sex:sex,roleIds:roleIds};
+
+        /**
+         * 这边还要修改字段....以及personne.html处
+         * **/
+        var param = {numtype:numtype,num:num,name:name,sex:sex,country:country,watch:watch,org:orgId};
         $.mkUtil.ajax({
             type:"POST",
-            url:'/user/addUser',
+            url:'/client/add',
             data:JSON.stringify(param),
-            success:function () {
-                ajaxComplate();
-            },
+            success:function (data) {
+                if(data.success == true){
+                    $('#personne_datagrid').datagrid('appendRow', {"num":"personnenum","name":"name","sex":"sex","country":"country","watch":"watch","org":"org"});
+                     ajaxComplate();
+                }else {
+                    alert(data.error);
+                }},
             error:function () {
                 ajaxComplate();
             }
@@ -102,7 +144,17 @@
         return false;
     }
 
-
+    //获取国家并初始化
+    /*
+    *
+    * */
+    //获取watch设备并且初始化
+    /**
+     *
+     * */
+    var choosedatarow=$.mkUtil.param.choosedatarow;
+    $('#num').val(choosedatarow.num);
+    //获取部门并且初始化
     (function getdept() {
         $.ajax({
             type:'GET',
@@ -121,8 +173,6 @@
             }
         });
     })();
-
-
     function initCombtree(data) {
         $("#superdept").combotree({
             data:data,
@@ -135,55 +185,31 @@
                 var parent = node.id;
                 console.log(parent);
             }
-        })
+        });
     }
 
     //获取类别
-    (function gettype(){
-        $.mkUtil.ajax({
-            type:'GET',
-            url:'../api/user.json',
-            dataType:'json',
-            contentType:'application/json',
-            success:function(data){
-                if(data.success==true){
-                    for(var i=0;i<data.data.length;i++){
-//                        var parent = data.data[i].parent;
-//                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
-//                        data.data[i].text = data.data[i].title;
-                        //获取data给别类
-                    }
-                    initType(data.data);
-                }
-            }
-        });
-    })();
-    function initType(data){
-    }
-
-    //获取状态
-    (function getstate(){
-        $.mkUtil.ajax({
-            type:'GET',
-            url:'../api/user.json',
-            dataType:'json',
-            contentType:'application/json',
-            success:function(data){
-                if(data.success==true){
-                    for(var i=0;i<data.data.length;i++){
-//                        var parent = data.data[i].parent;
-//                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
-//                        data.data[i].text = data.data[i].title;
-                        //获取data给别类
-                    }
-                    initstate(data.data);
-                }
-            }
-        });
-    })();
-    function initstate(data){
-    }
-
+//    (function gettype(){
+//        $.mkUtil.ajax({
+//            type:'GET',
+//            url:'../api/user.json',
+//            dataType:'json',
+//            contentType:'application/json',
+//            success:function(data){
+//                if(data.success==true){
+//                    for(var i=0;i<data.data.length;i++){
+////                        var parent = data.data[i].parent;
+////                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+////                        data.data[i].text = data.data[i].title;
+//                        //获取data给别类
+//                    }
+//                    initType(data.data);
+//                }
+//            }
+//        });
+//    })();
+//    function initType(data){
+//
 
 
 </script>

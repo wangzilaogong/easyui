@@ -7,43 +7,65 @@
 <body>
 <div class="easyui-layout" data-options="fit:true,border:false" >
     <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
-        <form id="personneAddForm" method="post" onsubmit="return preventForm()">
+        <form id="editpersonneForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td data-localize="username">登录名</td>
-                    <td><input id="UserEditusername" name="username" type="text" style="height: 20px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><select id="numtype">
+                        <option >证件类型</option>
+                        <option>bbbbbb</option>
+                        <option>cccccc</option>
+                    </select></td>
+                    <td><input id="num"  type="text" style="height: 15px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2" data-options="required:true" value=""></td>
                     <td data-localize="name">姓名</td>
-                    <td><input id="UserEditname" name="name" type="text" style="height: 25px;width: 100px;" placeholder="Please enter your name" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><input id="name"  type="text" style="height: 15px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
                 </tr>
                 <tr>
                     <td data-localize="dept">所属部门</td>
                     <td>
-                        <select id="UserEditorgId" style="width: 100px">
+                        <select id="superdept" style="width: 100px">
                         </select>
                     </td>
-                    <td data-localize="type">类型</td>
+                    <td data-localize="country">国家</td>
+                    <td><input id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                <tr>
+                    <td data-localize="sex">性别</td>
                     <td>
-                        <select id="UserEdittype" style="width: 100px" required="required">
+                        <span data-localize="male">男</span> <input type="radio" checked="checked" name="Sex" value="男" />
+                        <span data-localize="female">女</span><input type="radio" name="Sex" value="女" />
+                    </td>
+                    <td data-localize="watch">设备编号</td>
+                    <td>
+                        <select id="watch" style="width: 100px">
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td data-localize="sex" >性别</td>
+                    <td data-localize="able">状态</td>
                     <td>
-                        <span  data-localize="male" >男</span><input type="radio" checked="checked" name="Sex" value="male" />
-                        <span  data-localize="female" >女</span><input type="radio" name="Sex" value="female"  data-localize="female"/>
+                        <span >able1</span> <input type="radio" checked="checked" name="able" value="x1x" />
+                        <span >able0</span><input type="radio" name="able" value="x0x" />
                     </td>
-                    <td data-localize="state" >状态</td>
+                    <td data-localize="renyuanleixing">人员类型</td>
                     <td>
-                        <select id="UserEditlock" style="width: 100px">
+                        <select id="renyuanleixing" style="width: 100px">
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td data-localize="role" >角色</td>
+                    <td data-localize="gohospital">入院时间</td>
                     <td>
-                        <select id="UserEditroleIds" style="width: 100px">
-                        </select>
+                        <input id="dd" type="text">
+                    </td>
+                    <td data-localize="outhospital">出院时间</td>
+                    <td>
+                        <input id="dd2" type="text">
+                    </td>
+                </tr>
+                <tr>
+                    <td data-localize="danwei">单位</td>
+                    <td colspan="4" align="right">
+                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:400px;px; overflow: hidden;" >
                     </td>
 
                 </tr>
@@ -75,37 +97,53 @@
 
 
     //调用刷新方法 局部刷新
-    $.language.updateDom($("#editUserForm"));
+    $.language.updateDom($("#editpersonneForm"));
 
     function ajaxComplate() {
         progressClose();
         parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
         parent.$.modalDialog.handler.dialog('close');
     }
+
+    //时间控件
+    $('#dd,#dd2').datebox({
+        required:true
+    });
     //根据id查找org
-    var orgid = $.mkUtil.param.orgid;
+    //var orgid = $.mkUtil.param.orgid;
     var editid = $.mkUtil.param.editid;
     var choosedatarow = $.mkUtil.param.choosedatarow;
-    console.log(choosedatarow);
 
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var UserEditusername = $.trim($('#UserEditusername').val());
-        var UserEditname =$.trim($('#UserEditname').val());
-        var UserEdittype  =  $("#UserEdittype").find("option:selected").text();
-        var UserEditsex =  $("input[type='radio']:checked").val();
-        var UserEditroleIds = $("#UserEditroleIds").find("option:selected").text();
-        var UserEditorgId = $('#UserEditorgId').combotree('getValue');
-        var UserEditlock = $("#UserEditlock").find("option:selected").text();
+        var numtype = $("#numtype").find("option:selected").text();
+        var num =  $.trim($('#num').val());
+        var name = $.trim($('#name').val());
+        var orgId = $('#superdept').combotree('getValue');
+        var country =  $("#country").find("option:selected").text();
+        var sex = $("input[type='radio']:checked").val();
+        var watch =  $("#watch").find("option:selected").text();
+        var able =  $("input[name='able']:checked").val();
+        var danwei =$.trim($('#danwei').val());
+        var gohospital =$('#dd').datebox('getValue');
+        var outhospital =$('#dd2').datebox('getValue');
 
-        var param = {id:editid,username:UserEditusername,name:UserEditname,type:UserEdittype,sex:UserEditsex,roleIds:UserEditroleIds,orgId:UserEditorgId  ,locked:UserEditlock};
+        //****************************************************************
+        var param = {};
         //还需要添加很多表格数据
         $.mkUtil.ajax({
             type:"POST",
-            url:'/user/update',
+            url:'/client/update',
             data:JSON.stringify(param),
-            success:function () {
-                ajaxComplate();
+            success:function (data) {
+                if(data.success== true){
+                    $('#dg').datagrid('updateRow',{
+                        index:choosedatarow.index,//此处获取要刷新的行
+                        row:param
+                    });
+                    ajaxComplate();
+                }
+
             },
             error:function () {
                 ajaxComplate();
@@ -113,6 +151,9 @@
         });
         return false;
     }
+    //初始化edit的数据
+        $("#num").text(choosedatarow.num);
+        console.log('aa');
 
     (function getdept() {
         $.ajax({

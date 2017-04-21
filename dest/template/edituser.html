@@ -102,8 +102,12 @@
             type:"POST",
             url:'/user/update',
             data:JSON.stringify(param),
-            success:function () {
-                ajaxComplate();
+            success:function (data) {
+                if(data.success==true){
+                    ajaxComplate();
+                }else {
+                    alert(data.error);
+                }
             },
             error:function () {
                 ajaxComplate();

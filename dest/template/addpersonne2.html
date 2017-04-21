@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加用户</title>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false" >
+    <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+        <form id="addPersonneForm" method="post" onsubmit="return preventForm()">
+            <table class="grid">
+                <tr>
+                    <td><select id="numtype">
+                        <option >证件类型</option>
+                        <option>bbbbbb</option>
+                        <option>cccccc</option>
+                    </select></td>
+                    <td><input id="num"  type="text" style="height: 15px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td >姓名</td>
+                    <td><input id="name"  type="text" style="height: 15px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                <tr>
+                    <td >单位</td>
+                    <td  align="right">
+                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:200px; overflow: hidden;" >
+                    </td>
+
+                    <td >国家</td>
+                    <td><input id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                <tr>
+                    <td >性别</td>
+                    <td>
+                        <span>男</span> <input type="radio" checked="checked" name="Sex" value="男" />
+                        <span>女</span><input type="radio" name="Sex" value="女" />
+                    </td>
+                    <td >设备编号</td>
+                    <td>
+                        <select id="watch" style="width: 100px">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td >状态</td>
+                    <td>
+                        <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
+                        <span >able0</span><input type="radio" name="able" value="2" />
+                    </td>
+                    <td >人员类型</td>
+                    <td>
+                        <select id="renyuanleixing" style="width: 100px">
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>入院时间</td>
+                    <td>
+                        <input id="dd" type="text">
+                    </td>
+                    <td >出院时间</td>
+                    <td>
+                        <input id="dd2" type="text">
+                    </td>
+                </tr>
+                <tr>
+
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    //初始化部门
+
+
+
+</script>
+</body>
+</html>
