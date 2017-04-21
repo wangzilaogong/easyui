@@ -2,12 +2,13 @@
   "success": true,
   "data": [{
     "id" :1,
-    "numtype": "numtype",
+    "numtype": "证件类型",
     "num": 1231231,
     "name": "张二1",
     "sex": "男",
     "country": "aacountry",
     "able": 1,
+    "orgid":1,
     "danwei": "aasscsdasddanwei",
     "renyuanleixing": "医生",
     "watch": 2 ,
@@ -15,6 +16,7 @@
     "outhospital": "2015-12-11"
   },{
     "id" :2,
+    "orgid":12,
     "numtype": "numtype",
     "num": 1231231,
     "name": "张二2",
@@ -28,6 +30,7 @@
     "outhospital": "2015-12-11"
   },{
     "id" :3,
+    "orgid":13,
     "numtype": "numtype",
     "num": 1231231,
     "name": "张二3",
@@ -41,6 +44,7 @@
     "outhospital": "2015-12-11"
   },{
     "id" :4,
+    "orgid":14,
     "numtype": "numtype",
     "num": 1231231,
     "name": "张二4",
@@ -54,6 +58,7 @@
     "outhospital": "2015-12-11"
   },{
     "id" :5,
+    "orgid":15,
     "numtype": "numtype",
     "num": 1231231,
     "name": "张二5",
