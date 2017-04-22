@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人员绑定设备</title>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false" >
+    <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+        <form id="boundForm" method="post" onsubmit="return preventForm()">
+            <table class="grid">
+                <tr>
+                    <td  >人员ID</td>
+                    <td><input id="personneid" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td >可用的设备</td>
+                    <td>
+                        <select id="watchid" >
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+
+                    </td>
+                </tr>
+
+            </table>
+        </form>
+    </div>
+</div>
+<script>
+    //i18n
+
+
+    //ajax complete
+    function ajaxComplate() {
+        progressClose();
+        parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+        parent.$.modalDialog.handler.dialog('close');
+    }
+    var watchid= $.mkUtil.param.watchid;
+    var abledept = $.mkUtil.param.dept;
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+        var id = $.trim($('#personneid').val());
+
+        var watchid =  $("#watchid").find("option:selected").text();
+
+        var param = {id:id,watch:watchid};
+        $.mkUtil.ajax({
+            type:"POST",
+            url:':/client/bound',
+            data:JSON.stringify(param),
+            success:function (data) {
+                if(data.success==true){
+                    console.log('绑定完成');
+                    ajaxComplate();
+                }else {
+                    alert(data.error);
+                }
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+    function initwatchid(){
+        //console.log(watchid.id);
+        $('#personneid').val(watchid.id);
+        for(var i=0;i<abledept.length;i++){
+            var a=i;
+            $("#watchid").append("<option value='+i+'></option>");
+        }
+
+
+    }
+    initwatchid();
+</script>
+
+</body>
+</html>

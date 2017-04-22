@@ -2,9 +2,470 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>人员管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+
 </head>
 <body>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
+        <a id="personneadd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addPersonne()"></a>
+        <a id="personneedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editPersonne()"></a>
+        <a id="personnedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="delSelectedRow()"></a>
+        <a id="tiedept" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="tieequipment()">绑定设置</a>
 
+    </div>
+    <div>
+        <span data-localize="personneNum">证件号:</span>
+        <input id="personneNum" class="easyui-textbox" >
+        <span data-localize="personneName">姓名:</span>
+        <input id="personneName" class="easyui-textbox" >
+        <span data-localize="personneDept">部门:</span>
+        <select id="personneDept" style="width: 70px">
+        </select>
+        <span data-localize="personneAble">状态:</span>
+        <input id="personneAble" class="easyui-textbox" >
+        <span >开始时间:</span>
+        <input id="dd" type="text" >
+        <span >结束时间:</span>
+        <input id="dd2" type="text" >
+
+        <a style="margin-left: 45%" id="personneSearchBtn" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonneByLike()">搜索</a>
+        <a id="personneClearBtn" href="#" class="easyui-linkbutton" iconCls="icon-bin" onclick="clearPersonneForm()">清除</a>
+
+    </div>
+</div>
+<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+    <table id="personne_datagrid"  style="width:100%;">
+
+    </table>
+</div>
 </body>
+
+<script>
+
+    //调试的时候需要设置url
+    remoteBaseUrl = "http://192.168.0.153:8080";
+
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+
+    //i18n
+    $.language.personneNum = {'en':"Num:","zh":"证件号:"};
+    $.language.personneName = {'en':"Name:","zh":"姓名:"};
+    $.language.personneDept = {'en':"Departmen:","zh":"部门:"};
+    $.language.personneAble = {'en':"Able:","zh":"状态:"};
+
+    $.language.personneadd = {'en':"Add","zh":"添加"};
+    $.language.personneedit = {'en':"Edit","zh":"编辑"};
+    $.language.personnedel = {'en':"Delete","zh":"删除"};
+    $.language.personneSearch = {'en':"Search","zh":"搜索"},
+    $.language.personneClear = {'en':"Clear","zh":"清除"}
+
+
+    $("#personneadd").text($.language.i18n("personneadd"));
+    $("#personneedit").text($.language.i18n("personneedit"));
+    $("#personnedel").text($.language.i18n("personnedel"));
+
+
+    $("#personneSearchBtn").text($.language.i18n("personneSearch"));
+    $("#personneClearBtn").text($.language.i18n("personneClear"));
+
+
+    //时间控件
+    $('#dd,#dd2').datebox({
+        required:true
+    });
+    //清除
+    function clearPersonneForm(){
+        $("#personneNum").textbox('clear');
+        $("#personneName").textbox('clear');
+        $("#personneDept").textbox('clear');
+        $("#personneAble").textbox('clear');
+        $("#dd").datebox('clear');
+        $("#dd2").datebox('clear');
+
+
+    }
+    //模糊查询
+
+
+
+    function searchPersonneByLike(){
+        var keystr = $.trim($('#text_username').val()) ;
+        var start =$('#dd').datebox('getValue');
+        var end =$('#dd2').datebox('getValue');
+        var param={ };
+        $.mkUtil.ajax({
+            type:"GET",
+            url:'/client/find',
+            data:JSON.stringify(param),
+            success:function(data){
+                if(data.success==true){
+                    $('#personne_datagrid').datagrid('loadData',data);
+                }
+            },
+            error:function () {
+                console.log('模糊查询 error');
+            }
+
+        });
+    }
+
+    function tieequipment(){
+        if($("#personne_datagrid").datagrid('getSelected')){
+            if (!$("#personne_datagrid").datagrid('getSelected').watch){//要把感叹号去掉的写完之后
+                    //进行解绑，等待确认
+
+
+                //解绑4-22这边需要的一个Boolean值来确认是否已经经过确认
+                var param = {id:watchid.id,sure:s};
+                $.mkUtil.ajax({
+                    type:"POST",
+                    url:':/client/bound',
+                    data:JSON.stringify(param),
+                    success:function (data) {
+                        if(data.success==true){
+                            console.log('绑定完成');
+                            ajaxComplate();
+                        }else {
+                            alert(data.error);
+                        }
+                    },
+                    error:function () {
+                        ajaxComplate();
+                    }
+                });
+
+            }else{
+
+                //查询可用设备返回出一个data
+                var deptarry =[];
+                $.mkUtil.ajax({
+                    type:'GET',
+                    url:'/watch/find',
+                    cache:false,
+                    contentType:'application/json',
+                    success:function(data){
+                        if (data.success==true){
+                           for (var i=0;i<data.data.length;i++){
+                                if(data.data[i].relate==0){
+                                    deptarry.push(data.data[i].id);
+                                }
+                           }
+
+                        }else {
+                            alert('获取可用设备失败！');
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+
+                //打开一个窗
+                console.log($("#personne_datagrid").datagrid('getSelected'));
+                $.mkUtil.param = {watchid:$("#personne_datagrid").datagrid('getSelected'),dept:deptarry};
+                parent.$.modalDialog({
+                    title : '绑定设备',
+                    width : 500,
+                    height : 260,
+                    href : '../template/bound.html',
+                    buttons : [ {
+                        text : 'add',
+                        handler : function() {
+                            parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                            var f = parent.$.modalDialog.handler.find('#boundForm');
+                            f.submit();
+                        }
+                    } ]
+                });
+
+
+            }
+        }else {
+            alert('请选中要进行绑定设置的数据！');
+        }
+    }
+    //获取列表数据
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'../api/personne.json',
+        cache:false,
+        contentType:'application/json',
+        success:function(data){
+            if (data.success==true){
+                initPersonneGrid(data.data);
+            }
+        }
+
+    });
+    //初始化人员列表datagrid
+    function initPersonneGrid (data){
+        $("#personne_datagrid").datagrid({
+//                remoteSort:false,
+            data:data,
+            singleSelect:true,
+            rownumbers:true,
+            fitColumns:true,
+            pagination:true,
+            pageSize:30,
+            toolbar:"#tb",
+            fit:true,
+            columns : [ [{
+                width : '100',
+                title :'ID  ',
+                field : 'id',
+                align : 'center'
+
+            },{
+                    width : '80',
+                    title :'证件类型',
+                    field : 'numtype',
+                    align : 'center'
+
+                  },
+                {
+                width : '100',
+                title :'证件号',
+                field : 'num',
+                align : 'center'
+            },
+                {
+                    width : '100',
+                    title : '姓名',
+                    field : 'name',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'性别',
+                    field : 'sex',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '国籍',
+                    field : 'country',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'状态',
+                    field : 'able',
+                    align : 'center'
+                },
+                {
+                    width : '80',
+                    title : '部门',
+                    field : 'orgid',
+                    align : 'center'
+                }
+                ,
+               {
+                    width : '80',
+                    title : '单位',
+                    field : 'danwei',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '人员类型',
+                    field : 'renyuanleixing',
+                    align : 'center'
+                },
+                {
+                    width : '80',
+                    title : '设备编号',
+                    field : 'watch',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title :'入院时间',
+                    field : 'gohospital',
+                    align : 'center'
+                }
+                ,
+                {
+                    width : '80',
+                    title : '出院时间',
+                    field : 'outhospital',
+                    align : 'center'
+                }
+            ]]
+        });
+        var p = $('#personne_datagrid').datagrid('getPager');
+        p.pagination({
+            showRefresh:false,
+            showPageList:false,
+            onSelectPage:function (page,pageSize) {
+                $.mkUtil.console(page+",...."+pageSize);
+            }
+        });
+
+    }
+    initPersonneGrid([]);
+    //删除所选行数据
+    function delSelectedRow(){
+        //获取所选人员的设备情况
+//        var flaga=Boolean($("#personne_datagrid").datagrid('getSelected').watch);
+//        if(flaga){
+//            alert('不能删除有绑定的人员或是绑定历史的人员！');
+//        }
+//        if($("#personne_datagrid").datagrid('getSelected')&&!flaga){
+//            $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+//                if (flag) {
+//                    var row = $('#personne_datagrid').datagrid('getSelected');
+//                    if (row) {
+//                        var searchid=row.num;
+//                        var param={id:searchid};
+//                        $.mkUtil.ajax({
+//                            type:"DELET",
+//                            url:'/user/delete',
+//                            data:JSON.stringify(param),
+//                            success:function(){
+//                                $('#personne_datagrid').datagrid('deleteRow', index);
+//                                $('#personne_datagrid').datagrid('reload');
+//                            },
+//                            error:function () {
+//                                console.log('personne.html del error');
+//                            }
+//
+//                        });
+//                    }
+//
+//                }
+//            });
+//        }else {
+//            alert('请选中你要删除的行');
+//        }
+        if($("#personne_datagrid").datagrid('getSelected')){
+            //获取所选人员的设备情况
+            var flaga=Boolean($("#personne_datagrid").datagrid('getSelected').watch);
+            if(flaga){
+                alert('不能删除有绑定的人员或是绑定历史的人员！');
+            }else{
+                    $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+                        if (flag) {
+                            var row = $('#personne_datagrid').datagrid('getSelected');
+                            if (row) {
+                                var searchid=row.num;
+                                var param={id:searchid};
+                                $.mkUtil.ajax({
+                                    type:"DELET",
+                                    url:'/user/delete',
+                                    data:JSON.stringify(param),
+                                    success:function(){
+                                        $('#personne_datagrid').datagrid('deleteRow', index);
+                                        $('#personne_datagrid').datagrid('reload');
+                                    },
+                                    error:function () {
+                                        console.log('personne.html del error');
+                                    }
+
+                                });
+                            }
+
+                        }
+                    });
+                }
+        }else{
+            alert('请选中你要删除的行');
+        }
+    }
+    //添加personne
+    function addPersonne() {
+        parent.$.modalDialog({
+            title :'add',
+            width : 550,
+            height : 360,
+            href : '../template/addpersonne2.html',
+            buttons : [ {
+                text : $.language.i18n('personneadd'),
+                handler : function() {
+                    parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#addPersonneForm');
+                    f.submit();
+                }
+            } ]
+        });
+
+    }
+    //bind dept
+
+    function editPersonne() {
+        var choosedatarow = $("#personne_datagrid").datagrid('getSelected');
+        $.mkUtil.param = {choosedatarow:choosedatarow};
+        if(choosedatarow){
+            parent.$.modalDialog({
+            title :'edit',
+            width : 550,
+            height : 360,
+            href : '../template/editpersonne2.html',
+            buttons : [ {
+                text : $.language.i18n('personneadd'),
+                handler : function() {
+                    parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#editPersonneForm');
+                    f.submit();
+                }
+            } ]
+        });}else {
+            alert('请选择你要编辑的行数据！');
+        }
+    }
+    //初始化部门
+    (function getdept() {
+        $.ajax({
+            type:'GET',
+            url:'../api/dept.json',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                if(data.success = true){
+                    for(var i=0;i<data.data.length;i++){
+                        var parent = data.data[i].parent;
+                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+                        data.data[i].text = data.data[i].title;
+                    }
+                    initCombtree(data.data);
+                }
+            }
+        });
+    })();
+    function initCombtree(data) {
+        $("#personneDept").combotree({
+            data:data,
+            parentField : 'parent',
+            lines : true,
+            panelHeight : 'auto',
+            required:true,
+//                        value:${res.parentId},
+            onSelect:function (node) {
+                var parent = node.id;
+                console.log(parent);
+            }
+        })
+    }
+
+
+</script>
+
+
 </html>

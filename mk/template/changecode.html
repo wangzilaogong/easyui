@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>changecode</title>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false" >
+    <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+        <form id="changeCode" method="post" onsubmit="return preventForm()">
+            <table class="grid">
+                <tr>
+                    <td data-localize="code"></td>
+                    <td><input id="code" name="title" type="text" style="height: 25px;width: 200px;" placeholder="请输入部门名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                <tr>
+                    <td data-localize="codeagain"></td>
+                    <td><input id="codeagain" name="title" type="text" style="height: 25px;width: 200px;" placeholder="请输入部门名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+<script>
+    $.language.code = {'en':'new code','zh':'新密码'};
+    $.language.codeagain = {'en':'new code again','zh':'再次输入密码'};
+    $.language.SuperOrg = {'en':'SuperOrg','zh':'顶级部门'};
+    //调用刷新方法 局部刷新
+    $.language.updateDom($("#changeCode"));
+
+    function ajaxComplate() {
+        progressClose();
+        parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+        parent.$.modalDialog.handler.dialog('close');
+    }
+    //根据id查找org
+    var changecodeid = $.mkUtil.param.changecodeid;
+
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+        var code = $('#code').val();
+        var codeagin = $('#codeagain').val();//修改密码
+        var param = {id:changecodeid, password:code};//key value
+        $.mkUtil.ajax({
+            type:"POST",
+            url:'/user/changePassword',
+            data:JSON.stringify(param),
+            success:function () {
+                ajaxComplate();
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+
+</script>
+</body>
+</html>

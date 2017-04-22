@@ -1,4 +1,5 @@
-if ($.fn.pagination){
+if(langStore=='zh'){
+	if ($.fn.pagination){
 	$.fn.pagination.defaults.beforePageText = '第';
 	$.fn.pagination.defaults.afterPageText = '共{pages}页';
 	$.fn.pagination.defaults.displayMsg = '显示{from}到{to},共{total}记录';
@@ -63,4 +64,6 @@ if ($.fn.datetimebox && $.fn.datebox){
 }
 if ($.fn.datetimespinner){
 	$.fn.datetimespinner.defaults.selections = [[0,4],[5,7],[8,10],[11,13],[14,16],[17,19]]
+}
+
 }

@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <title>辅助系统</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link rel="stylesheet" href="">
         <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
         <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
         <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
@@ -20,6 +20,7 @@
                     fileref.setAttribute("type", "text/javascript");
                     fileref.setAttribute("src", filename);
                 } else if (filetype == "css") {
+
                     var fileref = document.createElement('link');
                     fileref.setAttribute("rel", "stylesheet");
                     fileref.setAttribute("type", "text/css");
@@ -36,7 +37,7 @@
     </head>
 
     <body>
-        <div class="body-container" style="width: 100%;height: 100%;position: absolute;overflow: hidden; " >
+        <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
             <div id="main_layout" class="easyui-layout" style="width:100%;height:100%;">
 
                 <!--顶部标题拦-->
@@ -46,19 +47,19 @@
                     <div class="nav_menu" style="float: right;color: white;line-height: 60px;font-size: 15px;margin-right: 15px">
                         <span id="username"></span>|
                         <span onclick="swichLanguage()" data-localize="Chiness"></span> |
-                        <span data-localize="logout"></span>
+                        <span data-localize="logout" onclick="$.mkUtil.logout()"></span>
                     </div>
                 </div>
 
                 <!--左边导航栏-->
-                <div id="main_left_panel" data-options="region:'west',split:true" title="mainnav" style="width:20%;overflow: hidden;">
+                <div id="main_left_panel" data-options="region:'west',split:true" title="mainnav" style="width:20%;">
                     <div id="main_let_accordion" class="easyui-accordion" style="width:100%;height: 100%">
 
                     </div>
                 </div>
 
                 <!--内容区域-->
-                <div data-options="region:'center'" >
+                <div data-options="region:'center'">
 
                     <!--选项卡工具组-->
                     <div id="tab-tools">
@@ -67,14 +68,10 @@
                     </div>
 
                     <!--选项卡-->
-                        <div id="main_tab" class="easyui-tabs" style="width:100%;height:100%;overflow: hidden;" data-options="tools:'#tab-tools'">
-
+                    <div id="main_tab" class="easyui-tabs" style="width:100%;height:100%" data-options="tools:'#tab-tools'">
                     </div>
-
                 </div>
-
 	        </div>
-
         </div>
     </body>
 
@@ -110,7 +107,7 @@
           }else {
               var content;
               if(src){
-                  content =$("<iframe scrolling='no' frameborder='0'  style='width:100%;height:100%; '></iframe>");
+                  content =$("<iframe scrolling='no' frameborder='0'  style='width:100%;height:100%;'></iframe>");
                   content.attr('src',src);
               }else {
                   content = '';
@@ -155,71 +152,55 @@
            //easyui title field 国际化
             if(langStore=='zh'){
                   var main_left_panel_dom = $('#main_left_panel');
-                      var main_left_panel_opts = main_left_panel_dom.panel("options");
+                  var main_left_panel_opts = main_left_panel_dom.panel("options");
                   var main_left_pannel_title = $.language[main_left_panel_opts.title][langStore];
                   main_left_panel_dom.panel({title:main_left_pannel_title});
             }
-
+            $.mkUtil.getUserInfo();
             //获取nav
-           function getNav() {
-               $.ajax({
-                   url:'../api/nav.json',
-                   type:"GET",
-                   cache:false,
-                   dataType:"json",
-                   contentType:"application/json",
-                   success:function (data) {
-                        if(data.success == true){
-                            var items = data.data;
-                            for(var i=0;i<items.length;i++){
-                                var selected = false;
-                                if(i==0){
-                                    selected = true;
-                                }
-                                var item = items[i];
-                                var name;
-                                var treedata;
-                                for(var k in item){
-                                    name = k;
-                                    treedata = item[k];
-                                    break;
-                                }
-                                var temp = [];
-                                for(var j=0;j<treedata.length;j++){
-                                    var dic = {};
-                                    dic.text = $.language.i18n(treedata[j]);
-                                    dic.iconCls = $.language.icon(treedata[j]);
-                                    dic.url = $.language.url(treedata[j]);
-                                    temp.push(dic);
-                                }
-                                var treeId = "accordion_tree_"+i;
-                                var div = $("<div style='padding:10px'></div>");
-                                var ul = $("<ul class='easyui-tree' ></ul>");
-                                ul.attr('id',treeId);
-                                ul.appendTo(div);
-                                $('#main_let_accordion').accordion('add', {
-                                    title : $.language.i18n(name),
-                                    iconCls : $.language.icon(name),
-                                    selected : selected,
-                                    content : div,
-                                });
-                                $("#"+treeId).tree({
-                                    data:temp,
-                                    lines : true,
-                                    onClick:function (node) {
-                                        tabtool.opentab(node.text,node.iconCls,node.url);
-                                    },
-                                })
-                            }
+           (function getNav() {
+               var perms =  $.mkUtil.perms;
+               $.mkUtil.console(perms);
+               for(var i=0;i<perms.dataArr.length;i++){
+                    var selected = i==0;
+                    var item = perms.dataArr[i];
+                    var name;
+                    var treedata;
+                    for(var k in item){
+                        name = k;
+                        treedata = item[k];
+                        break;
+                    }
+                    if(treedata.length==0)continue;
+                    var temp = [];
+                    for(var j=0;j<treedata.length;j++){
+                        var dic = {};
+                        dic.text = $.language.i18n(treedata[j]);
+                        dic.iconCls = $.language.icon(treedata[j]);
+                        dic.url = $.language.url(treedata[j]);
+                        temp.push(dic);
+                    }
+                    var treeId = "accordion_tree_"+i;
+                    var div = $("<div style='padding:10px'></div>");
+                    var ul = $("<ul class='easyui-tree' ></ul>");
+                    ul.attr('id',treeId);
+                    ul.appendTo(div);
+                    $('#main_let_accordion').accordion('add', {
+                        title : $.language.i18n(name),
+                        iconCls : $.language.icon(name),
+                        selected : selected,
+                        content : div
+                    });
+                    $("#"+treeId).tree({
+                        data:temp,
+                        lines : true,
+                        onClick:function (node) {
+                            tabtool.opentab(node.text,node.iconCls,node.url);
                         }
-                   },
-                   error:function (data) {
+                    })
+                }
+           })();
 
-                   }
-               });
-           }
-
-           getNav();
        });
 
     </script>

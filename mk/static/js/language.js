@@ -12,6 +12,7 @@ $.language = {
      department:{"en":"department","zh":"部门管理","icon":"icon-dept2","url":"../template/deptment.html"},
      user:{"en":"user","zh":"用户管理","icon":"icon-dept3","url":"../template/user.html"},
      role:{"en":"role","zh":"角色管理","icon":"icon-role4","url":"../template/role.html"},
+     resource:{"en":"resource",'zh':"资源管理","icon":"icon-quill","url":"../template/resource.html"},
      equipmentManage:{"en":"equipmentManage","zh":"设备管理","icon":"icon-shebei2","url":"../template/equipment.html"},
      personnelManage:{"en":"personnelManage","zh":"人员管理","icon":"icon-person4","url":"../template/personne.html"},
      tieHis:{"en":"tieHis","zh":"绑定历史","icon":"icon-history","url":"../template/tiehis.html"},
@@ -28,7 +29,6 @@ $.language = {
      pushHis:{"en":"pushHis","zh":"推送历史","icon":"icon-msg2","url":"../template/pushhis.html"},
      makePush:{"en":"makePush","zh":"发送推送","icon":"icon-msgsend2","url":"../template/makepush.html"},
      Log:{"en":"Log","zh":"日志","icon":"icon-log4","url":"../template/log.html"},
-     message:{"en":"Message","zh":"消息内容"},
 };
 $.language.i18n = function (str) {
     if($.language[str]){
@@ -36,6 +36,19 @@ $.language.i18n = function (str) {
     }else {
         return str;
     }
+};
+$.language.updateDom = function (dom) {
+          $(dom).find("[data-localize]").each(function() {
+                var elem = $(this);
+                var  localizedValue = $.language[elem.data("localize")][langStore];
+                if (elem.is("input[type=text]") || elem.is("input[type=password]") || elem.is("input[type=email]")) {
+                    elem.attr("placeholder", localizedValue);
+                } else if (elem.is("input[type=button]") || elem.is("input[type=submit]")) {
+                    elem.attr("value", localizedValue);
+                } else {
+                    elem.text(localizedValue);
+                }
+            });
 };
 $.language.icon = function (str) {
     if($.language[str]){

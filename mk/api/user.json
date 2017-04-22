@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "data": [{
+    "userId": null,
+    "username": "wl2",
+    "name": "张二",
+    "orgId": null,
+    "title": "管理组",
+    "type": "管理员",
+    "sex": "女",
+    "able": 1
+  },{
+    "userId": null,
+    "username": "wl2",
+    "name": "张二",
+    "orgId": null,
+    "title":"管理组",
+    "type": "管理员",
+    "sex": "女",
+    "able":1
+  }
+    ]
+}

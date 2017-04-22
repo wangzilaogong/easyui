@@ -2,9 +2,249 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>设备管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+
 </head>
 <body>
+	<div id="tb" style="padding:5px;height:auto">
+		<div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
+			<a id="equipmentadd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addEquipment()"></a>
+			<a id="equipmentedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editEquipment()"></a>
+			<a id="equipmentdel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="deleteEquipment()"></a>
+		</div>
+		<div>
+			<span>分类</span>
+			<select class="easyui-combobox" panelHeight="auto" style="width:100px">
+				<option value="java">Java</option>
+				<option value="c">C</option>
+				<option value="basic">Basic</option>
+				<option value="perl">Perl</option>
+				<option value="python">Python</option>
+			</select>
+             <input id="equipmentCardnum" class="easyui-textbox">
+             <input id="equipmentNum" class="easyui-textbox">
+             <input id="equipmentMac" class="easyui-textbox">
+			 <a id="equipmentSearch" href="#" class="easyui-linkbutton" iconCls="icon-search"></a>
+		</div>
+	</div>
+    <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        	<table id="equipment_datagrid"  style="width:100%;">
+
+            </table>
+    </div>
+
+    <div id="equipmentFormDlg" class="easyui-dialog" closed="true" style="width:500px;height:300px;padding:10px"
+			data-options="
+				modal : true,
+			">
+        <form id="equipmentForm" method="post">
+            <table class="grid">
+                <tr>
+                    <td>角色名称</td>
+                    <input id="roleEditStatus" name="available" type="hidden"  value="1">
+                    <td><input name="role" type="text" placeholder="请输入角色名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                <tr>
+                    <td>角色描述</td>
+                    <td colspan="3"><textarea name="description"></textarea></td>
+                </tr>
+            </table>
+         </form>
+	</div>
 
 </body>
+
+<script>
+
+    //调试的时候需要设置url
+    remoteBaseUrl = "http://192.168.0.153:8080";
+
+    $.mkUtil.console('equipment.html');
+
+    //i18n
+    $.language.equipmentnum = {'en':"EquipmentNum",'zh':'设备编号'};
+    $.language.equipmentCardNum = {'en':"CardNum",'zh':'卡号'};
+    $.language.equipmentMac = {'en':"Mac",'zh':'mac地址'};
+    $.language.equipmentType = {'en':"Type",'zh':'类型'};
+    $.language.equipmentStandard = {'en':"Standard",'zh':'规格'};
+    $.language.equipmentnumColor = {'en':"Color",'zh':'颜色'};
+    $.language.equipmentnumTiedState = {'en':"TiedState",'zh':'绑定状态'};
+    $.language.equipmentPurchaseTime = {'en':"PurchaseTime",'zh':'采购日期'};
+    $.language.equipmentIsRejected = {'en':"IsRejected",'zh':'报废状态'};
+    $.language.equipmentRejectedTime = {'en':"RejectedTime",'zh':'报废时间'};
+    $.language.equipmentOnline = {'en':"Online",'zh':'在线'};
+    $.language.equipmentElectricity = {'en':"Electricity",'zh':'电量'};
+    $.language.equipmentReportTime = {'en':"ReportTime",'zh':'上报时间'};
+    $.language.equipmentScene = {'en':"Scene",'zh':'场景'};
+    $.language.equipmentadd = {'en':"Add","zh":"添加"};
+    $.language.equipmentedit = {'en':"Edit","zh":"编辑"};
+    $.language.equipmentdel = {'en':"Delete","zh":"删除"};
+    $.language.equipmentSearch = {'en':"Search","zh":"搜索"};
+
+    $("#equipmentadd").text($.language.i18n("equipmentadd"));
+    $("#equipmentedit").text($.language.i18n("equipmentedit"));
+    $("#equipmentdel").text($.language.i18n("equipmentdel"));
+    $("#equipmentSearch").text($.language.i18n("equipmentSearch"));
+    $("#equipmentCardnum").textbox({prompt:$.language.i18n("equipmentCardNum")});
+    $("#equipmentNum").textbox({prompt:$.language.i18n("equipmentnum")});
+    $("#equipmentMac").textbox({prompt:$.language.i18n("equipmentMac")});
+
+
+    //添加设备
+    var dlg = $('#equipmentFormDlg');
+    function addEquipment() {
+        dlg.dialog('setTitle',"编辑");
+        dlg.dialog('open');
+    }
+
+    //编辑设备
+    function editEquipment() {
+
+    }
+    //删除设备
+    function deleteEquipment() {
+
+    }
+
+
+
+    $(function () {
+
+        //获取设备
+        function getEquipment() {
+            $.mkUtil.ajax({
+               url:'',
+               type:'GET',
+               contentType:'json',
+               dataTpye: 'application/json',
+               success:function (data) {
+
+               },
+               error:function () {
+
+               }
+            });
+        }
+
+        //initView
+        function initView() {
+            $("#equipment_datagrid").datagrid({
+//                remoteSort:false,
+                singleSelect:true,
+                rownumbers:true,
+                fitColumns:true,
+                pagination:true,
+                pageSize:30,
+                toolbar:"#tb",
+                fit:true,
+                columns : [ [ {
+                    width : '80',
+                    title : $.language.i18n('equipmentnum'),
+                    field : 'loginName'
+                    },
+                    {
+                    width : '100',
+                    title : $.language.i18n('equipmentCardNum'),
+                    field : '1'
+                    }
+                    ,
+                    {
+                    width : '100',
+                    title : $.language.i18n('equipmentMac'),
+                    field : '2'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentType'),
+                    field : '3'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentStandard'),
+                    field : 'name'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentnumColor'),
+                    field : '4'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentnumTiedState'),
+                    field : '5'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentPurchaseTime'),
+                    field : '6'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentIsRejected'),
+                    field : '7'
+                    }
+                     ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentRejectedTime'),
+                    field : '8'
+                    }
+                     ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentOnline'),
+                    field : '9'
+                    }
+                     ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentElectricity'),
+                    field : '10'
+                    }
+                     ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentReportTime'),
+                    field : '11'
+                    }
+                     ,
+                    {
+                    width : '100',
+                    title : $.language.i18n('equipmentScene'),
+                    field : '12'
+                    }
+                ]]
+            });
+            var p = $('#equipment_datagrid').datagrid('getPager');
+            p.pagination({
+                showRefresh:false,
+                showPageList:false,
+                onSelectPage:function (page,pageSize) {
+                                    $.mkUtil.console(page+",...."+pageSize);
+                                }
+            });
+        }
+
+        initView();
+
+    });
+</script>
+
+
 </html>

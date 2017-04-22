@@ -4,43 +4,150 @@
         <meta charset="utf-8">
         <title>部门管理</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link rel="stylesheet" href="">
         <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
         <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
         <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
         <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
         <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
         <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
-        <script type="text/javascript" src="../static/js/extJs.js"></script>
         <script type="text/javascript" src="../static/js/language.js"></script>
-        <script>
-            function loadjscssfile(filename, filetype) {
-                if (filetype == "js") {
-                    var fileref = document.createElement('script');
-                    fileref.setAttribute("type", "text/javascript");
-                    fileref.setAttribute("src", filename);
-                } else if (filetype == "css") {
-
-                    var fileref = document.createElement('link');
-                    fileref.setAttribute("rel", "stylesheet");
-                    fileref.setAttribute("type", "text/css");
-                    fileref.setAttribute("href", filename);
-                }
-                if (typeof fileref != "undefined") {
-                    document.getElementsByTagName("head")[0].appendChild(fileref);
-                }
-            }
-            if(langStore=='zh'){
-                loadjscssfile('../static/libs/easyui/locale/easyui-lang-zh_CN.js', 'js');
-            }
-        </script>
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
     </head>
     <body>
-    <p>fmafma;fmam</p>
+        <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        	<table id="dept_treegrid"  style="width:100%;">
+
+            </table>
+        </div>
+        <div id="deptToolbar" style="display: none;">
+                <a id="deptAddBtn" onclick="addorg()" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-plus'"></a>
+        </div>
+    </body>
+
     <script>
+        var iframereloadfunc = function () {
+           window.location.reload();
+        };
+
+        $.language.deptAdd = {'en':'Add','zh':'添加'};
+        $.language.deptEdit = {'en':'Edit','zh':'修改'};
+        $.language.orgtitle = {'en':'DeptName','zh':'部门名称'};
+        $.language.orgOprate = {'en':'Oprate','zh':'操作'};
+        $.language.deptDelete = {'en':'Delete','zh':'删除'};
+
+        $("#deptAddBtn").text($.language.i18n("deptAdd"));
+
+        //addOrg
+        function addorg() {
+            parent.$.modalDialog({
+                title : $.language.i18n('deptAdd'),
+                width : 500,
+                height : 260,
+                href : '../template/deptadd.html',
+                buttons : [ {
+                    text : $.language.i18n('deptAdd'),
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#orgAddForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }
+
+        //updateOrg
+        function updateOrg(orgid) {
+           $.mkUtil.param = {orgid:orgid};
+           parent.$.modalDialog({
+                title : $.language.i18n('deptEdit'),
+                width : 500,
+                height : 260,
+                href : '../template/deptupdate.html',
+                buttons : [ {
+                    text : $.language.i18n('deptEdit'),
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#orgUpdateForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }
+
+        //deleteOrg
+        function deleleOrg(orgid) {
+
+        }
+
+
         $(function () {
-            window.top.location = '../template/login.html';
+            getdept();
+           //get dept
+           function getdept() {
+               $.mkUtil.ajax({
+               type:'GET',
+               url:'../api/dept.json',
+               dataType:'json',
+               contentType:'application/json',
+               success:function (data) {
+                   if(data.success = true){
+                       for(var i=0;i<data.data.length;i++){
+                           var parent = data.data[i].parent;
+                           data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+                       }
+                       initTreeGrid(data.data);
+                   }
+               }
+            });
+           }
+
+           //action format
+            function fromatter(value, row, index) {
+            var str = '';
+            if($.mkUtil.perms.allitems.orgnization.update){
+              str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'fi-pencil icon-blue\'" onclick="updateOrg(\'{0}\');" >'+$.language.i18n('deptEdit')+'</a>', row.id);
+              str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
+            }
+            if($.mkUtil.perms.allitems.orgnization.delete){
+                str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-del" data-options="plain:true,iconCls:\'fi-x icon-red\'" onclick="deleleOrg(\'{0}\');" >'+$.language.i18n('deptDelete')+'</a>', row.id);
+            }
+            return str;
+        }
+
+           //initView
+           function initTreeGrid(data) {
+                var toolbar;
+                if($.mkUtil.perms.allitems.orgnization.create){
+                    toolbar = $("#deptToolbar")
+                }
+               $("#dept_treegrid").treegrid({
+                        data:data,
+                        idField : 'id',
+                        treeField : 'title',
+                        parentField : 'parent',
+                        rownumbers:true,
+                        fit : true,
+                        fitColumns : false,
+                        border : false,
+                        toolbar:toolbar,
+                        columns : [ [ {
+                            field : 'title',
+                            title : $.language.i18n('orgtitle'),
+                            width : 300
+                            },
+                            {
+                              field : 'action',
+                              title : $.language.i18n('orgOprate'),
+                              width : 200,
+                                formatter : function(value, row, index) {
+                                  return fromatter(value,row,index);
+                                }
+
+                            }
+                        ]]
+               });
+           }
         });
     </script>
-    </body>
 </html>

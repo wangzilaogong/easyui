@@ -440,17 +440,17 @@ $.stringToList = function(value) {
  * 
  * 改变jQuery的AJAX默认属性和方法
  */
-$.ajaxSetup({
-    type : 'POST',
-    error : function(XMLHttpRequest, textStatus, errorThrown) {
-        try {
-            parent.$.messager.progress('close');
-            parent.$.messager.alert('错误', XMLHttpRequest.responseText);
-        } catch (e) {
-            alert(XMLHttpRequest.responseText);
-        }
-    }
-});
+// $.ajaxSetup({
+//     type : 'POST',
+//     error : function(XMLHttpRequest, textStatus, errorThrown) {
+//         try {
+//             parent.$.messager.progress('close');
+//             parent.$.messager.alert('错误', XMLHttpRequest.responseText);
+//         } catch (e) {
+//             alert(XMLHttpRequest.responseText);
+//         }
+//     }
+// });
 
 
 /**
