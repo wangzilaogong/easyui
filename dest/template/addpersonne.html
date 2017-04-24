@@ -7,11 +7,11 @@
 <body>
 <div class="easyui-layout" data-options="fit:true,border:false" >
     <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
-        <form id="personneAddForm" method="post" onsubmit="return preventForm()">
+        <form id="addPersonneForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
                     <td><select id="numtype">
-                    <option >证件类型</option>
+                        <option >证件类型</option>
                         <option>bbbbbb</option>
                         <option>cccccc</option>
                     </select></td>
@@ -44,7 +44,7 @@
                     <td >状态</td>
                     <td>
                         <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
-                        <span >able0</span><input type="radio" name="able" value="2" />
+                        <span >able0</span><input type="radio" name="able" value="0" />
                     </td>
                     <td >人员类型</td>
                     <td>
@@ -65,7 +65,7 @@
                 <tr>
                     <td >单位</td>
                     <td colspan="4" align="right">
-                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:400px; overflow: hidden;" >
+                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:440px; overflow: hidden;" >
                     </td>
 
                 </tr>
@@ -73,46 +73,26 @@
         </form>
     </div>
 </div>
-<script>
-    //i18n
-//    $.language.clear = {"en":"clear","zh":"清除"};
-//    $.language.male = {"en":"man","zh":"男"};
-//    $.language.female = {"en":"felmale","zh":"女"};
-//    $.language.searchbtn={"en":"Search","zh":"搜索"};
-//    $.language.userName={"en":"Name","zh":"用户姓名"};
-//    $.language.operation={"en":"Operation","zh":"操作"};
-//    $.language.state = {"en":"State","zh":"状态"};
-//    $.language.sex = {"en":"Sex","zh":"性别"};
-//    $.language.type = {"en":"Type","zh":"类别"};
-//    $.language.dept = {"en":"Department","zh":"部门"};
-//    $.language.name = {"en":"Name","zh":"姓名"};
-//    $.language.username1 = {"en":"Username","zh":"登录名"};
-//    $.language.add = {"en":"Add ","zh":"添加"};
-//    $.language.edit = {"en":"Edit ","zh":"编辑"};
-//    $.language.delerow = {"en":"delete ","zh":"删除"};
-//    $.language.changecode = {"en":"changecode ","zh":"修改密码"};
-//    $.language.deledlg = {"en":"Do you want to delete it? ","zh":"确定删除吗？"};
-//    $.language.deledlgTitle = {"en":"warn ","zh":"确认删除"};
-//    $.language.role = {"en":"role ","zh":"角色"};
-//    $.language.password18n = {"en":"password ","zh":"密码"};
 
+
+<script>
     //ajax complete
     function ajaxComplate() {
         progressClose();
         parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
         parent.$.modalDialog.handler.dialog('close');
     }
-    //时间控件
+    //初始化data
     $('#dd,#dd2').datebox({
         required:true
     });
-
     //阻止表单提交 改成ajax提交
     function preventForm() {
         var numtype = $('#numtype').find("option:selected").text();
         var num =  $.trim($('#num').val());
         var name = $.trim($('#name').val());
-        var orgId = $('#superdept').combotree('getValue');
+        //var orgId = $('#superdept').combotree('getValue');
+        var renyuanleixing = $("#renyuanleixing").find("option:selected").text();
         var country =  $("#country").find("option:selected").text();
         var sex = $("input[type='radio']:checked").val();
         var watch =  $("#watch").find("option:selected").text();
@@ -124,8 +104,10 @@
 
         /**
          * 这边还要修改字段....以及personne.html处
+         *
+         * 4-21去除orgid部门，以及personne.html的部门字段和搜索时候所需的部门
          * **/
-        var param = {numtype:numtype,num:num,name:name,sex:sex,country:country,watch:watch,org:orgId};
+        var param = {numtype:numtype,num:num,name:name,sex:sex,country:country,watch:watch};
         $.mkUtil.ajax({
             type:"POST",
             url:'/client/add',
@@ -133,7 +115,7 @@
             success:function (data) {
                 if(data.success == true){
                     $('#personne_datagrid').datagrid('appendRow', {"num":"personnenum","name":"name","sex":"sex","country":"country","watch":"watch","org":"org"});
-                     ajaxComplate();
+                    ajaxComplate();
                 }else {
                     alert(data.error);
                 }},
@@ -143,18 +125,7 @@
         });
         return false;
     }
-
-    //获取国家并初始化
-    /*
-    *
-    * */
-    //获取watch设备并且初始化
-    /**
-     *
-     * */
-    var choosedatarow=$.mkUtil.param.choosedatarow;
-    $('#num').val(choosedatarow.num);
-    //获取部门并且初始化
+    //初始化部门树
     (function getdept() {
         $.ajax({
             type:'GET',
@@ -173,6 +144,8 @@
             }
         });
     })();
+
+
     function initCombtree(data) {
         $("#superdept").combotree({
             data:data,
@@ -185,34 +158,9 @@
                 var parent = node.id;
                 console.log(parent);
             }
-        });
+        })
     }
 
-    //获取类别
-//    (function gettype(){
-//        $.mkUtil.ajax({
-//            type:'GET',
-//            url:'../api/user.json',
-//            dataType:'json',
-//            contentType:'application/json',
-//            success:function(data){
-//                if(data.success==true){
-//                    for(var i=0;i<data.data.length;i++){
-////                        var parent = data.data[i].parent;
-////                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
-////                        data.data[i].text = data.data[i].title;
-//                        //获取data给别类
-//                    }
-//                    initType(data.data);
-//                }
-//            }
-//        });
-//    })();
-//    function initType(data){
-//
-
-
 </script>
-
 </body>
 </html>

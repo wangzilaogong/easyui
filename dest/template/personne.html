@@ -22,7 +22,6 @@
         <a id="personneedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editPersonne()"></a>
         <a id="personnedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="delSelectedRow()"></a>
         <a id="tiedept" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="tieequipment()">绑定设置</a>
-
     </div>
     <div>
         <span data-localize="personneNum">证件号:</span>
@@ -395,7 +394,7 @@
             title :'add',
             width : 550,
             height : 360,
-            href : '../template/addpersonne2.html',
+            href : '../template/addpersonne.html',
             buttons : [ {
                 text : $.language.i18n('personneadd'),
                 handler : function() {
@@ -417,7 +416,7 @@
             title :'edit',
             width : 550,
             height : 360,
-            href : '../template/editpersonne2.html',
+            href : '../template/editpersonne.html',
             buttons : [ {
                 text : $.language.i18n('personneadd'),
                 handler : function() {

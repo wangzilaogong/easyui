@@ -2,9 +2,192 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>role</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
+<div >
+    <span>ID:</span></td>
+    <input id="text_ID"  data-options="prompt:'Please enter  ID '"style="width:300px;"  required="required" class="easyui-textbox">
+    <a  id="searchbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px"onclick="searchRoleById()">搜索</a>
+    <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px" onclick="cleartext()">清空</a>
 
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
+        <a id="personneadd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addrole()"></a>
+        <a id="personneedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editrole()"></a>
+        <a id="personnedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="delrole()"></a>
+    </div>
+
+</div>
+<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+    <table id="role_datagrid"  style="width:100%;">
+    </table>
+</div>
+    <script>
+        function searchRoleById(){
+            var  seachrow  = $("#role_datagrid").datagrid('getSelected');
+            var param ={id : seachrow.id};
+            $.mkUtil.ajax({
+                type:"GET",
+                url:'/role/findById',
+                data:JSON.stringify(param),
+                success:function(data){
+                    if(data.success==true){
+                        $('#role_datagrid').datagrid('loadData',data);
+                    }
+                },
+                error:function () {
+                    console.log('查询ById error');
+                }
+
+            });}
+        function  cleartext(){
+            $("#text_ID").textbox('clear');
+        }
+        //add一个role
+        function addrole(){
+            parent.$.modalDialog({
+                title :'add',
+                width : 550,
+                height : 160,
+                href : '../template/addrole.html',
+                buttons : [ {
+                    text : $.language.i18n('personneadd'),
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#addRoleForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }
+        //edit 一个roled
+        function editrole(){
+            var row = $("#role_datagrid").datagrid('getSelected');
+            $.mkUtil.param = {rowdata:row};
+            if(!row){
+                parent.$.modalDialog({
+                    title :'edit',
+                    width : 550,
+                    height : 160,
+                    href : '../template/editrole.html',
+                    buttons : [ {
+                        text : $.language.i18n('personneadd'),
+                        handler : function() {
+                            parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                            var f = parent.$.modalDialog.handler.find('#editRoleForm');
+                            f.submit();
+                        }
+                    } ]
+                });
+
+
+            }else {
+                alert('请选中你要编辑的行数据!');
+            }
+        }
+
+        //del 一个role
+        function delrole(){
+            var delrow  = $("#role_datagrid").datagrid('getSelected');
+            if (delrow){
+                $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+                    if (flag) {
+                        if (delrow) {
+                            var searchid=delrow.id;
+                            var param={id:searchid};
+                            $.mkUtil.ajax({
+                                type:"DELET",
+                                url:'/role/delete',
+                                data:JSON.stringify(param),
+                                success:function(){
+                                    $('#role_datagrid').datagrid('deleteRow', index);
+                                    $('#role_datagrid').datagrid('reload');
+                                },
+                                error:function () {
+                                    console.log('role.html del error');
+                                }
+
+                            });
+                        }
+
+                    }
+                });
+
+            }else {
+                alert('请选中你要删除的行！');
+            }
+        }
+
+        //获取role并且初始化列表
+        $.mkUtil.ajax({
+            type:'GET',
+            url:'/role/findAll',
+            cache:false,
+            contentType:'application/json',
+            success:function(data){
+                if (data.success==true){
+                    initRoleGrid(data.data);
+                }
+            }
+
+        });
+        function initRoleGrid(data){
+            $("#role_datagrid").datagrid({
+//                remoteSort:false,
+                data:data,
+                singleSelect:true,
+                rownumbers:true,
+                fitColumns:true,
+                pagination:true,
+                pageSize:30,
+                toolbar:"#tb",
+                fit:true,
+                columns : [ [{
+                    width : 100,
+                    title :'角色标识',
+                    field : 'id',
+                    align : 'center'
+
+                },{
+                    width : 100,
+                    title :'角色',
+                    field : 'role',
+                    align : 'center'
+                },
+                    {
+                        width : 100,
+                        title :'角色描述',
+                        field : 'description',
+                        align : 'center'
+                    },
+                    {
+                        width : 100,
+                        title : '资源',
+                        field : 'resourceIds',
+                        align : 'center'
+                    },
+                    {
+                        width : 100,
+                        title : 'able',
+                        field : 'able',
+                        align : 'center'
+                    }
+                ]]
+            });
+        }
+        initRoleGrid([]);
+    </script>
 </body>
 </html>
