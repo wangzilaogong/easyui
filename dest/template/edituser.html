@@ -23,28 +23,27 @@
                     </td>
                     <td data-localize="type">类型</td>
                     <td>
-                        <select id="UserEdittype" style="width: 100px" required="required">
+                        <select id="UserEdittype" class="easyui-combobox" data-options="panelHeight:'auto'" style="width: 100px">
+                            <option  value="1">超级管理员</option>
+                            <option value="2">管理员</option>
+                            <option value="3">用户</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td data-localize="sex" >性别</td>
                     <td>
-                        <span  data-localize="male" >男</span><input type="radio" checked="checked" name="Sex" value="male" />
-                        <span  data-localize="female" >女</span><input type="radio" name="Sex" value="female"  data-localize="female"/>
+                        <span  data-localize="male" >男</span><input type="radio" checked="checked" name="Sex" value="男" />
+                        <span  data-localize="female" >女</span><input type="radio" name="Sex" value="女"  data-localize="female"/>
                     </td>
-                    <td data-localize="state" >状态</td>
+                    <td data-localize="role" >角色</td>
                     <td>
-                        <select id="UserEditlock" style="width: 100px">
+                        <select id="UserEditroleIds" class="easyui-combobox" style="width: 100px">
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td data-localize="role" >角色</td>
-                    <td>
-                        <select id="UserEditroleIds" style="width: 100px">
-                        </select>
-                    </td>
+
 
                 </tr>
             </table>
@@ -90,17 +89,19 @@
     function preventForm() {
         var UserEditusername = $.trim($('#UserEditusername').val());
         var UserEditname =$.trim($('#UserEditname').val());
-        var UserEdittype  =  $("#UserEdittype").find("option:selected").text();
+        var UserEdittype  =  $("#UserEdittype").combobox('getText');
         var UserEditsex =  $("input[type='radio']:checked").val();
-        var UserEditroleIds = $("#UserEditroleIds").find("option:selected").text();
+        var UserEditroleIds = $("#UserEditroleIds").combobox('getValue');
         var UserEditorgId = $('#UserEditorgId').combotree('getValue');
-        var UserEditlock = $("#UserEditlock").find("option:selected").text();
-
-        var param = {id:editid,username:UserEditusername,name:UserEditname,type:UserEdittype,sex:UserEditsex,roleIds:UserEditroleIds,orgId:UserEditorgId  ,locked:UserEditlock};
+//        var UserEditlock = $("#UserEditlock").combobox('getText');
+        var param = {id:editid,username:UserEditusername,name:UserEditname,type:UserEdittype,sex:UserEditsex,roleIds:[UserEditroleIds],orgId:UserEditorgId  ,locked:'1',able:'1'};
         //还需要添加很多表格数据
+        console.log(param);
         $.mkUtil.ajax({
             type:"POST",
             url:'/user/update',
+            dataType:'json',
+            contentType:'application/json',
             data:JSON.stringify(param),
             success:function (data) {
                 if(data.success==true){
@@ -109,29 +110,55 @@
                     alert(data.error);
                 }
             },
-            error:function () {
+            error:function() {
                 ajaxComplate();
             }
         });
         return false;
     }
 
-    (function getdept() {
-        $.ajax({
+    (function getUserInfo(){
+        $.mkUtil.ajax({
             type:'GET',
-            url:'../api/dept.json',
+            url:'/user/findByIdOrUsername?id='+editid,
+            success: function (data) {
+                if (data.success==true) {
+                        console.log(data.data);
+
+                    $('#UserEditusername').val(data.data.username);
+                    $('#UserEditname').val(data.data.name);
+                    var type = data.data.type;
+                    $("#UserEdittype").combobox({
+                        "value":type
+                    });
+                    if(data.data.sex =="女"){
+                    $("input[name=Sex][value='女']").attr("checked",true);
+                    }
+//                    $('#UserEditlock').combobox({
+//                        "value":data.data.locked
+//                    });
+                    $('#UserEditroleIds').combobox({
+                        "value":data.data.roleIds
+                    });
+                    $('#UserEditorgId').combotree('setValue',data.data.orgId);
+                }
+                }
+
+        });
+    })();
+
+    //初始化部门树
+    (function getdept() {
+        $.mkUtil.ajax({
+            type:'GET',
+            url:$.webapi.dept.findAll,
             dataType:'json',
             contentType:'application/json',
             success:function (data) {
                 if(data.success = true){
-                    data.data.push({"title":$.language.i18n('SuperOrg'),'parent':'0','id':'0'});
                     for(var i=0;i<data.data.length;i++){
-                        var id = data.data[i].id;
-                        if(id==orgid){
-                            $("#depttitle").val(data.data[i].title);
-                        }
                         var parent = data.data[i].parent;
-                        data.data[i].iconCls = parent=='0'?'icon-dept2':'icon-dept3';
+                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
                         data.data[i].text = data.data[i].title;
                     }
                     initCombtree(data.data);
@@ -139,34 +166,6 @@
             }
         });
     })();
-    (function getUserInfo(){
-        $.mkUtil.ajax({
-            type:'GET',
-            url:'/user/findById',
-            dataType:'json',
-            contentType:'application/json',
-            success: function (data) {
-                if (data.success==true) {
-                    for (var i = 0; i < data.data.length; i++) {
-                        if (data.data[i].id ==editid ) {
-//                            console.log('0000');
-                            $("#UserEditusername").val(data.data[i].username);
-                            $('#UserEditname').val(data.data[i].name);
-                            $("#UserEdittype").val(data.data[i].type);
-                            var UserEditsex =  $("input[type='radio']:checked").val();
-                            var UserEditroleIds = $("#UserEditroleIds").find("option:selected").text();
-                            var UserEditorgId = $('#UserEditorgId').combotree('getValue');
-                            var UserEditlock = $("#UserEditlock").find("option:selected").text();
-
-
-//
-                        }
-                    }
-                }
-            }
-        });
-    })();
-
     function initCombtree(data) {
         $("#UserEditorgId").combotree({
             data:data,
@@ -174,12 +173,40 @@
             lines : true,
             panelHeight : 'auto',
             required:true,
-            value:orgid,
-//                        onSelect:function (node) {
-//                            var parent = node.id;
-//                            console.log(parent);
-//                        }
-        })
+            panelHeight:'auto'
+//                        value:${res.parentId},
+//            onSelect:function (node) {
+//                var parent = node.id;
+//                console.log(parent);
+//            }
+        });
+    }
+
+    var rolearry= [];
+    //获取角色combobox
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/role/findAll',
+        cache:false,
+        contentType:'application/json',
+        success:function(data){
+            if (data.success==true){
+                for(var i = 0; i<data.data.length;i++){
+                    rolearry.push({"id":data.data[i].id,"text":data.data[i].role});
+                }
+                initRoleCombtree();
+            }
+        }
+    });
+
+    function initRoleCombtree(data) {
+        $("#UserEditroleIds").combobox({
+            data:rolearry,
+            valueField:'id',
+            textField:'text',
+            required:true,
+            panelHeight:'auto'
+        });
     }
 </script>
 </body>

@@ -13,6 +13,9 @@
         <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
         <script type="text/javascript" src="../static/js/language.js"></script>
         <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+        <script type="text/javascript" src="../static/js/webapi.js"></script>
+
     </head>
     <body>
         <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
@@ -35,7 +38,11 @@
         $.language.orgtitle = {'en':'DeptName','zh':'部门名称'};
         $.language.orgOprate = {'en':'Oprate','zh':'操作'};
         $.language.deptDelete = {'en':'Delete','zh':'删除'};
-
+        $.language.deptOk = {'en':'Ok','zh':'确认'};
+        $.language.deptCancle = {'en':'Cancel','zh':'取消'};
+        $.language.deptTip = {'en':'Tip','zh':'提示'};
+        $.language.deptTipDelete = {'en':'Do you want to delete this department','zh':'确认删除！'};
+        $.language.deptTipdel = {'en':'There may be a sub item under the project, whether it is deleted together','zh':'项目下面可能存在子项目，是否也一起删除'};
         $("#deptAddBtn").text($.language.i18n("deptAdd"));
 
         //addOrg
@@ -58,6 +65,7 @@
 
         //updateOrg
         function updateOrg(orgid) {
+
            $.mkUtil.param = {orgid:orgid};
            parent.$.modalDialog({
                 title : $.language.i18n('deptEdit'),
@@ -77,17 +85,40 @@
 
         //deleteOrg
         function deleleOrg(orgid) {
+            var row = $("#dept_treegrid").treegrid('find',orgid);
+            if (row!=null) {
+                var showmsg = "";
+                if (row.parent == 0) {// 下面有子节点
+                    showmsg = $.language.i18n('deptTipdel');
+                } else {
+                    showmsg =$.language.i18n('deptTipDelete');
+                }
+                $.messager.confirm($.language.i18n('deptTip'), showmsg, function(r) {
+                    if (r) {
+                        $("#dept_treegrid").treegrid('remove', orgid);
+                        $.mkUtil.ajax({
+                            type:"DELETE",
+                            url : $.webapi.dept.deleteDept+'/?id='+orgid,
+                            success : function(data) {
+                                if (data.success) {
 
+                                }
+                            }
+                        });
+                    }
+                });
+            }
         }
 
 
         $(function () {
             getdept();
            //get dept
+            console.log($.webapi.dept.findAll);
            function getdept() {
                $.mkUtil.ajax({
                type:'GET',
-               url:'../api/dept.json',
+               url:$.webapi.dept.findAll,
                dataType:'json',
                contentType:'application/json',
                success:function (data) {

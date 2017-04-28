@@ -1,4 +1,4 @@
-var apidebug = true;
+var apidebug = false;
 $.webapi = {
     auth:{
 
@@ -28,9 +28,41 @@ $.webapi = {
         //查询所有部门
         findAll:apidebug?'../api/dept.json':'/org/find',
         //删除部门
-        deleteDept:'org/delete'
+        deleteDept:'/org/delete',
+        //更新部门
+        updateDept:'/org/update'
     },
     equipment:{
+        //添加设备
+        addEquipment:'/watch/add',
+        //查询所有设备
+        findAll:apidebug?'../api/equipment.json':'/watch/findAll',
+        //删除设备
+        deleteEquipment:'/watch/delete',
+        //编辑设备
+        updateEquipment:'/watch/update',
+        //根据卡号，编号，MAC地址模糊查询
+        findEquipment:apidebug?'../api/equipment.json':'/watch/findAll',
+        //根据id查询设备
+        findEquipmentById:apidebug?'../api/equipment.json':'/watch/getById',
+        //分页
+        paginationEquipment:'/watch/findAllByPage'
+    },
+    color:{
+        //查找颜色(包括条件查询和无条件查询)
+        findColor:apidebug?'../api/equipment.json':'/color/find'
+    },
+    scene:{
+        //添加设备场景
+        addEquipmentScene:'/scene/add',
+        //编辑设备场景
+        updateEquipmentScene:'/scene/update',
+        //删除设备场景
+        deleteEquipmentScene:'/scene/delete',
+        //查询所有场景
+        findEquipmentScene:'/scene/findAll',
+        //根据id查询场景
+        findEquipmentSceneById:'/scene/get'
 
     }
 

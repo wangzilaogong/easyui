@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="utf-8">
+        <title>辅助系统</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
+       <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+        <table id="color_datagrid">
+
+        </table>
+        <div style="display: none">
+            <div id="color_tb">
+                <a id="color_add_btn" onclick="addColor()" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-addd3',plain:true"></a>
+            </div>
+        </div>
+</body>
+
+<script>
+     var iframereloadfunc = function () {
+           window.location.reload();
+        };
+
+    //i18n
+    $.language.colortitle = {'en':'Color Title','zh':'颜色名称'};
+    $.language.colorAction = {'en':'Action','zh':'操作'};
+    $.language.colorRed = {'en':'Red','zh':'红'};
+    $.language.colorBlue = {'en':'Blue','zh':'蓝'};
+    $.language.colorGreen = {'en':'Green','zh':'绿'};
+    $.language.coloredit = {'en':'Edit','zh':'编辑'};
+    $.language.coloradd = {'en':'Add','zh':'添加'};
+    $.language.colordelete = {'en':'Delete','zh':'删除'};
+    $.language.colordeletetip = {'en':'Tip','zh':'提示'};
+    $.language.colordeletemsg = {'en':'Sure to delete this color?','zh':'是否确认删除该颜色?'};
+
+    var title = $.language.i18n("colortitle");
+    var red = $.language.i18n("colorRed");
+    var blue = $.language.i18n("colorBlue");
+    var green = $.language.i18n("colorGreen");
+    var action = $.language.i18n("colorAction");
+    var edit = $.language.i18n("coloredit");
+    var add = $.language.i18n("coloradd");
+    var deletetext = $.language.i18n("colordelete");
+    var tip = $.language.i18n("colordeletetip");
+    var showms = $.language.i18n('colordeletemsg');
+
+    $('#color_add_btn').linkbutton({
+        text: add
+    });
+
+    //获取所有颜色
+     (function getAllColor() {
+        $.mkUtil.ajax({
+            type:"GET",
+            url:"/color/find?page=1&pagesize=1000",
+            contentType:"application/json",
+            dataType:'json',
+            success:function (data) {
+                if(data.success == true){
+                    initDatagrid(data.data);
+                }
+            }
+        })
+    })();
+
+    //initView
+    var createper = $.mkUtil.perms.allitems.color.create;
+    var updateper = $.mkUtil.perms.allitems.color.update;
+    var deleteper = $.mkUtil.perms.allitems.color.delete;
+    var toolbar = createper?$("#color_tb"):'';
+    function initDatagrid(data) {
+        $("#color_datagrid").datagrid({
+           data:data,
+            columns:[[
+                {field:'title',title:title,width:100},
+                {field:'red',title:red,width:100},
+                {field:'green',title:green,width:100},
+                {field:'blue',title:blue,width:100},
+                {field:'action',title:action,width:100,
+                			formatter: function(value,row,index) {
+                                var str = '';
+                                if(updateper){
+                                    str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="editcolor(\'{0}\');" >'+edit+'</a>', row.id)
+                                }
+                                if(deleteper){
+                                    str = str + '&nbsp;&nbsp;|&nbsp;&nbsp;';
+                                    str = str + $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="deleteColor(\'{0}\');" >'+deletetext+'</a>', row.id)
+                                }
+                                return str;
+                            }
+                }
+            ]],
+            rownumbers:true,
+            toolbar:toolbar
+        });
+    }
+
+    //editcolor
+    function editcolor(colorid) {
+        $.mkUtil.param = {colorid:colorid};
+           parent.$.modalDialog({
+                title : edit,
+                width : 500,
+                height : 260,
+                href : '../template/editcolor.html',
+                buttons : [ {
+                    text : edit,
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#colorUpdateForm');
+                        f.submit();
+                    }
+                } ]
+            });
+    }
+
+    //deleteColor
+    function deleteColor(colorid) {
+        $.messager.confirm(tip, showms, function(r) {
+                    if (r) {
+                        $.mkUtil.ajax({
+                            type:"DELETE",
+                            url : '/color/delete'+'/?id='+colorid,
+                            success : function(data) {
+                                if (data.success) {
+                                    iframereloadfunc();
+                                }
+                            }
+                        });
+                    }
+        });
+    }
+
+    //addColor
+    function addColor() {
+            parent.$.modalDialog({
+                title : add,
+                width : 500,
+                height : 260,
+                href : '../template/addcolor.html',
+                buttons : [ {
+                    text : add,
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#colorAddForm');
+                        f.submit();
+                    }
+                } ]
+            });
+    }
+
+</script>
+</html>

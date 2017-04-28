@@ -2,9 +2,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>makepush</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
+<div class="easyui-layout" fit="true" >
+    <div data-options="region:'north'" style="height:30px ">
+        <span>部门</span>
+        <select id="superdept" style="width: 100px">
+        </select>
+        <span>人员</span>
+        <select id="personne" style="width: 100px">
+        </select>
+        <span>设备编号</span>
+        <select id="equipment" style="width: 100px">
+        </select>
+    </div>
+    <div data-options="region:'center',title:'消息内容'" style="overflow: hidden;">
+        <textarea  id="conditionId" name="condition" class="easyui-validatebox" data-options="required:true" style="width: 100%; height: 100%;" autofocus>
+        </textarea>
+    </div>
 
+    <div data-options="region:'south',split:true" title="发送方式" style="height:15%;">
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-drawer'" onclick="">选择模板</a>
+        <a href="javascript:void(0)" id="sendNow" class="easyui-linkbutton" data-options="iconCls:'icon-envelop'" onclick="sendNow()">即刻发送</a>
+        <a href="javascript:void(0)" id="sendLater" class="easyui-linkbutton" data-options="iconCls:'icon-clock'" onclick="sendLater()">定时发送</a>
+    </div>
+    <!--Dialog-->
+    <div id="dialog">
+        <span style="margin-left: 20px; ">发送时间:</span>
+        <input id="dd"  type="text">
+    </div>
+</div>
+<script>
+    /*即刻发送*/
+    function sendNow(){
+        $.messager.confirm('即刻发送','确认是否现在发送？', function (flag) {
+            if (flag) {
+                alert('发送成功！');
+            }
+        });
+    }
+    /*定时发送*/
+    function sendLater(){
+        /*dialog*/
+        $("#dialog").dialog({
+            title:'选择时间',
+            modal:'true',
+            width:400,
+            height:100,
+            buttons : [{
+                text : '保存',
+                iconCls : 'icon-checkmark',
+                handler : function () {
+                    alert('成功！');
+                    $('#dialog').dialog('close');
+                }
+            },{
+                text:'取消',
+                iconCls:'icon-cross',
+                handler: function () {
+                    $('#dialog').dialog('close');
+                }
+            }]
+        });
+
+        $('#dd').datetimebox({
+            required:true
+        });
+    }
+    //部门的初始化
+    (function getdept() {
+        $.ajax({
+            type:'GET',
+            url:'../api/dept.json',
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                if(data.success = true){
+                    for(var i=0;i<data.data.length;i++){
+                        var parent = data.data[i].parent;
+                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+                        data.data[i].text = data.data[i].title;
+                    }
+                    initCombtree(data.data);
+                }
+            }
+        });
+    })();
+
+    function initCombtree(data) {
+        $("#superdept").combotree({
+            data:data,
+            parentField : 'parent',
+            lines : true,
+            panelHeight : 'auto',
+            required:true,
+//                        value:${res.parentId},
+            onSelect:function (node) {
+                var parent = node.id;
+                console.log(parent);
+            }
+        })
+    }
+
+    //初始化人员
+    $.mkUtil.ajax({
+            type:'GET',
+            url:'/client/find',
+            dataType:'json',
+            contentType:'application/json',
+            success: function (data) {
+                if (data.success == true){
+                    initPeronne(data.data);
+                }
+
+            }
+        });
+    function initPeronne(data){
+        $('#personne').combobox({
+            valueField:'id',
+            textField:'name'
+
+        });
+
+    }
+
+    //初始化设备编号
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/watch/find',
+        dataType:'json',
+        contentType:'application/json',
+        success: function (data) {
+            if (data.success == true){
+                initEquipment(data.data);
+            }
+
+        }
+    });
+    function initEquipment(data){
+        $('#personne').combobox({
+            valueField:'id',
+            textField:'num'
+        });
+
+    }
+
+</script>
 </body>
 </html>

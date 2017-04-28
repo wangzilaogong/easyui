@@ -11,9 +11,9 @@
             <table class="grid">
                 <tr>
                     <td data-localize="username1" >登录名</td>
-                    <td><input id="username" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><input id="loginusername" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" ></td>
                     <td data-localize="password18n">登录密码</td>
-                    <td><input id="password" name="name" type="password" style="height: 25px;width: 100px;" placeholder="请输入密码" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><input id="password" name="name" type="password" style="height: 25px;width: 100px;" placeholder="请输入密码" class="easyui-validatebox span2" data-options="required:true" ></td>
                 </tr>
                 <tr>
                     <td data-localize="dept">所属部门</td>
@@ -33,14 +33,17 @@
                     <td data-localize="type">类型</td>
                     <td>
                         <select id="type" style="width: 100px">
+                            <option >超级管理员</option>
+                            <option >管理员</option>
+                            <option >用户</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td data-localize="role">角色</td>
                     <td>
-                        <select id="roleIds" style="width: 100px">
-                        </select>
+                        <input id="roleIds" style="width: 100px">
+                        </input>
                     </td>
                 </tr>
             </table>
@@ -49,7 +52,7 @@
 </div>
 <script>
     //i18n
-     $.language.clear = {"en":"clear","zh":"清除"};
+    $.language.clear = {"en":"clear","zh":"清除"};
     $.language.male = {"en":"man","zh":"男"};
     $.language.female = {"en":"felmale","zh":"女"};
     $.language.searchbtn={"en":"Search","zh":"搜索"};
@@ -79,67 +82,34 @@
 
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var username = $.trim($('#username').val());
+        var username = $('#loginusername').val();
         var password = $('#password').val();
         var orgId = $('#superdept').combotree('getValue');
         var name = $.trim($('#name').val());
         var type =  $("#type").find("option:selected").text();
         var sex = $("input[type='radio']:checked").val();
-        var roleIds = $("#roleIds").find("option:selected").text();
+        var roleIds =  $("#roleIds").combotree("getValue")
 
-        var param = {username:username,password:password,orgId:orgId,name:name,type:type,sex:sex,roleIds:roleIds};
+        var param = {username:username,password:password,orgId:orgId,name:name,type:type,sex:sex,roleIds:[roleIds]};
+        console.log(param);
         $.mkUtil.ajax({
             type:"POST",
             url:'/user/addUser',
+            dataType:'json',
+            contentType:'application/json',
             data:JSON.stringify(param),
             success:function (data) {
                 if(data.success==true){
                     ajaxComplate();
                 }else {
-                    alert(data.error);
                 }
             },
             error:function () {
                 ajaxComplate();
+
             }
         });
         return false;
-    }
-
-
-    (function getdept() {
-        $.ajax({
-            type:'GET',
-            url:'../api/dept.json',
-            dataType:'json',
-            contentType:'application/json',
-            success:function (data) {
-                if(data.success = true){
-                    for(var i=0;i<data.data.length;i++){
-                        var parent = data.data[i].parent;
-                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
-                        data.data[i].text = data.data[i].title;
-                    }
-                    initCombtree(data.data);
-                }
-            }
-        });
-    })();
-
-
-    function initCombtree(data) {
-        $("#superdept").combotree({
-            data:data,
-            parentField : 'parent',
-            lines : true,
-            panelHeight : 'auto',
-            required:true,
-//                        value:${res.parentId},
-            onSelect:function (node) {
-                var parent = node.id;
-                console.log(parent);
-            }
-        })
     }
 
     //获取类别
@@ -163,7 +133,6 @@
         });
     })();
     function initType(data){
-
     }
 
     //获取状态
@@ -189,7 +158,66 @@
     function initstate(data){
     }
 
+    //初始化部门树
+    (function getdept() {
+        $.mkUtil.ajax({
+            type:'GET',
+            url:$.webapi.dept.findAll,
+            dataType:'json',
+            contentType:'application/json',
+            success:function (data) {
+                if(data.success = true){
+                    for(var i=0;i<data.data.length;i++){
+                        var parent = data.data[i].parent;
+                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+                        data.data[i].text = data.data[i].title;
+                    }
+                    initCombtree(data.data);
+                }
+            }
+        });
+    })();
 
+var rolearry= [];
+    function initCombtree(data) {
+        $("#superdept").combotree({
+            data:data,
+            parentField : 'parent',
+            lines : true,
+            panelHeight : 'auto',
+            required:true,
+//                        value:${res.parentId},
+            onSelect:function (node) {
+                var parent = node.id;
+                console.log(parent);
+            }
+        })
+    }
+    //获取角色
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/role/findAll',
+        cache:false,
+        contentType:'application/json',
+        success:function(data){
+            if (data.success==true){
+                for(var i = 0; i<data.data.length;i++){
+                    rolearry.push({"id":data.data[i].id,"text":data.data[i].role});
+                }
+                initRoleCombtree();
+            }
+        }
+    });
+
+    function initRoleCombtree(data) {
+        $("#roleIds").combobox({
+            data:rolearry,
+            valueField:'id',
+            textField:'text',
+            required:true,
+            panelHeight:'auto'
+        });
+    }
 </script>
 
 </body>

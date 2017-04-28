@@ -2,9 +2,328 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>设备管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/mkmap.min.js"></script>
 </head>
 <body>
+     <div  class="body-container" style="width: 100%;height: 100%;position: absolute;">
+         <div id="contanier_layput" class="easyui-layout" style="width:100%;height:100%;">
+            <div id="right_menu" data-options="region:'east',split:true" title="网关" style="width:300px;">
+                    <table id="right_menu_datagrid" class="easyui-datagrid" data-options="rownumbers:true,toolbar:'#right_menu_tb',singleSelect:true,">
+                        <thead>
+                            <tr>
+                                <th width="30%" data-options="field:'mac',editor :'text'">Mac</th>
+                                <th  width="70%" data-options="field:'cordinate',editor :'text' ">Cordinate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
+                        </tbody>
+                    </table>
+                    <div id="right_menu_tb">
+                        <a id="mapGridAdd" href="#" onclick="addWifiEquip()" class="easyui-linkbutton" data-options="iconCls:'icon-addd3',plain:true"></a>
+                        <a id="mapGridEdit" href="#" onclick="editWifiEquip()" class="easyui-linkbutton" data-options="iconCls:'icon-edit12',plain:true"></a>
+                        <a id="mapGridDelete" href="#" onclick="deleteWifiEquip()" class="easyui-linkbutton" data-options="iconCls:'icon-dell6',plain:true"></a>
+                        <a id="mapGridSave" href="#" onclick="saveWifiEquip()" class="easyui-linkbutton" data-options="iconCls:'icon-checkbox-checked',plain:true"></a>
+                        <a id="mapGridCancel" href="#" onclick="cancelWifiEquip()" class="easyui-linkbutton" data-options="iconCls:'icon-cancel-circle',plain:true"></a>
+                    </div>
+            </div>
+            <div data-options="region:'center'" style="overflow: hidden">
+                <div id="map_container">
+
+                </div>
+            </div>
+        </div>
+     </div>
 </body>
+    <script>
+        var CURRENT_SElECTED = -1;
+        var ROW_LENGTH = 0;
+        var isAddFlag = false;
+
+         $.language.mapGridadd = {'en':"Add","zh":"添加"};
+         $.language.mapGridedit = {'en':"Edit","zh":"编辑"};
+         $.language.mapGriddel = {'en':"Delete","zh":"删除"};
+         $.language.mapGridSave = {'en':"Save","zh":"保存"};
+         $.language.mapGridCancel = {'en':"Cancel","zh":"取消"};
+
+
+         $("#mapGridAdd").text($.language.i18n("mapGridadd"));
+         $("#mapGridEdit").text($.language.i18n("mapGridedit"));
+         $("#mapGridDelete").text($.language.i18n("mapGriddel"));
+         $("#mapGridSave").text($.language.i18n("mapGridSave"));
+         $("#mapGridCancel").text($.language.i18n("mapGridCancel"));
+
+        $(function () {
+            $('#contanier_layput').layout('collapse','east');
+            $('#right_menu_datagrid').datagrid({
+                onClickRow:function () {
+                    cancelWifiEquip();
+                },
+                onAfterEdit:function (rowIndex, rowData, changes) {
+                    for( var k in rowData){
+                        if(rowData[k] == ''){
+                            if(rowData.id){
+                                $('#right_menu_datagrid').datagrid('updateRow',{
+                                                        index: rowIndex,
+                                                        row: CURRENT_SElECTED
+                                                    });
+                            }else {
+                                $('#right_menu_datagrid').datagrid('deleteRow',rowIndex);
+                                ROW_LENGTH--;
+                                isAddFlag = false;
+                            }
+
+                            return;
+                        }
+                    }
+                    if(rowData.id){
+                        if(CURRENT_SElECTED == -1) return;
+                        //update
+                        var param = {id:rowData.id,mac:rowData.mac,cordinate:rowData.cordinate};
+                        updateWifiEquipAjax(param);
+                        console.log('update');
+                    }else {
+                        //add
+                        var param = {mac:rowData.mac,cordinate:rowData.cordinate};
+                        addWifiEquipAjax(param);
+                        isAddFlag = false;
+                        console.log('add');
+                    }
+                }
+            });
+        });
+
+        //fix edit with cordinate
+        function getCordinateToEditor(position) {
+            if(!isAddFlag) return;
+            var editors = $('#right_menu_datagrid').datagrid('getEditors', ROW_LENGTH-1);
+            if(!editors) return;
+            for(var i =0;i<editors.length;i++){
+                if(editors[i].field=='cordinate'){
+                    editors[i].target.val(position.x+','+position.y);
+                    break;
+                }
+            }
+            console.log(editors);
+        }
+
+        //getWifiEquip
+        function getWifiEquip() {
+            $.mkUtil.ajax({
+               type:'GET',
+               url:'../api/wifiequip.json',
+               success:function (data) {
+                    if(data.success = true){
+                        var index = 0;
+                        data.data.forEach(function (item) {
+                           item.index = index++;
+                        });
+                        initDatagrid(data.data);
+                    }
+               }
+            });
+        }
+
+        //update
+        function updateWifiEquipAjax(param) {
+             $.mkUtil.ajax({
+               type:'POST',
+               url:'../api/wifiequip.json',
+               data:JSON.stringify(param),
+               success:function (data) {
+                    if(data.success = true){
+                       //刷新
+//                        getWifiEquip();
+                    }
+               }
+            });
+        }
+
+        //delete
+         function deleteWifiEquipAjax(id) {
+             $.mkUtil.ajax({
+               type:'POST',
+               url:'../api/wifiequip.json',
+               data:JSON.stringify(param),
+               success:function (data) {
+                    if(data.success = true){
+                       //刷新
+                        getWifiEquip();
+                    }
+               }
+            });
+        }
+
+        //add
+         function addWifiEquipAjax(param) {
+             $.mkUtil.ajax({
+               type:'POST',
+               url:'../api/wifiequip.json',
+               data:JSON.stringify(param),
+               success:function (data) {
+                    if(data.success = true){
+                       //刷新
+                        getWifiEquip();
+                    }
+               }
+            });
+        }
+
+        //initView
+        function initDatagrid(data) {
+            ROW_LENGTH = data.length;
+            $('#right_menu_datagrid').datagrid({
+                data:data
+            });
+            initMapMarks(data);
+        }
+        //initMap
+        function initMapMarks(data) {
+            console.log(data);
+            for(var i=0;i<data.length;i++){
+                var item = data[i];
+                var j = item.cordinate.split(',');
+                console.log(j);
+                if(j.length<2){
+
+                }else {
+                    var x = j[0].startWith('-');
+                    var y = j[1].startWith('-');
+                    if(x){
+                        x = -Number(j[0].replace('-',''));
+                    }else {
+                        x = Number(j[0]);
+                    }
+                     if(y){
+                        y = -Number(j[1].replace('-',''));
+                    }else {
+                        y = Number(j[1]);
+                    }
+                    console.log(x);
+                    var positon = {x:x,y:y,z:0};
+                    console.log(positon);
+                    $.mkMap.updateOrAddMark('../static/images/women.png',item.mac,'fjafjafj',positon,{width:22,height:22});
+                }
+            }
+        };
+
+        //getSeleted
+        function getSelected(index) {
+            var selected = $('#right_menu_datagrid').datagrid('getSelected');
+            if(selected==null||selected=='null') return false;
+            return selected;
+        }
+
+        //add
+         function addWifiEquip() {
+            if(CURRENT_SElECTED!=-1) return;
+            if(isAddFlag) return;
+            isAddFlag = true;
+            var dom = $('#right_menu_datagrid');
+            dom.datagrid('appendRow',{
+                    index:ROW_LENGTH++,
+                    mac: '',
+                    cordinate: ''
+            });
+            dom.datagrid('beginEdit',ROW_LENGTH-1);
+         }
+        //edit
+        function editWifiEquip() {
+            if(isAddFlag) return;
+            var selected = getSelected();
+            if(!selected) return;
+            var dic = {};
+            for(var k in selected){
+                dic[k] = selected[k];
+            }
+            CURRENT_SElECTED = dic;
+            $('#right_menu_datagrid').datagrid('beginEdit',selected.index);
+        }
+
+        //delete
+        function deleteWifiEquip() {
+            if(isAddFlag) return;
+            var selected = getSelected();
+            if(!selected) return;
+            deleteWifiEquipAjax(selected.id);
+        }
+
+        //save
+        function saveWifiEquip() {
+            if(isAddFlag){
+                $('#right_menu_datagrid').datagrid('endEdit', ROW_LENGTH-1);
+                return;
+            }
+            $('#right_menu_datagrid').datagrid('endEdit', CURRENT_SElECTED.index);
+            CURRENT_SElECTED = -1;
+        }
+
+        //cancel
+        function cancelWifiEquip() {
+            if(isAddFlag){
+                $('#right_menu_datagrid').datagrid('deleteRow',ROW_LENGTH-1);
+                isAddFlag = false;
+                ROW_LENGTH--;
+                return;
+            }
+            if(CURRENT_SElECTED == -1) return;
+            $('#right_menu_datagrid').datagrid('cancelEdit', CURRENT_SElECTED.index);
+            CURRENT_SElECTED = -1;
+        }
+
+         $(function () {
+        /**
+         * objurl
+         * planeWidth
+         * planeHeight
+         * planeOrigin
+         * planeColor
+         * neerFov
+         * farFov
+         * defaultScale
+         * canTransform false
+         * canDrag
+         * planeName
+         * container
+         * success
+         * @param opts
+         */
+        var opts = {
+            objurl:'../static/mkmap/chuan.obj',
+            planeWidth:100,
+            planeHeight:100,
+            planeOrigin:{x:0,y:0},
+            planeColor:0x9999ff,
+            neerFov:10,
+            farFov:100,
+            defaultFov:35,
+            canTransform:false,
+            canDrag:true,
+            planeName:'object_6',
+            container:document.getElementById("map_container")
+        };
+        opts.success = function () {
+            getWifiEquip();
+           console.log('success');
+        };
+       $.mkMap.map(opts);
+       $.mkMap.addEvent('click',function (intersects) {
+           if(intersects.length==0)return;
+           getCordinateToEditor(intersects[0].point);
+          intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
+//          $.mkMap.updateOrAddMark('../static/images/women.png','一个人好人','wifi3'+Math.random(1000),intersects[0].point,{width:10,height:10});
+       });
+    });
+    </script>
 </html>

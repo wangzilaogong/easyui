@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加颜色</title>
+</head>
+<body>
+
+    <div class="easyui-layout" data-options="fit:true,border:false" >
+        <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+            <form id="colorAddForm" method="post" onsubmit="return preventForm()">
+                <table class="grid">
+                    <tr>
+                        <td data-localize="colortitle"></td>
+                        <td>
+                            <input id="colortitle" data-localize="color_title" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input color title" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-localize="colorred"></td>
+                        <td>
+                            <input id="color_red" data-localize="color_red" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input red" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-localize="colorgreen"></td>
+                        <td>
+                            <input id="color_green" data-localize="color_green" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input green" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-localize="colorblue"></td>
+                        <td>
+                            <input id="color_blue" data-localize="color_blue" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input color blue" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        $.language.colortitle = {'en':'Color Title','zh':'颜色名称'};
+        $.language.colorred = {'en':'Red','zh':'红色'};
+        $.language.colorgreen = {'en':'Green','zh':'绿色'};
+        $.language.colorblue = {'en':'Blue','zh':'蓝色'};
+        $.language.color_title = {'en':'Please input color title','zh':'请输入颜色名称'};
+        $.language.color_red = {'en':'Please input Red','zh':'请输入红色值'};
+        $.language.color_green = {'en':'Please input Green','zh':'请输入绿色值'};
+        $.language.color_blue = {'en':'Please input Blue','zh':'请输入蓝色值'};
+
+        $.language.updateDom($("#colorAddForm"));
+
+        //init easyui-validatebox
+        $("#colortitle").validatebox();
+        $("#color_red").validatebox();
+        $("#color_green").validatebox();
+        $("#color_blue").validatebox();
+
+
+         //ajax complete
+    function ajaxComplate() {
+          progressClose();
+          parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+          parent.$.modalDialog.handler.dialog('close');
+    }
+
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+        var title = $('#colortitle').val();
+        var red = $('#color_red').val();
+        var green = $('#color_green').val();
+        var blue = $('#color_blue').val();
+        if(title.length<1||red.length<1||green.length<1||blue.length<1) return false;
+        var param = {title:title,red:red,green:green,blue:blue};
+        $.mkUtil.ajax({
+            type:"POST",
+            url:'/color/add',
+            contentType:'application/json',
+            dataType:'json',
+            data:JSON.stringify(param),
+            success:function () {
+                ajaxComplate();
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+
+    </script>
+</body>
+
+</html>

@@ -14,13 +14,13 @@
     <script type="text/javascript" src="../static/js/language.js"></script>
     <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
     <script type="text/javascript" src="../static/js/extJs.js"></script>
-
+    <script type="text/javascript" src="../static/js/webapi.js"></script>
 </head>
 <body>
 <div class="easyui-layout" fit="true">
-    <div data-options="region:'north'"style="height:50px;padding-left:30px;padding-top:10px;overflow: hidden; " align="center" >
+    <div data-options="region:'north'"style="height:50px;padding-left:15px;padding-top:10px;overflow: hidden; " >
                 <span id="username" data-localize="userName">姓名:</span></td>
-                <input id="text_username"  data-options="prompt:'Please enter  name '"style="width:300px;"  required="required" class="easyui-textbox">
+                <input id="text_username"  data-options="prompt:''"style="width:300px;"  required="required" class="easyui-textbox">
                     <a  id="searchbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px"onclick="searchUserByLike()">搜索</a>
                     <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px" onclick="cleartext()">清空</a>
     </div>
@@ -56,7 +56,7 @@
     $.language.type = {"en":"Type","zh":"类别"};
     $.language.dept = {"en":"Department","zh":"部门"};
     $.language.name = {"en":"Name","zh":"姓名"};
-    $.language.username = {"en":"Username:","zh":"登录名:"};
+    $.language.username = {"en":"Username","zh":"登录名:"};
     $.language.add = {"en":"Add ","zh":"添加"};
     $.language.edit = {"en":"Edit ","zh":"编辑"};
     $.language.delerow = {"en":"delete ","zh":"删除"};
@@ -80,108 +80,45 @@
     //模糊搜索
     function searchUserByLike(){
         var keystr = $.trim($('#text_username').val()) ;
-        var param={name:keystr};
-        $.mkUtil.ajax({
-            type:"GET",
-            url:'/user/findUsersByOrg',
-            data:JSON.stringify(param),
-            success:function(data){
-                $('#tt').datagrid('loadData',data);
-            },
-            error:function () {
-                console.log('searchUserLike error');
-            }
-
-        });
+        if(keystr.length<1)return;
+        isSearch = true;
+        searchUserByOrgId(0,1,keystr);
+//        var p = $('#tt').datagrid('getPager');
+//        var opts = $('#tt').datagrid('options');
+//        var page = opts.pageNumber;
+//        var row  =opts.pageSize;
+//        //var param={name:keystr};
+//        $.mkUtil.ajax({
+//            type:"GET",
+//            url:'/user/findUsersByOrg?name='+keystr+'&page='+page+'&rows='+row,
+//            success:function(data){
+//
+//                $('#tt').datagrid('loadData',data);
+//            },
+//            error:function () {
+//                console.log('searchUserLike error');
+//            }
+//
+//        });
     }
-    //通过部门id来查询title
+
 
 
     //清空输入框
     function cleartext(){
         $("#text_username").textbox('clear');
     }
-    //数据列表
-    function initRightTreeGrid(data){
-        $("#tt").datagrid({
-            data:data,
-            fit:true,
-            fitColumns :'true' ,
-            rownumbers:'true',
-            singleSelect:'true',
-            columns:[[
-                {
-                    field: 'username',
-                    title: $.language.i18n("username"),
-                    width: 200,
-//                    editor: { type: 'validatebox', options: { required: true} }
-                },
-                {
-                    field:'name',
-                    title:$.language.i18n("name"),
-                    width:200,
-//                    editor: { type: 'validatebox', options: { required: true} }
-                },{
-                    field:'title',
-                    title:$.language.i18n("dept"),
-                    width:200,
-//                    editor: { type: 'combobox', options: { required: true} }
-                },{
-                    field:'type',
-                    title:$.language.i18n("type"),
-                    width:200,
-//                    editor: { type: 'combobox', options: { required: true} }
-                },{
-                    field:'sex',
-                    title:$.language.i18n("sex"),
-                    width:100,
-//                    editor: { type: 'combobox', options: { required: true} }
-                },{
-                    field:'able',
-                    title:$.language.i18n("state"),
-                    width:200,
-//                    editor: { type: 'combobox', options: { required: true} }
-                },{
-                    field:'operation',
-                    title:$.language.i18n("operation"),
-                    width:200,
-                    formatter:function(value,row,index){
-                        var userPerms =$.mkUtil.perms.allitems.user;
-                        var str='';
-                        var edit = '';
-                        var changecode ='';
-                        var del = '';
-                        if(userPerms.update){
-//                           str += '<a href="#" id="idbtnforediti18n"  name="opera" class="easyui-linkbutton " onclick="edit('+row.id+')" ></a>';
-                            str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="edit(\'{0}\');" >'+$.language.i18n('edit')+'</a>', row.id);
-                            str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                        }
-                            userPerms.updatePass=true;
-                        if (userPerms.updatePass){
-                            changecode = '<a href="#" id="idbtnforcodei18n" name="opera" class="easyui-linkbutton "  onclick="changecode('+row.id+')"></a>';
-//                            str += '<a href="#" id="idbtnforediti18n"  name="opera" class="easyui-linkbutton " onclick="edit('+row.id+')" ></a>';
-                            str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="changecode(\'{0}\');" >'+$.language.i18n('changecode')+'</a>', row.id,index);
-                            str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                        }
-                            userPerms.deleteUser=true;
-                        if (userPerms.deleteUser){
-//                            del  = '<a href="#" name="opera"id="idbtnfordeli18n"  class="easyui-linkbutton "  onclick="del('+row.id+','+index+')">删除</a>';
-                              str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="del(\'{0}\');" >'+$.language.i18n('delerow')+'</a>', row.id);
-
-                        }
-
-                       return str;
-                    }
-                }
-            ]],
-
-            toolbar:'#tb',
-        });
-
-    }
 
     var iframereloadfunc = function () {
-        window.location.reload();
+
+        if(isSearch){
+            searchUserByOrgId(0,currentPage,$.trim($('#text_username').val()));
+        }else {
+            var node = $("#tg").tree('getSelected');
+            if(!node||node==null)return;
+            searchUserByOrgId(node.id,currentPage);
+        }
+//        window.location.reload();
     };
 
     //添加一行
@@ -196,7 +133,7 @@
             height : 260,
             href : '../template/adduser.html',
             buttons : [ {
-                text : 'add',
+                 text : 'add',
                 handler : function() {
                     parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
                     var f = parent.$.modalDialog.handler.find('#addUserForm');
@@ -250,11 +187,11 @@
             if (flag) {
                 var param={id:id};
                 $.mkUtil.ajax({
-                    type:"DELET",
-                    url:'/user/delete',
-                    data:JSON.stringify(param),
+                    type:"DELETE",
+                    url:'/user/delete?id='+id,
+                    dataType:'JSON',
+                    contentType:'application/json',
                     success:function(){
-                        $('#tt').datagrid('deleteRow', index);
                         $('#tt').datagrid('reload');
                     },
                     error:function () {
@@ -267,23 +204,139 @@
     }
 
     //查找用户
-    function searchUserByOrgId(orgId) {
+    var  rows=1;
+    var currentOrgId=0;
+    var isSearch = false;
+    var currentPage=1;
+    function searchUserByOrgId(orgid,page,name) {
+        currentPage = page;
+        currentOrgId = orgid;
+        if(!page){
+           var  page=1;
+        }
+        if(orgid!=0){
+            var param ={orgId:orgid,page:page,rows:rows};
+        }else {
+            var param ={page:page,rows:rows};
+        }
+        if(name){
+            param = {page:page,rows:rows,name:name};
+        }
+        if(isSearch){
+            name = $.trim($('#text_username').val());
+            param = {page:page,rows:rows,name:name};
+        }
        $.mkUtil.ajax({
-           type:'GET',
-           url:'../api/user.json',
-           cache:false,
-           contentType:'application/json',
+           type:"GET",
+           url:'/user/findUsersByOrg',
+//           url:'/user/findUsers',
+           contentType:"application/json",
+           dataType:'json',
+           data:param,
            success: function (data) {
-               if(data.success==true){
-
-                  initRightTreeGrid(data.data);
-               }
+               console.log(data);
+               initRightTreeGrid(data,page);
            },
            error:function(){
            }
        });
     }
+    //数据列表
+    function initRightTreeGrid(data,page){
+        if(data.length==0){
+            data.rows = [];
+            data.total = 0;
+            page = 1;
+        }
+        $("#tt").datagrid({
+            data:data.rows,
+            fit:true,
+            fitColumns :'true' ,
+//            rownumbers:'true',
+            singleSelect:'true',
+            pagination:true,
+            pageSize:rows,
+            pageList:[rows],
+            columns:[[
+                {
+                    field: 'username',
+                    title: $.language.i18n("username"),
+                    width: 100,
+                },
+                {
+                    field:'name',
+                    title:$.language.i18n("name"),
+                    width:100,
+                },{
+                    field:'title',
+                    title:$.language.i18n("dept"),
+                    width:100,
+                },{
+                    field:'type',
+                    title:$.language.i18n("type"),
+                    width:100,
+                },{
+                    field:'sex',
+                    title:$.language.i18n("sex"),
+                    width:100,
+                },{
+                    field:'operation',
+                    title:$.language.i18n("operation"),
+                    width:100,
+                    formatter:function(value,row,index){
+                        var userPerms =$.mkUtil.perms.allitems.user;
+                        var str='';
+                        var edit = '';
+                        var changecode ='';
+                        var del = '';
 
+                        if(userPerms.update){
+//                           str += '<a href="#" id="idbtnforediti18n"  name="opera" class="easyui-linkbutton " onclick="edit('+row.id+')" ></a>';
+                            str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="edit(\'{0}\');" >'+$.language.i18n('edit')+'</a>', row.id);
+                            str += '|';
+                            console.log(row);
+                            console.log(row.id);
+
+
+
+                        }
+
+                        if (userPerms.update){
+//                            changecode = '<a href="#" id="idbtnforcodei18n" f="opera" class="easyui-linkbutton "  onclick="changecode('+row.id+')"></a>';
+//                            str += '<a href="#" id="idbtnforediti18n"  name="opera" class="easyui-linkbutton " onclick="edit('+row.id+')" ></a>';
+                            str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="changecode(\'{0}\');" >'+$.language.i18n('changecode')+'</a>', row.id,index);
+                            str += '|';
+                        }
+                        if (userPerms.delete){
+//                            del  = '<a href="#" name="opera"id="idbtnfordeli18n"  class="easyui-linkbutton "  onclick="del('+row.id+','+index+')">删除</a>';
+                            str += $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true" onclick="del(\'{0}\');" >'+$.language.i18n('delerow')+'</a>', row.id);
+
+                        }
+
+                        return str;
+                    }
+                }
+            ]],
+
+            toolbar:'#tb',
+        });
+
+
+        //分页处理
+        $("#tt").datagrid("getPager").pagination({
+            showRefresh:false,
+            showPageList:false,
+            total:data.total,
+            pageNumber:page,
+            beforePageText:'第',
+            afterPageText:'页 共 {pages}页',
+            displayMsg:'显示 {from} to {to} of {total} 页面信息',
+            onSelectPage:function(pageNumber, pageSize){
+                searchUserByOrgId(currentOrgId,pageNumber);
+            }
+        });
+    }
+    initRightTreeGrid([]);
 
     //左边的树形结构
     function initLeftTree(data) {
@@ -291,6 +344,7 @@
             data:data,
             parentField:'parent',
             onSelect:function (node) {
+                isSearch = false;
                 searchUserByOrgId(node.id);
                 //根据节点使旁边的datagrid更换数据
             }
@@ -298,17 +352,18 @@
     }
     $.mkUtil.ajax({
         type:'GET',
-        url:'../api/dept.json',
+        url: $.webapi.dept.findAll,
         cache:false,
         contentType:'application/json',
         success: function (data) {
             if(data.success==true){
-                //转换json格式return 一个json
                 for(var i=0;i<data.data.length;i++){
                     var parent = data.data[i].parent;
                     data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
                     data.data[i].text = data.data[i].title;
                 }
+                var top = {id:0,parent:-1,text:"顶级部门",iconCls:'icon-dept2'};
+                data.data.push(top);
                 //初始化树
                 initLeftTree(data.data);
             }
@@ -317,7 +372,6 @@
         }
     });
 
-    initRightTreeGrid([]);
 </script>
 </body>
 </html>

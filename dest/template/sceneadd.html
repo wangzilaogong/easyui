@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>场景增加</title>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true,border:false" >
+    <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+        <form id="sceneAddForm" method="post" onsubmit="return preventForm()">
+            <table class="grid">
+                <tr>
+                    <td id="sn"></td>
+                    <td>
+                        <input id="sceneName" name="title" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox "  required="true"  value="">
+                    </td>
+                </tr>
+                <tr>
+                    <td id="hf"></td>
+                    <td><input id="heartf" name="heartf" type="number" data-localize="sceneTipO" placeholder="只能输入数字，单位是秒" style="height: 25px;width: 292px;"  class="easyui-validatebox "  value=""></td>
+                </tr>
+                <tr>
+                    <td id="df"></td>
+                    <td><input id="dataf" name="dataf" type="number" data-localize="sceneTipO" placeholder="只能输入数字，单位是秒" style="height: 25px;width: 292px;"  class="easyui-validatebox "  value=""></td>
+                </tr>
+                <tr>
+                    <td id="sf"></td>
+                    <td><input id="syncf" name="syncf" type="number" data-localize="sceneTipO" placeholder="只能输入数字，单位是秒" style="height: 25px;width: 292px;"  class="easyui-validatebox "  value=""></td>
+                    <!--<td><input class="easyui-textbox" data-options="prompt:'只能输入数字，单位是秒,validType:'number'" style="width:292px;height:25px"></td>-->
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<script>
+
+    //i18n
+    $.language.scenename = {'en':"sceneName","zh":"场景名称"};
+    $.language.sceneHeart = {'en':"heartFre","zh":"心率检测频率/S"};
+    $.language.sceneData = {'en':"dataFre","zh":"数据上传频率/S"};
+    $.language.scenesync = {'en':"syncFre","zh":"同步频率/S"};
+    $.language.sceneTipO = {'en':" Enter numbers only","zh":"只能输入数字，单位是秒"};
+    $.language.updateDom($("#sceneAddForms"));
+
+    $('#sn').text($.language.i18n('scenename'));
+    $('#hf').text($.language.i18n('sceneHeart'));
+    $('#sf').text($.language.i18n('scenesync'));
+    $('#df').text($.language.i18n('sceneData'));
+
+
+    function ajaxComplate() {
+        progressClose();
+        parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+        parent.$.modalDialog.handler.dialog('close');
+    }
+
+    function preventForm() {
+        var title = $('#sceneName').val();
+        console.log(title);
+        var heartFre = $('#heartf').val();
+        var dataFre = $('#dataf').val();
+        var syncFre = $('#syncf').val();
+        var param = {title:title,heartFre:heartFre,dataFre:dataFre,syncFre:syncFre};
+        if(title == ""){
+            return false;
+        }
+        $.mkUtil.ajax({
+            type:"POST",
+            url:$.webapi.scene.addEquipmentScene,
+            contentType: 'application/json',
+            dataType: 'json',
+            data:JSON.stringify(param),
+            success:function (data) {
+                if(data.success){
+                    //$.messager.confirm("提示","添加成功");
+                    ajaxComplate();
+                }
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+</script>
+</body>
+</html>

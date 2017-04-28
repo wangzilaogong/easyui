@@ -11,9 +11,9 @@
             <table class="grid">
                 <tr>
                     <td><select id="numtype">
-                        <option >证件类型</option>
-                        <option>bbbbbb</option>
-                        <option>cccccc</option>
+                        <option>身份证</option>
+                        <option>护照</option>
+                        <option>AAAA证</option>
                     </select></td>
                     <td><input id="num"  type="text" style="height: 15px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2" data-options="required:true" value=""></td>
                     <td >姓名</td>
@@ -22,11 +22,13 @@
                 <tr>
                     <td >所属部门</td>
                     <td>
-                        <select id="superdept" style="width: 100px">
+                        <select id="personnedept" style="width: 100px">
                         </select>
                     </td>
                     <td >国家</td>
-                    <td><input id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td> <select id="country" class="easyui-combobox" data-options="panelHeight : 'auto'" style="width: 100px">
+                    </select>
+                    </td>
                 </tr>
                 <tr>
                     <td >性别</td>
@@ -34,23 +36,21 @@
                         <span>男</span> <input type="radio" checked="checked" name="Sex" value="男" />
                         <span>女</span><input type="radio" name="Sex" value="女" />
                     </td>
-                    <td >设备编号</td>
+                    <td >人员类型</td>
                     <td>
-                        <select id="watch" style="width: 100px">
+                        <select id="type" class="easyui" style="width: 100px">
+                            <option>医务人员</option>
+                            <option>病人</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td >状态</td>
-                    <td>
-                        <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
-                        <span >able0</span><input type="radio" name="able" value="0" />
+                    <td >单位</td>
+                    <td colspan="4" align="left">
+                        <input id="unit" type="text" class="easyui-textbox" data-options="required:true" style="width:350px; overflow: hidden;" >
                     </td>
-                    <td >人员类型</td>
-                    <td>
-                        <select id="renyuanleixing" style="width: 100px">
-                        </select>
-                    </td>
+
+
                 </tr>
                 <tr>
                     <td>入院时间</td>
@@ -61,13 +61,6 @@
                     <td>
                         <input id="dd2" type="text">
                     </td>
-                </tr>
-                <tr>
-                    <td >单位</td>
-                    <td colspan="4" align="right">
-                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:440px; overflow: hidden;" >
-                    </td>
-
                 </tr>
             </table>
         </form>
@@ -88,33 +81,30 @@
     });
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var numtype = $('#numtype').find("option:selected").text();
+        console.log("22");
+        var numtype =  $("#numtype").find("option:selected").text();
         var num =  $.trim($('#num').val());
         var name = $.trim($('#name').val());
-        //var orgId = $('#superdept').combotree('getValue');
-        var renyuanleixing = $("#renyuanleixing").find("option:selected").text();
-        var country =  $("#country").find("option:selected").text();
-        var sex = $("input[type='radio']:checked").val();
-        var watch =  $("#watch").find("option:selected").text();
-        var able =  $("input[name='able']:checked").val();
-        var danwei =$.trim($('#danwei').val());
-        var gohospital =$('#dd').datebox('getValue');
-        var outhospital =$('#dd2').datebox('getValue');
+        var belongdept = $('#personnedept').combotree('getValue');
+        var personnecountry = $('#country').combobox('getValue');
 
+        var personsex =  $("input[type='radio']:checked").val();
 
-        /**
-         * 这边还要修改字段....以及personne.html处
-         *
-         * 4-21去除orgid部门，以及personne.html的部门字段和搜索时候所需的部门
-         * **/
-        var param = {numtype:numtype,num:num,name:name,sex:sex,country:country,watch:watch};
+        var personnetype =  $("#type").val();
+         console.log('xxx');
+        var unit =$.trim($('#unit').val());
+        var entertime =$('#dd').datebox('getValue');
+        var outtime =$('#dd2').datebox('getValue');
+        var param = {num:num,cardType:numtype,name:name,sex:personsex,country:personnecountry,org:belongdept,type:personnetype,unit:unit,enterTime:entertime,outTime:outtime};
+        console.log("33");
         $.mkUtil.ajax({
             type:"POST",
             url:'/client/add',
             data:JSON.stringify(param),
+            contentType:'application/json',
             success:function (data) {
                 if(data.success == true){
-                    $('#personne_datagrid').datagrid('appendRow', {"num":"personnenum","name":"name","sex":"sex","country":"country","watch":"watch","org":"org"});
+                    $('#personne_datagrid').datagrid('appendRow', param);
                     ajaxComplate();
                 }else {
                     alert(data.error);
@@ -127,9 +117,9 @@
     }
     //初始化部门树
     (function getdept() {
-        $.ajax({
+        $.mkUtil.ajax({
             type:'GET',
-            url:'../api/dept.json',
+            url:$.webapi.dept.findAll,
             dataType:'json',
             contentType:'application/json',
             success:function (data) {
@@ -144,21 +134,68 @@
             }
         });
     })();
-
-
     function initCombtree(data) {
-        $("#superdept").combotree({
+        $("#personnedept").combotree({
             data:data,
             parentField : 'parent',
             lines : true,
             panelHeight : 'auto',
-            required:true,
+            required:true
 //                        value:${res.parentId},
-            onSelect:function (node) {
-                var parent = node.id;
-                console.log(parent);
+//            onSelect:function (node) {
+//                var parent = node.id;
+//                console.log(parent);
+//            }
+        });
+    }
+    //初始化国家
+    var countryarry = [];
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/country/findCountryByCol',
+        dataType:'json',
+        contentType:'application/json',
+        success:function(data){
+            if(data.success == true){
+                for (var i = 0;i<data.data.length;i++){
+                countryarry.push({"id":data.data[i].id,"text":data.data[i].title});
+                }
             }
-        })
+            initCountry();
+        }
+    });
+    function initCountry(){
+        $('#country').combobox({
+            data:countryarry,
+            valueField:'id',
+            textField:'text',
+            required:true
+        });
+    }
+
+    //初始化设备
+    var deptarry = [];
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/watch/findAll',
+        dataType:'json',
+        contentType:'application/json',
+        success:function(data){
+
+                for (var i = 0;i<data.rows.length;i++){
+                    deptarry.push({"id":data.rows[i].id,"text":data.rows[i].cardNo});
+                }
+            console.log(deptarry);
+            initdept();
+        }
+    });
+    function initdept(){
+        $('#watch').combobox({
+            data:deptarry,
+            valueField:'id',
+            textField:'text',
+            required:true
+        });
     }
 
 </script>

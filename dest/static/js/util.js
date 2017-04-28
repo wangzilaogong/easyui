@@ -7,10 +7,10 @@
 //ajax 401->跳转到登陆
 //loginout ->  跳转到登陆
 
-var debug = true;
+var debug = false;
 
 //测试的时候在自己对应的html里重写该变量
-var remoteBaseUrl = "http://192.168.0.151:8080";
+var remoteBaseUrl = "http://192.168.0.253:8080";
 
 //测试localstorage user数据
 // {"roles":["admin"],"perms":["urlFilter:*","orgnization:*","mapManage:*","personnelAlarm:*","makePush:*","tieHis:*","overworked:*","alarmParameter:*","equipmentScene:*","personnelLocation:*","pushHis:*","user:*","role:*","cabinManage:*","healthyReport:*","resource:*","Log:*","personnelCourse:*","equipmentManage:*","YLScope:*","personnelManage:*"],"id":1,"username":"admin"}
@@ -99,7 +99,7 @@ if(parent.$.mkUtil){
 
         //这里更改后 下面的归类也需相应更改
         var allPermType = ['orgnization',"user","role","resource"
-                            ,"equipmentManage","personnelManage","tieHis","equipmentScene","cabinManage","mapManage"
+                            ,"equipmentManage","personnelManage","tieHis","equipmentScene","cabinManage","mapManage","color"
                             ,"personnelLocation","healthyReport","personnelAlarm","personnelCourse","overworked"
                             ,"alarmParameter","YLScope"
                             ,"pushHis","makePush"
@@ -109,7 +109,7 @@ if(parent.$.mkUtil){
 
 
         var keyArr = ['orgnization',"user","role","resource"
-                            ,"equipmentManage","personnelManage","tieHis","equipmentScene","cabinManage","mapManage"
+                            ,"equipmentManage","personnelManage","tieHis","equipmentScene","cabinManage","mapManage","color"
                             ,"personnelLocation","healthyReport","personnelAlarm","personnelCourse","overworked"
                             ,"alarmParameter","YLScope"
                             ,"pushHis","makePush"
@@ -192,6 +192,9 @@ if(parent.$.mkUtil){
         if(this._perms.allitems[keyArr[flag++]].view){
             baseInfoManage.push("mapManage")
         }
+        if(this._perms.allitems[keyArr[flag++]].view){
+            baseInfoManage.push("color")
+        }
         dataArr.push({baseInfoManage:baseInfoManage});
 
         //人员状态
@@ -272,7 +275,7 @@ $.mkUtil.redirectToLogin = function () {
  * login url
  * @type {string}
  */
-$.mkUtil.loginUrl = '../template/login.html';
+$.mkUtil.loginUrl ='/mkmedicalhtml/template/login.html';
 
 $.mkUtil.isLogin = function () {
     if($.mkUtil.token==null){
@@ -344,12 +347,12 @@ $.mkUtil.ajax = function (opts) {
               opts.url = remoteBaseUrl +opts.url;
           }
       }
-      if(!opts.contentType){
-          opts.contentType = "application/json";
-      }
-      if(!opts.dataType){
-          opts.dataType = 'json';
-      }
+      // if(!opts.contentType){
+      //     opts.contentType = "application/json";
+      // }
+      // if(!opts.dataType){
+      //     opts.dataType = 'json';
+      // }
       if(!opts.cache){
           opts.cache = false;
       }
@@ -399,3 +402,8 @@ $.mkUtil.ajax = function (opts) {
 // //判断是否登陆
 //
 // $.mkUtil.isLogin();
+
+String.prototype.startWith=function(str){
+  var reg=new RegExp("^"+str);
+  return reg.test(this);
+}

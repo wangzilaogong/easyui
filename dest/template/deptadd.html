@@ -10,11 +10,11 @@
         <form id="orgAddForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td>部门名称</td>
-                    <td><input id="depttitle" name="title" type="text" style="height: 25px;width: 292px;" placeholder="请输入部门名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td data-localize="orgtitle"></td>
+                    <td><input id="depttitle" name="title" type="text" style="height: 25px;width: 292px;" placeholder="请输入部门名称" class="easyui-validatebox span2" data-options="required:true" ></td>
                 </tr>
                 <tr>
-                    <td>上级部门</td>
+                    <td data-localize="TopOrg"></td>
                     <td>
                         <select id="superdept" style="width: 300px">
 
@@ -26,7 +26,11 @@
     </div>
 </div>
 <script>
+    $.language.SuperOrg = {'en':'SuperOrg','zh':'顶级部门'};
+    $.language.orgtitle = {'en':'DeptName','zh':'部门名称'};
+    $.language.TopOrg = {'en':'TopOrg','zh':'上级部门'};
 
+    $.language.updateDom($("#orgAddForm"));
     //ajax complete
     function ajaxComplate() {
           progressClose();
@@ -42,7 +46,9 @@
         var param = {title:title,parent:parent};
         $.mkUtil.ajax({
             type:"POST",
-            url:'/org/add',
+            url:$.webapi.dept.addDept,
+            dataType:'json',
+            contentType:'application/json',
             data:JSON.stringify(param),
             success:function () {
                 ajaxComplate();
@@ -55,19 +61,21 @@
     }
 
     (function getdept() {
-           $.ajax({
+        console.log($.webapi.dept.findAll);
+           $.mkUtil.ajax({
                type:'GET',
-               url:'../api/dept.json',
+               url:$.webapi.dept.findAll,
                dataType:'json',
                contentType:'application/json',
                success:function (data) {
                    if(data.success = true){
-                       data.data.push({"title":'顶级部门','parent':'0','id':'0'});
+                       data.data.push({"title":$.language.i18n('SuperOrg'),'parent':'0','id':'0'});
                        for(var i=0;i<data.data.length;i++){
                            var parent = data.data[i].parent;
                            data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
                            data.data[i].text = data.data[i].title;
                        }
+                       console.log(data.data);
                        initCombtree(data.data);
                    }
                }
@@ -75,18 +83,18 @@
        })();
 
 
-       function initCombtree(data) {
+    function initCombtree(data) {
            $("#superdept").combotree({
-                        data:data,
-                        parentField : 'parent',
-                        lines : true,
-                        panelHeight : 'auto',
-                        required:true,
-//                        value:${res.parentId},
-                        onSelect:function (node) {
-                            var parent = node.id;
-                            console.log(parent);
-                        }
+                data:data,
+                parentField : 'parent',
+                lines : true,
+                panelHeight : 'auto',
+                required:true,
+//              value:${res.parentId},
+                onSelect:function (node) {
+                    var parent = node.id;
+                    console.log(parent);
+                }
            })
        }
 

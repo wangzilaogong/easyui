@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true,border:false" >
+        <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+            <form id="sceneUpdateForm" method="post" onsubmit="return preventForm()">
+                <table class="grid">
+                    <tr>
+                        <td id="sn"></td>
+                        <td>
+                        <input id="sceneName" name="title" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " required="true" value="">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="hf"></td>
+                        <td><input id="heartf" name="heartf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                    </tr>
+                    <tr>
+                        <td id="df">数据上传频率/S</td>
+                        <td><input id="dataf" name="dataf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                    </tr>
+                    <tr>
+                        <td id="sf">同步频率/S</td>
+                        <td><input id="syncf" name="syncf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    <script>
+
+        $.language.scenename = {'en':"sceneName","zh":"场景名称"};
+        $.language.sceneHeart = {'en':"heartFre","zh":"心率检测频率/S"};
+        $.language.sceneData = {'en':"dataFre","zh":"数据上传频率/S"};
+        $.language.scenesync = {'en':"syncFre","zh":"同步频率/S"};
+        $.language.sceneTip = {'en':"tip","zh":"提示"};
+        $.language.sceneTipE = {'en':"Scene name cannot be empty","zh":"场景名称不能为空"};
+        $.language.sceneTipO = {'en':" Enter numbers only","zh":"只能输入数字，单位是秒"};
+
+        $.language.updateDom($("#sceneUpdateForm"));
+
+        $('#sn').text($.language.i18n('scenename'));
+        $('#hf').text($.language.i18n('sceneHeart'));
+        $('#sf').text($.language.i18n('scenesync'));
+        $('#df').text($.language.i18n('sceneData'));
+
+        //根据id查找org
+        var sceneRow = $.mkUtil.param.sceneRow;
+
+        function ajaxComplate() {
+            progressClose();
+            parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+            parent.$.modalDialog.handler.dialog('close');
+        }
+
+        //加载原始数据到页面上
+        (function getData() {
+           // $('#sceneName').combobox('setValue',sceneRow.title);
+            $('#heartf').val(sceneRow.heartFre);
+            $('#dataf').val(sceneRow.dataFre);
+            $('#syncf').val(sceneRow.syncFre);
+            $('#sceneName').val(sceneRow.title);
+        })()
+
+        //提交数据
+        function preventForm() {
+            var id = sceneRow.id;
+            var title = $('#sceneName').val();
+            console.log(title);
+            var heartFre = $('#heartf').val();
+            var dataFre = $('#dataf').val();
+            var syncFre = $('#syncf').val();
+            var param = {id:id,title:title,heartFre:heartFre,dataFre:dataFre,syncFre:syncFre,able:1};
+            if(title == ""){
+                $.messager.confirm($.language.i18n('sceneTip'),$.language.i18n('sceneTipE'));
+                return false;
+            }
+            $.mkUtil.ajax({
+                type:"POST",
+                url:$.webapi.scene.updateEquipmentScene,
+                contentType: 'application/json',
+                dataType: 'json',
+                data:JSON.stringify(param),
+                success:function (data) {
+                    if(data.success){
+//                        $.messager.confirm("提示","编辑成功");
+                        ajaxComplate();
+                    }
+                },
+                error:function () {
+                    ajaxComplate();
+                }
+            });
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{"success":true,
+  "data":[
+    {
+      "id": "1",
+      "time":"13:30",
+      "location": "机库",
+      "name":"勒布朗",
+      "type":"地勤",
+      "alarmname":"心率过低",
+      "alarmcontent":"违反",
+      "confirmtime":"13:30",
+      "confirmedby":"保罗"
+
+    },
+    {
+      "id": "2",
+      "time":"15:50",
+      "location": "会议室",
+      "name":"科比",
+      "type":"秘书",
+      "alarmname":"生命状态缺失",
+      "alarmcontent":"发过分的话",
+      "confirmtime":"15:50",
+      "confirmedby":"大威斯特恩"
+    },
+    {
+      "id": "3",
+      "time":"1:22",
+      "location": "医务室",
+      "name":"威少",
+      "type":"医生",
+      "alarmname":"超出YL范围",
+      "alarmcontent":"常态化",
+      "confirmtime":"1:22",
+      "confirmedby":"陆医生"
+    },
+    {
+      "id": "4",
+      "time":"18:55",
+      "location": "指挥室",
+      "name":"田国富",
+      "type":"纪委书记",
+      "alarmname":"区域人员密度过大",
+      "alarmcontent":"豆腐坊",
+      "confirmtime":"18:55",
+      "confirmedby":"高晓峰"
+    },
+    {
+      "id": "5",
+      "time":"8:52",
+      "location": "指挥室",
+      "name":"高育良",
+      "type":"副书记",
+      "alarmname":"医务人员过劳",
+      "alarmcontent":"就会发觉后",
+      "confirmtime":"8:52",
+      "confirmedby":"沙书记"
+    },
+    {
+      "id": "6",
+      "time":"5:20",
+      "location": "指挥室",
+      "name":"白小菁",
+      "type":"护士",
+      "alarmname":"紧急呼叫",
+      "alarmcontent":"交换机",
+      "confirmtime":"5:21",
+      "confirmedby":"李达康"
+    }
+  ]
+}

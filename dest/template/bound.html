@@ -8,21 +8,7 @@
 <div class="easyui-layout" data-options="fit:true,border:false" >
     <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
         <form id="boundForm" method="post" onsubmit="return preventForm()">
-            <table class="grid">
-                <tr>
-                    <td  >人员ID</td>
-                    <td><input id="personneid" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-                    <td >可用的设备</td>
-                    <td>
-                        <select id="watchid" >
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
-
-                    </td>
-                </tr>
-
+            <table id="boundGrid">
             </table>
         </form>
     </div>
@@ -48,7 +34,7 @@
         var param = {id:id,watch:watchid};
         $.mkUtil.ajax({
             type:"POST",
-            url:':/client/bound',
+            url:'/client/bound',
             data:JSON.stringify(param),
             success:function (data) {
                 if(data.success==true){
@@ -64,17 +50,14 @@
         });
         return false;
     }
-    function initwatchid(){
-        //console.log(watchid.id);
-        $('#personneid').val(watchid.id);
-        for(var i=0;i<abledept.length;i++){
-            var a=i;
-            $("#watchid").append("<option value='+i+'></option>");
+
+    $.mkUtil.ajax({
+        type:"GET",
+        url:'/watch/findAll?relate=0',
+        success: function (data) {
+            initSet(data.data);
         }
-
-
-    }
-    initwatchid();
+    });
 </script>
 
 </body>

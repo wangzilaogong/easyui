@@ -239,9 +239,9 @@
     function getUser() {
          $.support.cors = true;
 //        var param = {"access_token":access_token};
-         $.ajax({
+         $.mkUtil.ajax({
             type:'GET',
-            url:'http://192.168.0.100:8080/user/findUsers?idOrUsername=admin',
+            url:'/user/findUsers?idOrUsername=admin',
             cache:false,
             dataType:'json',
             success:function (data) {

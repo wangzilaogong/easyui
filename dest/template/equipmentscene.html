@@ -2,9 +2,193 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>设备场景</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/webapi.js"></script>
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+
 </head>
 <body>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
+        <a id="sceneAdd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addScene()"></a>
+        <a id="sceneEdit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editScene()"></a>
+        <a id="scenedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="deleteScene()"></a>
+    </div>
+</div>
+<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+    <table id="equipmentScene_datagrid"  style="width:100%;">
 
+    </table>
+</div>
+<script>
+
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+
+    //i18n
+    $.language.sceneAdd = {'en':"Add","zh":"添加"};
+    $.language.sceneEdit = {'en':"Edit","zh":"编辑"};
+    $.language.scenedel = {'en':"Delete","zh":"删除"};
+    $.language.sceneName = {'en':"Scene name","zh":"场景名称"};
+    $.language.sceneHeart = {'en':"heartFre","zh":"心率检测频率"};
+    $.language.sceneData = {'en':"dataFre","zh":"数据上传频率"};
+    $.language.scenesync = {'en':"syncFre","zh":"同步频率"};
+    $.language.sceneTip = {'en':"Tip","zh":"提示"};
+    $.language.sceneTipE = {'en':"Select the line you want to edit","zh":"请选中要编辑的行"};
+    $.language.sceneTipD = {'en':"Select the row to delete","zh":"请选中要删除的行"};
+    $.language.sceneTipS = {'en':"Are you sure you want to delete","zh":"确定要删除吗"};
+
+    $("#sceneAdd").text($.language.i18n("sceneAdd"));
+    $("#sceneEdit").text($.language.i18n("sceneEdit"));
+    $("#scenedel").text($.language.i18n("scenedel"));
+
+    //添加场景
+    function addScene() {
+        parent.$.modalDialog({
+            title : $.language.i18n('sceneAdd'),
+            width : 450,
+            height : 300,
+            href : '../template/sceneadd.html',
+            buttons : [ {
+                text : $.language.i18n('sceneAdd'),
+                handler : function() {
+                    parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#sceneAddForm');
+                    f.submit();
+                }
+            } ]
+        });
+    }
+
+    //编辑场景
+    function editScene() {
+        var sceneRow = $("#equipmentScene_datagrid").datagrid('getSelected');
+        if(sceneRow != null){
+            $.mkUtil.param = {sceneRow:sceneRow};
+            parent.$.modalDialog({
+                title : $.language.i18n('sceneEdit'),
+                width : 450,
+                height : 300,
+                href : '../template/sceneupdate.html',
+                buttons : [ {
+                    text : $.language.i18n('sceneEdit'),
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#sceneUpdateForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }else {
+            $.messager.confirm($.language.i18n('sceneTip'),$.language.i18n('sceneTipD'));
+        }
+    }
+
+    //删除场景
+    function deleteScene(){
+        var sceneRow = $("#equipmentScene_datagrid").datagrid('getSelected');
+        if(sceneRow != null){
+            var sceneid = sceneRow.id;
+            $.messager.confirm($.language.i18n('sceneTip'), $.language.i18n('sceneTipS'), function (r) {
+                if (r) {
+                    $.mkUtil.ajax({
+                        type:"DELETE",
+                        url:$.webapi.scene.deleteEquipmentScene+'?id='+sceneid,
+                        success:function (data) {
+                            if(data.success){
+                                console.log(data.data);
+                                var rowIndex = $('#equipmentScene_datagrid').datagrid('getRowIndex', sceneRow);
+                                console.log(rowIndex);
+                                $("#equipmentScene_datagrid").datagrid('deleteRow',rowIndex)
+//                              iframereloadfunc(); 刷新页面
+                            }
+                        },
+                        error:function () {
+
+                        }
+                    });
+                }
+            });
+        }else{
+            $.messager.confirm($.language.i18n('sceneTip'),$.language.i18n('sceneTipD'));
+        }
+    }
+
+    $(function () {
+        getEquipment();
+        //获取场景
+        function getEquipment() {
+            $.mkUtil.ajax({
+                url:$.webapi.scene.findEquipmentScene,
+//                url:"http://192.168.0.194:8080/scene/find",
+                type:'GET',
+//                contentType:'json',
+//                dataTpye: 'application/json',
+                success:function (data) {
+                    $("#equipmentScene_datagrid").datagrid('loadData',data.data);
+                },
+                error:function () {
+
+                }
+            });
+        }
+
+        //initView
+        function initView() {
+            //权限管理
+            if(!$.mkUtil.perms.allitems.orgnization.create){
+                $('#sceneAdd').hide();
+            } else if(!$.mkUtil.perms.allitems.orgnization.update){
+                $('#sceneEdit').hide();
+            } else if(!$.mkUtil.perms.allitems.orgnization.delete){
+                $('#scenedel').hide();
+            }
+
+            $("#equipmentScene_datagrid").datagrid({
+                rownumbers:true,
+                fitColumns:true,
+                pagination:true,
+                fit:true,
+                toolbar:'#tb',
+                columns : [ [
+                    {
+                        width : '80',
+                        title : $.language.i18n('sceneName'),
+                        field : 'title'
+                    },
+                    {
+                        width : '100',
+                        title : $.language.i18n('sceneHeart'),
+                        field : 'heartFre'
+                    },
+                    {
+                        width : '100',
+                        title : $.language.i18n('sceneData'),
+                        field : 'dataFre'
+                    },
+                    {
+                        width : '80',
+                        title : $.language.i18n('scenesync'),
+                        field : 'syncFre'
+                    }
+                ]]
+            });
+        }
+
+        initView();
+
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,55 @@
+{"success":true,
+  "data":[
+    {
+      "id": "1",
+      "deptnum":"555",
+      "equipmentNum": "admini",
+      "equipmentName":"规范",
+      "personnelNum":"1333",
+      "name":"勒布朗",
+      "sex":"男",
+      "nation":"美国",
+      "relateTime":"2017-4-10",
+      "endRelateTime":"2017-4-11",
+      "useless":"已绑定"
+    },
+    {
+      "id": "2",
+      "deptnum":"555",
+      "equipmentNum": "admini",
+      "equipmentName":"规范",
+      "personnelNum":"1333",
+      "name":"勒布朗",
+      "sex":"男",
+      "nation":"美国",
+      "relateTime":"2017-4-10",
+      "endRelateTime":"2017-4-11",
+      "useless":"已绑定"
+    },
+    {
+      "id": "3",
+      "deptnum":"555",
+      "equipmentNum": "admini",
+      "equipmentName":"规范",
+      "personnelNum":"1333",
+      "name":"勒布朗",
+      "sex":"男",
+      "nation":"美国",
+      "relateTime":"2017-4-10",
+      "endRelateTime":"2017-4-11",
+      "useless":"已绑定"
+    },    {
+      "id": "4",
+      "deptnum":"555",
+      "equipmentNum": "admini",
+      "equipmentName":"规范",
+      "personnelNum":"1333",
+      "name":"勒布朗",
+      "sex":"男",
+      "nation":"美国",
+      "relateTime":"2017-4-10",
+      "endRelateTime":"2017-4-11",
+      "useless":"已绑定"
+    }
+  ]
+}

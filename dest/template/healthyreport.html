@@ -2,9 +2,178 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>健康报表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/webapi.js"></script>
+
 </head>
 <body>
+    <div id="tb" style="padding:5px;height:auto">
+        <div>
+            <span style="margin-left: 10px" data-localize="reportquerymode">查询方式</span>
+            <select id="search" class="easyui-combobox" panelHeight="auto" style="width:100px">
+                <option value="name">姓名</option>
+                <option value="eqptnum">设备编号</option>
+                <option value="deptnm">部门</option>
+            </select>
+            <input id="equipmentCardnum" class="easyui-textbox" placeholder="请输入">
+            <a id="reportSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchHealthyReport()"></a>
+        </div>
+    </div>
+    <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        <table id="healthyreport_datagrid"  style="width:100%;">
 
+        </table>
+    </div>
 </body>
+<script>
+
+    //i18n
+    $.language.reportquerymode = {'en':"querymode",'zh':'查询方式'};
+    $.language.reportquery = {'en':"query",'zh':'查询'};
+    $.language.reportname = {'en':"name",'zh':'人员姓名'};
+    $.language.reporttype = {'en':"type",'zh':'人员类型'};
+    $.language.reportsex = {'en':"sex",'zh':'性别'};
+    $.language.reportdate = {'en':"date",'zh':'日期'};
+    $.language.reportstepnumber = {'en':"stepnumber",'zh':'步数'};
+    $.language.reportmileage = {'en':"mileage",'zh':'里程'};
+    $.language.reportconsume = {'en':"consume",'zh':'消耗'};
+    $.language.reportheartrate = {'en':"heartrate",'zh':'心率'};
+    $.language.reportdailyheartrate = {'en':"dailyheartrate",'zh':'日均心率'};
+    $.language.reportweight = {'en':"weight",'zh':'体重'};
+
+    $("#reportSearch").text($.language.i18n("reportquery"));
+
+    $(function () {
+        getData();
+        console.log(3333);
+        //获取数据
+        function getData() {
+            $.mkUtil.ajax({
+                url:"../api/healthyreport.json",
+                type:'GET',
+                contentType:'json',
+                dataTpye: 'application/json',
+                success:function (data) {
+
+                    $("#healthyreport_datagrid").datagrid('loadData',data.data);
+                }
+            });
+        }
+        //initView
+        function initView() {
+            $("#healthyreport_datagrid").datagrid({
+                rownumbers:true,
+                fitColumns:true,
+                pagination:true,
+                pageSize: 30,
+                fit:true,
+                toolbar:'#tb',
+                columns : [ [
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportname'),
+                        field : 'name'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reporttype'),
+                        field : 'type'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportsex'),
+                        field : 'sex'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportdate'),
+                        field : 'date'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportstepnumber'),
+                        field : 'stepNumber'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportmileage'),
+                        field : 'mileage'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportconsume'),
+                        field : 'consume'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportheartrate'),
+                        field : 'heartFre'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportdailyheartrate'),
+                        field : 'dailyHeartRate'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('reportweight'),
+                        field : 'weight'
+                    }
+                ]]
+            });
+        }
+
+        initView();
+
+    });
+
+    //查询
+    function searchHealthyReport() {
+        var msg = $('#search').combobox('getValue');
+        console.log(msg);
+        if(msg == name){
+            var param = {name : msg};
+            findReport(param);
+        } else if(msg == eqptnum){
+
+        } else if(msg == deptnm){
+
+        }
+    }
+
+    //获取查询数据
+    function findReport(param) {
+        $.mkUtil.ajax({
+            url:'',
+            type:'GET',
+            dataType:'json',
+            contentType:'application/json',
+            data:JSON.stringify(param),
+            success:function (data) {
+                if(data.success == true){
+                    $('#healthyreport_datagrid').datagrid('loadData',data.data);
+                }
+            }
+        })
+    }
+</script>
 </html>

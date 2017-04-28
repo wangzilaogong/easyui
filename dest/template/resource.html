@@ -1,10 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+     <meta charset="utf-8">
+        <title>资源管理</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
 </head>
 <body>
+<script type="text/javascript">
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+    var resourceTreeGrid;
+    function editResourceFun(id) {
+        if(!resourceTreeGrid){
+            resourceTreeGrid = $("#resourceTreeGrid")
+        }
+        if (id != undefined) {
+            resourceTreeGrid.treegrid('select', id);
+        }
+        var node = resourceTreeGrid.treegrid('getSelected');
+        if (node) {
+            parent.$.modalDialog({
+                title : '编辑',
+                width : 500,
+                height : 350,
+                href : '${pageContext.request.contextPath}/res/' + node.id + '/update/',
+                buttons : [ {
+                    text : '确定',
+                    handler : function() {
+                        parent.$.modalDialog.openner_treeGrid = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#resourceEditForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }
+    }
+
+    function deleteResourceFun(id) {
+        if(!resourceTreeGrid){
+            resourceTreeGrid = $("#resourceTreeGrid")
+        }
+        if (id != undefined) {
+            resourceTreeGrid.treegrid('select', id);
+        }
+        var node = resourceTreeGrid.treegrid('getSelected');
+        if (node) {
+            parent.$.messager.confirm('询问', '您是否要删除当前资源？删除当前资源会连同子资源一起删除!', function(b) {
+                if (b) {
+                    progressLoad();
+                    $.post('${pageContext.request.contextPath}/res/'+node.id+'/delete/', {
+                        id : node.id
+                    }, function(result) {
+                        if (result.success) {
+                            parent.$.messager.alert('提示', result.msg, 'info');
+                            resourceTreeGrid.treegrid('reload');
+                            parent.layout_west_tree.tree('reload');
+                        }
+                        progressClose();
+                    }, 'JSON');
+                }
+            });
+        }
+    }
+
+    function addResourceFun() {
+        parent.$.modalDialog({
+            title : '添加',
+            width : 500,
+            height : 350,
+            href : '${pageContext.request.contextPath}/res/create',
+            buttons : [ {
+                text : '添加',
+                handler : function() {
+                    parent.$.modalDialog.openner_treeGrid = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                    var f = parent.$.modalDialog.handler.find('#resourceAddForm');
+                    f.submit();
+                }
+            } ]
+        });
+    }
+
+    $(function() {
+        var resourceTreeGrid = $("#resourceTreeGrid");
+
+        $.mkUtil.ajax({
+            type: "GET",
+            url: '/resource/findByColumn',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            cache:false,
+            success: function (data) {
+                if(data.success ==true){
+                    var items = [];
+                    for(var i=0;i<data.data.length;i++){
+                        data.data[i].iconCls = 'icon-ticket';
+                        items.push(data.data[i]);
+                    }
+                    resourceTreeGrid.treegrid({
+                        data:items,
+                        idField : 'id',
+                        treeField : 'name',
+                        parentField : 'parentId',
+                        fit : true,
+                        fitColumns : false,
+                        border : false,
+                        frozenColumns : [ [ {
+                            title : '编号',
+                            field : 'id',
+                            width : 40
+                        } ] ],
+                        columns : [ [ {
+                            field : 'name',
+                            title : '资源名称',
+                            width : 200
+                        }, {
+                            field : 'url',
+                            title : '资源路径',
+                            width : 200
+                        }, {
+                            field : 'type',
+                            title : '资源类型',
+                            width : 80
+                        },{
+                            field : 'permission',
+                            title : '权限',
+                            width : 150
+                        }, {
+                            field : 'parentId',
+                            title : '上级资源ID',
+                            width : 150
+                        }, {
+                            field : 'able',
+                            title : '状态',
+                            width : 40,
+                            hidden : true
+                        }
+                    ] ],
+//                        toolbar : '#resourceToolbar'
+                    });
+                }
+            }
+        });
+    });
+</script>
+<div class="easyui-layout" data-options="fit:true,border:false">
+    <div data-options="region:'center',border:false"  style="overflow: hidden;">
+        <table id="resourceTreeGrid" style="overflow-x: hidden">
+            <!--<%&#45;&#45;<thead frozen="true">&#45;&#45;%>-->
+            <!--<%&#45;&#45;<tr>&#45;&#45;%>-->
+                <!--<%&#45;&#45;<th field="id" width="50">编号</th>&#45;&#45;%>-->
+            <!--<%&#45;&#45;</tr>&#45;&#45;%>-->
+            <!--<%&#45;&#45;</thead>&#45;&#45;%>-->
+            <!--<%&#45;&#45;<thead>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<tr>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="name" width="200" align="left">名称</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="type" width="100" align="left">类型</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="url" width="100" align="left">地址</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="parentId" width="100" align="left">父类ID</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="permission" width="100" align="left">权限</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="available" width="100" align="left">状态</th>&#45;&#45;%>-->
+                        <!--<%&#45;&#45;<th field="action" width="100" align="left">操作</th>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;</tr>&#45;&#45;%>-->
+            <!--<%&#45;&#45;</thead>&#45;&#45;%>-->
+            <!--<%&#45;&#45;<c:forEach items="${resList}" var="m">&#45;&#45;%>-->
+                <!--<%&#45;&#45;<tr><td>${m.id}</td></tr>&#45;&#45;%>-->
+                <!--<%&#45;&#45;<tr>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.name}</td>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.type}</td>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.url}</td>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.parentId}</td>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.permission}</td>&#45;&#45;%>-->
+                    <!--<%&#45;&#45;<td>${m.available}</td>&#45;&#45;%>-->
+                <!--<%&#45;&#45;</tr>&#45;&#45;%>-->
+            <!--<%&#45;&#45;</c:forEach>&#45;&#45;%>-->
+
+</table>
+    </div>
+</div>
+<div id="resourceToolbar" style="display: none;">
+        <a onclick="addResourceFun();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-plus'">添加</a>
+</div>
 
 </body>
 </html>

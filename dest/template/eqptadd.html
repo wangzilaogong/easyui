@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true;border:false">
+   <div data-options="region:'center';border:false" style="padding: 5px">
+       <form id="eqptAddForm" method="post" onsubmit="return preventForm()">
+           <table class="grid">
+               <tr>
+                   <td data-localize="equipmentnum">设备编号</td>
+                   <td><input id="eqptNum" name="title" type="text" style="height: 20px;width: 130px;padding-left: 2px" placeholder="请输入设备编号" class="easyui-validatebox" data-options="required:true"  value=""></td>
+                   <td data-localize="equipmentCardNum">卡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;号 </td>
+                   <td><input id="eqptcardnum" name="title" type="text" style="height: 20px;width: 130px;padding-left: 2px" placeholder="请输入设备卡号" class="easyui-validatebox" data-options="required:true"  value=""></td>
+               </tr>
+               <tr>
+                   <td data-localize="equipmentMac">Mac地址 </td>
+                   <td><input id="eqptMacaddr" name="title" type="text" style="height: 20px;width: 130px;padding-left: 2px" placeholder="请输入设备Mac地址" class="easyui-validatebox" data-options="required:true"  value=""></td>
+                   <td data-localize="equipmentType">类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;型</td>
+                   <td>
+                       <select id="eqptType" class="easyui-combobox" editable="false" panelHeight="auto" style="width: 130px;height:32px;">
+                           <option value="1">手表</option>
+                           <option value="2">手环</option>
+                           <option value="0">卡片</option>
+                       </select>
+                   </td>
+               </tr>
+               <tr>
+                   <td data-localize="equipmentStandard">规&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;格</td>
+                   <td>
+                       <select id="eqptStandard" class="easyui-combobox" editable="false" panelHeight="auto" style="width: 130px;height:32px">
+                           <option value="max">大</option>
+                           <option value="min">中</option>
+                           <option value="min">小</option>
+                       </select>
+                   </td>
+                   <td data-localize="equipmentColor">颜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;色</td>
+                   <td>
+                       <select id="eqptColor" class="easyui-combobox" panelHeight="auto" editable="false" style="width: 130px;height:32px">
+
+                       </select>
+                   </td>
+               </tr>
+               <tr>
+                   <td data-localize="equipmentPurchaseTime">采购日期</td>
+                   <td><input id="eqptPurchaseTime" style="height:32px;width: 130px" class="easyui-datebox" editable="false"></td>
+                   <td data-localize="equipmentTiedState">绑定状态</td>
+                   <td>
+                       <select id="eqptTied" class="easyui-combobox" panelHeight="auto" editable="false" style="width: 130px;height:32px">
+                           <option value="0">未绑定</option>
+                           <option value="1">已绑定</option>
+
+                       </select>
+                   </td>
+               </tr>
+               <tr>
+                   <td data-localize="equipmentRejectedTime">报废时间</td>
+                   <td><input id="eqptRejectedTime" style="height:32px;width: 130px" class="easyui-datebox" editable="false"></td>
+                   <td data-localize="equipmentIsRejected">报废状态</td>
+                   <td>
+                       <select id="eqptIsRejected" class="easyui-combobox" panelHeight="auto" editable="false" style="width: 130px;height:32px">
+                           <option value="0">使用中</option>
+                           <option value="1">已报废</option>
+                       </select>
+                   </td>
+               </tr>
+               <tr>
+                   <td data-localize="equipmentScene">场&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;景 </td>
+                   <td>
+                       <select id="eqptScene" class="easyui-combobox" panelHeight="auto" editable="false" style="width: 130px;height:32px">
+                       </select>
+                   </td>
+               </tr>
+           </table>
+       </form>
+   </div>
+</div>
+<script>
+
+    //i18n
+    $.language.equipmentnum = {'en':"EquipmentNum",'zh':'设备编号'};
+    $.language.equipmentCardNum = {'en':"CardNum",'zh':'卡号'};
+    $.language.equipmentMac = {'en':"Mac",'zh':'mac地址'};
+    $.language.equipmentType = {'en':"Type",'zh':'类型'};
+    $.language.equipmentStandard = {'en':"Standard",'zh':'规格'};
+    $.language.equipmentColor = {'en':"Color",'zh':'颜色'};
+    $.language.equipmentTiedState = {'en':"TiedState",'zh':'绑定状态'};
+    $.language.equipmentPurchaseTime = {'en':"PurchaseTime",'zh':'采购日期'};
+    $.language.equipmentIsRejected = {'en':"IsRejected",'zh':'报废状态'};
+    $.language.equipmentRejectedTime = {'en':"RejectedTime",'zh':'报废时间'};
+    $.language.equipmentOnline = {'en':"Online",'zh':'在线'};
+    $.language.equipmentElectricity = {'en':"Electricity",'zh':'电量'};
+    $.language.equipmentReportTime = {'en':"ReportTime",'zh':'上报时间'};
+    $.language.equipmentScene = {'en':"Scene",'zh':'场景'};
+
+
+    $.language.updateDom($("#eqptAddForm"));
+
+    function ajaxComplate() {
+        progressClose();
+        parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+        parent.$.modalDialog.handler.dialog('close');
+    }
+    function preventForm() {
+        var eqptnum = $('#eqptNum').val();
+        var eqptcardnum = $('#eqptcardnum').val();
+        var eqptMacaddr = $('#eqptMacaddr').val();
+        var eqptType = $('#eqptType').combobox('getValue');
+        var eqptStandard = $('#eqptStandard').combobox('getText');
+        var eqptColor = $('#eqptColor').combobox('getValue');
+        var eqptTiedState = $('#eqptTied').combobox('getValue');
+        var eqptPurchaseTime = $('#eqptPurchaseTime').val();
+        var eqptIsRejected = $('#eqptIsRejected').combobox('getValue');
+        var eqptRejectedTime = $('#eqptRejectedTime').val();
+        var eqptScene = $('#eqptScene').combobox('getValue');
+
+        if(eqptnum.length < 1 || eqptcardnum.length < 1 || eqptMacaddr.length < 1){
+            return false;
+        }
+        var param = {
+            num: eqptnum,
+            cardNo: eqptcardnum,
+            macAddr:eqptMacaddr,
+            type:eqptType,
+            standard:eqptStandard,
+            color:eqptColor,
+            relate:eqptTiedState,
+            buyDate:eqptPurchaseTime,
+            useless:eqptIsRejected,
+            uselessDate:eqptRejectedTime,
+            scene:eqptScene
+        };
+        $.mkUtil.ajax({
+            type: "POST",
+            url: $.webapi.equipment.addEquipment,
+            contentType:'application/json',
+            dataType:'json',
+            data: JSON.stringify(param),
+            success: function () {
+//                console.log($('#eqptScene').combobox('getText'));
+                ajaxComplate();
+//                alert("保存成功");
+            },
+            error: function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+    //获取颜色
+    (function () {
+        console.log($.webapi.color.findColor);
+        $.mkUtil.ajax({
+            type: 'GET',
+            url: "/color/find?page=1&pagesize=1000",
+            contentType: 'json',
+            dataType: 'application/json',
+            success: function (data) {
+                if(data.success){
+                    $('#eqptColor').combobox({
+                        data: data.data,
+                        valueField: 'id',
+                        textField: 'color'
+                    });
+                }
+            }
+        })
+        getScene();
+        console.log(2222);
+    })();
+    //获取设备场景
+    function getScene(){
+        $.mkUtil.ajax({
+            type: 'GET',
+            url: $.webapi.scene.findEquipmentScene,
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+                if(data.success){
+                    $('#eqptScene').combobox({
+                        data: data.data,
+                        valueField: 'id',
+                        textField: 'title'
+                    });
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

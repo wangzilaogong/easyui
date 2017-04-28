@@ -10,7 +10,7 @@
         <form id="editPersonneForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td><select id="numtype">
+                    <td><select id="numtype" class="easyui-combobox">
                         <option >证件类型</option>
                         <option>bbbbbb</option>
                         <option>cccccc</option>
@@ -22,11 +22,13 @@
                 <tr>
                     <td >所属部门</td>
                     <td>
-                        <select id="superdept" style="width: 100px">
+                        <select id="personnedept" style="width: 100px">
                         </select>
                     </td>
                     <td >国家</td>
-                    <td><input id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><select id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-combobox" data-options="required:true" >
+                        </select>
+                    </td>
                 </tr>
                 <tr>
                     <td >性别</td>
@@ -34,23 +36,20 @@
                         <span>男</span> <input type="radio" checked="checked" name="Sex" value="男" />
                         <span>女</span><input type="radio" name="Sex" value="女" />
                     </td>
-                    <td >设备编号</td>
+                    <td >人员类型</td>
                     <td>
-                        <select id="watch" style="width: 100px">
+                        <select id="renyuanleixing" style="width: 100px" data-options=" panelHeight : 'auto'">
+                            <option >医务人员</option>
+                            <option>病人</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td >状态</td>
-                    <td>
-                        <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
-                        <span >able0</span><input type="radio" name="able" value="2" />
+                    <td >单位</td>
+                    <td colspan="4" align="left">
+                        <input id="danwei"  type="text" class="easyui-textbox" style="width:350px;"   data-options="required:true" value="">
                     </td>
-                    <td >人员类型</td>
-                    <td>
-                        <select id="renyuanleixing" style="width: 100px">
-                        </select>
-                    </td>
+
                 </tr>
                 <tr>
                     <td>入院时间</td>
@@ -62,20 +61,13 @@
                         <input id="dd2" type="text">
                     </td>
                 </tr>
-                <tr>
-                    <td >单位</td>
-                    <td colspan="4" align="right">
-                        <input id="danwei" type="text" class="easyui-textbox" data-options="required:true" style="width:440px; overflow: hidden;" >
-                    </td>
-
-                </tr>
             </table>
         </form>
     </div>
 </div>
 <script>
     //刷新dom
-    $.language.updateDom($("#editpersonneForm"));
+    $.language.updateDom($("#editPersonneForm"));
 
     function ajaxComplate() {
         progressClose();
@@ -89,75 +81,114 @@
 
     //定义全局变量对象即选中行的row对象
     var chooserowdata = $.mkUtil.param.choosedatarow;
-    console.log(chooserowdata.numtype);
-    //赋值失败
-    function initeditperson(data){
-        var a = data.numtype;
-        $('#name').val(data.name);
-        //此处赋值失败
 
+
+    //赋值
+    function initeditperson(data){
+        console.log(data);
+        $('#danwei').val(data.unit);
+        $("#numtype").combobox({
+            value: data.cardType
+        });
+        $('#name').val(data.name);
+        $('#num').val(data.num);
+        $('#country').combobox({
+            value:data.title
+        });
+        $('#watch').combobox({
+            value:data.watch
+        });
+        $('#renyuanleixing').combobox({
+            value:data.type
+        });
+        //初始化部门树
+        (function getdept() {
+            $.mkUtil.ajax({
+                type:'GET',
+                url:$.webapi.dept.findAll,
+                dataType:'json',
+                contentType:'application/json',
+                success:function (data) {
+                    if(data.success = true){
+                        for(var i=0;i<data.data.length;i++){
+                            var parent = data.data[i].parent;
+                            data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
+                            data.data[i].text = data.data[i].title;
+                        }
+                        initCombtree(data.data);
+                    }
+                }
+            });
+        })();
+        function initCombtree(data) {
+            $("#personnedept").combotree({
+                data:data,
+                parentField : 'parent',
+                lines : true,
+                panelHeight : 'auto',
+                required:true
+//                        value:${res.parentId},
+//            onSelect:function (node) {
+//                var parent = node.id;
+//                console.log(parent);
+//            }
+            });
+
+        }
+
+        $('#personnedept').combotree({
+            value:chooserowdata.orgTitle
+        });
+
+
+        if(data.sex =="女"){
+            $("input[name=Sex][value='女']").attr("checked",true);
+        }
+        if(data.able==0){
+            $("input[name=able][value='0']").attr("checked",true);
+        }
+        $('#dd').datebox('setValue', data.startTime);
+        $('#dd2').datebox('setValue', data.endTime);
 
     }
     initeditperson(chooserowdata);
 
-    //获取部门
-    (function getdept() {
-        $.ajax({
-            type:'GET',
-            url:'../api/dept.json',
-            dataType:'json',
-            contentType:'application/json',
-            success:function (data) {
-                if(data.success = true){
-                    for(var i=0;i<data.data.length;i++){
-                        var parent = data.data[i].parent;
-                        data.data[i].iconCls = parent=='0'?'icon-dept2':' icon-dept3 ';
-                        data.data[i].text = data.data[i].title;
-                    }
-                    initCombtree(data.data);
-                }
-            }
-        });
-    })();
-    function initCombtree(data) {
-        $("#superdept").combotree({
-            data:data,
-            parentField : 'parent',
-            lines : true,
-            panelHeight : 'auto',
-            required:true,
-//                        value:${res.parentId},
-            onSelect:function (node) {
-                var parent = node.id;
-                console.log(parent);
-            }
-        })
-    }
+
 
     //阻止表单提交 改成ajax提交//
     function preventForm() {
-        var numtype = $("#numtype").find("option:selected").text();
-        var num =  $.trim($('#num').val());
-        var name = $.trim($('#name').val());
-        var orgId = $('#superdept').combotree('getValue');
-        var country =  $("#country").find("option:selected").text();
+
+
+        var numtype = $('#numtype').combobox('getValue');
+        var num =$('#num').val();
+        var name = $('#name').val();
+        var orgId = $('#personnedept').combotree('getValue');
+        if (typeof (orgId)=="string"){
+            orgId=chooserowdata.orgId;
+        }
+        var country = $('#country').combobox('getValue');
+        if (typeof (country)=="string"){
+            country =chooserowdata.country;
+        }
         var sex = $("input[type='radio']:checked").val();
-        var watch =  $("#watch").find("option:selected").text();
-        var able =  $("input[name='able']:checked").val();
-        var danwei =$.trim($('#danwei').val());
-        var gohospital =$('#dd').datebox('getValue');
-        var outhospital =$('#dd2').datebox('getValue');
-        var param = {};
+        var type =  $('#renyuanleixing').combobox('getValue');
+        var start = $('#dd').datebox('getValue');
+        var end = $('#dd2').datebox('getValue');
+        var unit = $('#danwei').val();
+        console.log(country);
+        console.log(orgId);
+        var param = {id:chooserowdata.id,num:num,name:name,sex:sex,country:country,org:orgId,cardType:numtype,type:type,unit:unit,enterTime:start,outTime:end};
+        console.log('333');
+        console.log(param);
         $.mkUtil.ajax({
             type:"POST",
-            url:'/org/update',
+            url:'/client/update',
+            dataType:'json',
+            contentType:'application/json',
             data:JSON.stringify(param),
             success:function (data) {
                 if(data.success == true){
-                    $('#dg').datagrid('updateRow',{
-                        index:choosedatarow.index,//此处获取要刷新的行
-                        row:param
-                    });
+
                     ajaxComplate();
                 }else {
                     console.log(data.error);
@@ -171,8 +202,56 @@
         return false;
     }
 
+    //初始化设备
+//    var deptarry = [];
+//    $.mkUtil.ajax({
+//        type:'GET',
+//        url:'/watch/findAll',
+//        dataType:'json',
+//        contentType:'application/json',
+//        success:function(data){
+//
+//            for (var i = 0;i<data.rows.length;i++){
+//                deptarry.push({"id":data.rows[i].id,"text":data.rows[i].cardNo});
+//            }
+//            console.log(deptarry);
+//            initdept();
+//        }
+//    });
+//    function initdept(){
+//        $('#watch').combobox({
+//            data:deptarry,
+//            valueField:'id',
+//            textField:'text',
+//            required:true
+//        });
+//    }
 
-
+    //初始化国家
+    var countryarry = [];
+    $.mkUtil.ajax({
+        type:'GET',
+        url:'/country/findCountryByCol',
+        dataType:'json',
+        contentType:'application/json',
+        success:function(data){
+            if(data.success == true){
+                for (var i = 0;i<data.data.length;i++){
+                    countryarry.push({"id":data.data[i].id,"text":data.data[i].title});
+                }
+            }
+            initCountry();
+        }
+    });
+    function initCountry(){
+        $('#country').combobox({
+            data:countryarry,
+            valueField:'id',
+            textField:'text',
+            required:true,
+            panelHeight : 'auto',
+        });
+    }
 
 </script>
 

@@ -1,0 +1,101 @@
+{"success": true,
+
+"data": [
+
+{
+
+"id": 1,
+
+"title": "未发出",
+
+"heartFre": 47,
+
+"dataFre": 42,
+
+"syncFre": 33,
+
+"createAt": "2017-04-19 10:38:28.0",
+
+"updateAt": "2017-04-19 10:54:20.0",
+
+"able": 1
+
+},
+  {
+
+    "id": 2,
+
+    "title": "实时上传",
+
+    "heartFre": 96,
+
+    "dataFre": 47,
+
+    "syncFre": 88,
+
+    "createAt": "2017-04-19 10:38:28.0",
+
+    "updateAt": "2017-04-19 10:54:20.0",
+
+    "able": 1
+
+  },
+  {
+
+    "id": 3,
+
+    "title": "低频场景3",
+
+    "heartFre": 88,
+
+    "dataFre": 27,
+
+    "syncFre": 27,
+
+    "createAt": "2017-04-19 10:38:28.0",
+
+    "updateAt": "2017-04-19 10:54:20.0",
+
+    "able": 1
+
+  },
+  {
+
+    "id": 4,
+
+    "title": "日常场景",
+
+    "heartFre": 25,
+
+    "dataFre": 35,
+
+    "syncFre": 58,
+
+    "createAt": "2017-04-19 10:38:28.0",
+
+    "updateAt": "2017-04-19 10:54:20.0",
+
+    "able": 1
+
+  },
+  {
+
+    "id": 5,
+
+    "title": "场景5",
+
+    "heartFre": 50,
+
+    "dataFre": 30,
+
+    "syncFre": 100,
+
+    "createAt": "2017-04-19 10:38:28.0",
+
+    "updateAt": "2017-04-19 10:54:20.0",
+
+    "able": 1
+
+  }
+
+] }

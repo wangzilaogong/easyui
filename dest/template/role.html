@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>role</title>
+    <title>角色管理</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
     <script type="text/javascript" src="../static/js/util.js"></script>
@@ -11,30 +11,58 @@
     <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
     <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
     <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
     <script type="text/javascript" src="../static/js/language.js"></script>
     <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-<div >
-    <span>ID:</span></td>
-    <input id="text_ID"  data-options="prompt:'Please enter  ID '"style="width:300px;"  required="required" class="easyui-textbox">
-    <a  id="searchbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'" style="width:80px"onclick="searchRoleById()">搜索</a>
-    <a id="clearbtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-bin'" style="width:80px" onclick="cleartext()">清空</a>
-
-</div>
-<div id="tb" style="padding:5px;height:auto">
-    <div style="margin-bottom:5px; border-bottom: 1px solid #ccc">
-        <a id="personneadd" href="#" class="easyui-linkbutton" iconCls="icon-addd3" plain="true" onclick="addrole()"></a>
-        <a id="personneedit" href="#" class="easyui-linkbutton" iconCls="icon-edit12" plain="true" onclick="editrole()"></a>
-        <a id="personnedel" href="#" class="easyui-linkbutton" iconCls="icon-dell6" plain="true" onclick="delrole()"></a>
+    <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        <table id="role_datagrid"  style="width:100%;">
+        </table>
+        <div style="display: none">
+            <div id="role_tb" >
+                <a id="roleadd" href="#" class="linkbutton" data-options="plain:true" iconCls="icon-addd3"  onclick="addrole()"></a>
+             </div>
+        </div>
     </div>
-
-</div>
-<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
-    <table id="role_datagrid"  style="width:100%;">
-    </table>
-</div>
     <script>
+            //i18n
+            $.language.text_ID = {'en':"RoleID",'zh':"角色ID"};
+            $.language.role_id_search = {'en':"Please input roleId",'zh':"角色ID"};
+            $.language.roleAdd = {'en':"Add","zh":"添加"};
+            $.language.roleEdit = {'en':"Edit","zh":"编辑"};
+            $.language.roleDel = {'en':"Delete","zh":"删除"};
+            $.language.roleSearch = {'en':"Search","zh":"搜索"};
+            $.language.roleClear = {'en':"Clear","zh":"清除"};
+            $.language.roleMessage_confirm = {'en':'Tip','zh':'提示'};
+            $.language.roleMessage_confirm2 = {'en':'Do you want to delete this role ','zh':'确认删除！'};
+            $.language.roleidentification = {'en':' Role identification','zh':'角色标识'};
+            $.language.rolerole= {'en':'Role','zh':'角色'};
+            $.language.roledescription = {'en':'Role description','zh':'角色描述'};
+            $.language.roleresource = {'en':'resource','zh':'资源'};
+            $.language.roleable = {'en':'Able','zh':'状态'};
+            $.language.roleAction = {'en':'Action','zh':'操作'};
+            $.language.roleGrant = {'en':'Grant','zh':'授权'};
+
+            var edit = $.language.i18n('roleEdit');
+            var deletetext = $.language.i18n('roleDel');
+            var grant = $.language.i18n('roleGrant');
+
+            $("#roleadd").linkbutton({
+                text:$.language.i18n("roleAdd")
+            });
+            $("#roledel").linkbutton({
+                text:$.language.i18n("roleDel")
+            });
+            $("#roledit").linkbutton({
+                text:$.language.i18n("roleEdit")
+            });
+
+        //刷新
+        var iframereloadfunc = function () {
+             window.location.reload();
+        };
+
         function searchRoleById(){
             var  seachrow  = $("#role_datagrid").datagrid('getSelected');
             var param ={id : seachrow.id};
@@ -58,12 +86,12 @@
         //add一个role
         function addrole(){
             parent.$.modalDialog({
-                title :'add',
-                width : 550,
-                height : 160,
+                title :$.language.i18n("roleAdd"),
+                width : 400,
+                height : 200,
                 href : '../template/addrole.html',
                 buttons : [ {
-                    text : $.language.i18n('personneadd'),
+                    text :$.language.i18n("roleAdd"),
                     handler : function() {
                         parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
                         var f = parent.$.modalDialog.handler.find('#addRoleForm');
@@ -72,18 +100,36 @@
                 } ]
             });
         }
+
+        //角色授权
+        function grantrole(roleid) {
+             $.mkUtil.param = {roleid:roleid};
+             parent.$.modalDialog({
+                title : grant,
+                width : 500,
+                height : 500,
+                href : '../template/grantrole.html',
+                buttons : [ {
+                    text : grant,
+                    handler : function() {
+                         parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#roleGrantForm');
+                        f.submit();
+                    }
+                } ]
+            });
+        }
+
         //edit 一个roled
-        function editrole(){
-            var row = $("#role_datagrid").datagrid('getSelected');
-            $.mkUtil.param = {rowdata:row};
-            if(!row){
-                parent.$.modalDialog({
-                    title :'edit',
-                    width : 550,
-                    height : 160,
+        function editrole(roleid){
+            $.mkUtil.param = {roleid:roleid};
+            parent.$.modalDialog({
+                    title :$.language.i18n("roleEdit"),
+                    width : 400,
+                    height : 200,
                     href : '../template/editrole.html',
                     buttons : [ {
-                        text : $.language.i18n('personneadd'),
+                        text : $.language.i18n("roleEdit"),
                         handler : function() {
                             parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
                             var f = parent.$.modalDialog.handler.find('#editRoleForm');
@@ -91,42 +137,28 @@
                         }
                     } ]
                 });
-
-
-            }else {
-                alert('请选中你要编辑的行数据!');
-            }
         }
 
         //del 一个role
-        function delrole(){
-            var delrow  = $("#role_datagrid").datagrid('getSelected');
-            if (delrow){
-                $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+        function delrole(roleid){
+            if (roleid){
+                $.messager.confirm($.language.i18n("roleMessage_confirm"),$.language.i18n("roleMessage_confirm2"), function (flag) {
                     if (flag) {
-                        if (delrow) {
-                            var searchid=delrow.id;
-                            var param={id:searchid};
                             $.mkUtil.ajax({
-                                type:"DELET",
-                                url:'/role/delete',
-                                data:JSON.stringify(param),
-                                success:function(){
-                                    $('#role_datagrid').datagrid('deleteRow', index);
-                                    $('#role_datagrid').datagrid('reload');
+                                type:"DELETE",
+                                url:'/role/delete?id='+roleid,
+                                success:function(data){
+                                    if(data.success == true){
+                                        iframereloadfunc();
+                                    }
                                 },
                                 error:function () {
-                                    console.log('role.html del error');
                                 }
 
                             });
-                        }
-
                     }
                 });
 
-            }else {
-                alert('请选中你要删除的行！');
             }
         }
 
@@ -143,51 +175,56 @@
             }
 
         });
+        var createper = $.mkUtil.perms.allitems.role.create;
+       var updateper = $.mkUtil.perms.allitems.role.update;
+       var deleteper = $.mkUtil.perms.allitems.role.delete;
+       var toolbar = createper?$("#role_tb"):'';
+
         function initRoleGrid(data){
             $("#role_datagrid").datagrid({
-//                remoteSort:false,
                 data:data,
                 singleSelect:true,
                 rownumbers:true,
                 fitColumns:true,
-                pagination:true,
-                pageSize:30,
-                toolbar:"#tb",
                 fit:true,
+                toolbar:toolbar,
                 columns : [ [{
-                    width : 100,
-                    title :'角色标识',
-                    field : 'id',
-                    align : 'center'
-
-                },{
-                    width : 100,
-                    title :'角色',
+                    width : 50,
+                    title :$.language.i18n("rolerole"),
                     field : 'role',
                     align : 'center'
                 },
                     {
-                        width : 100,
-                        title :'角色描述',
+                        width : 50,
+                        title :$.language.i18n("roledescription"),
                         field : 'description',
                         align : 'center'
                     },
                     {
                         width : 100,
-                        title : '资源',
+                        title : $.language.i18n("roleresource"),
                         field : 'resourceIds',
                         align : 'center'
                     },
-                    {
-                        width : 100,
-                        title : 'able',
-                        field : 'able',
-                        align : 'center'
-                    }
+                     {field:'action',title:$.language.i18n("roleAction"),width:50,
+                			formatter: function(value,row,index) {
+                                var str = '';
+                                if(updateper){
+                                    str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="editrole(\'{0}\');" >'+edit+'</a>', row.id)
+                                    str = str + '&nbsp;&nbsp;|&nbsp;&nbsp;';
+                                    str = str + $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="grantrole(\'{0}\');" >'+grant+'</a>', row.id)
+                                }
+                                if(deleteper){
+                                    str = str + '&nbsp;&nbsp;|&nbsp;&nbsp;';
+                                    str = str + $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="delrole(\'{0}\');" >'+deletetext+'</a>', row.id)
+                                }
+
+                                return str;
+                            }
+                }
                 ]]
             });
         }
-        initRoleGrid([]);
     </script>
 </body>
 </html>

@@ -10,22 +10,15 @@
         <form id="addRoleForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td >role</td>
-                    <td><input id="rolerole" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入角色" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-                    <td >description</td>
+                    <td data-localize="roletitle" ></td>
                     <td>
-                        <input id="roledescription" name="username" type="text" style="height: 25px;width: 100px;" placeholder="角色描述" class="easyui-validatebox span2" data-options="required:true" value="">
+                        <input id="rolerole" data-localize="roletitlepl" name="username" type="text" style="height: 25px;width: 200px;" placeholder="Please input role name" class="span2" data-options="required:true" value="">
                     </td>
                 </tr>
                 <tr>
-                    <td >resourceIds</td>
+                    <td data-localize="roledescrition"></td>
                     <td>
-                        <input id="roleresourceIds">
-                    </td>
-                    <td >able</td>
-                    <td>
-                        <span >able1</span> <input type="radio" checked="checked" name="able" value="1" />
-                        <span >able0</span><input type="radio" name="able" value="0" />
+                        <input data-localize="roledescritionpl" id="roledescription" name="description" type="text" style="height: 25px;width: 200px;" placeholder="Please input role description" class="span2" data-options="required:true" value="">
                     </td>
                 </tr>
             </table>
@@ -35,6 +28,22 @@
 
 
 <script>
+
+    //i18n
+    //roletitle roletitlepl roledescrition roledescritionpl
+    $.language.roletitle = {'en':'Role Title','zh':'角色名称'};
+    $.language.roletitlepl = {'en':'Please input role name','zh':'请输入角色名称'};
+    $.language.roledescrition = {'en':'Role Description','zh':'角色描述'};
+    $.language.roledescritionpl = {'en':'Please input role description','zh':'请输入角色描述'};
+
+    $.language.updateDom($("#addRoleForm"));
+
+    //init easyui-validatebox
+    $("#rolerole").validatebox();
+    $("#roledescription").validatebox();
+
+
+
     //ajax complete
     function ajaxComplate() {
         progressClose();
@@ -42,47 +51,28 @@
         parent.$.modalDialog.handler.dialog('close');
     }
 
+
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var role = $.trim($('#role').val());
+        var role = $.trim($('#rolerole').val());
         var roledescription = $.trim($('#roledescription').val());
-        var resourceIds =$('#resourceIds').combobox('getValue');
-        var able = $("input[type='radio']:checked").val();
-        var param = {role:role,roledescription:roledescription,resourceIds:resourceIds,able:able};
+        var param = {role:role,description:roledescription,resourceIds:[]};
         $.mkUtil.ajax({
             type:"POST",
             url:'/role/create',
+            contentType:'application/json',
+            dataType:'json',
             data:JSON.stringify(param),
             success:function (data) {
-                if(data.success == true){
-                    $('#role_datagrid').datagrid('appendRow', param);
-                    ajaxComplate();
-                }else {
-                    alert(data.error);
-                }},
+                 ajaxComplate();
+            },
             error:function () {
                 ajaxComplate();
             }
         });
         return false;
     }
-    //初始化resourceids
-    $.mkUtil.ajax({
-        type:'GET',
-        url:'',
-        cache:false,
-        contentType:'application/json',
-        success:function(data){
-            if (data.success==true){
-            initCombobox(data.data);
-            }
-        }
-    });
 
-    //初始化combox
-   function initCombobox(data){
-
-   }
 
 
 </script>

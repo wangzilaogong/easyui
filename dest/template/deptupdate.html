@@ -40,6 +40,7 @@
     }
     //根据id查找org
      var orgid = $.mkUtil.param.orgid;
+     var parentid;
 
     //阻止表单提交 改成ajax提交
     function preventForm() {
@@ -47,14 +48,19 @@
         var parent = $('#superdept').combotree('getValue');
         if(title.length<1||!parent||orgid.length<1) return false;
         var param = {title:title,parent:parent,id:orgid};
+        console.log(param);
         $.mkUtil.ajax({
             type:"POST",
-            url:'/org/update',
+            url:$.webapi.dept.updateDept,
+            dataType:'json',
+            contentType:'application/json',
             data:JSON.stringify(param),
-            success:function () {
+            success:function (data) {
+                console.log(data);
                 ajaxComplate();
             },
-            error:function () {
+            error:function (data) {
+                console.log(data);
                 ajaxComplate();
             }
         });
@@ -62,17 +68,18 @@
     }
 
    (function getdept() {
-           $.ajax({
+           $.mkUtil.ajax({
                type:'GET',
-               url:'../api/dept.json',
+               url:$.webapi.dept.findAll,
                dataType:'json',
                contentType:'application/json',
                success:function (data) {
-                   if(data.success = true){
+                   if(data.success){
                        data.data.push({"title":$.language.i18n('SuperOrg'),'parent':'0','id':'0'});
                        for(var i=0;i<data.data.length;i++){
                            var id = data.data[i].id;
                            if(id==orgid){
+                               parentid = data.data[i].parent;
                                $("#depttitle").val(data.data[i].title);
                            }
                            var parent = data.data[i].parent;
@@ -86,14 +93,14 @@
        })();
 
 
-        function initCombtree(data) {
+   function initCombtree(data) {
            $("#superdept").combotree({
                         data:data,
                         parentField : 'parent',
                         lines : true,
                         panelHeight : 'auto',
                         required:true,
-                        value:orgid,
+                        value:parentid
 //                        onSelect:function (node) {
 //                            var parent = node.id;
 //                            console.log(parent);

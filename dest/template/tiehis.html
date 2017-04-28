@@ -2,9 +2,216 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>绑定历史</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/webapi.js"></script>
+
 </head>
 <body>
+    <div id="tb" style="padding:5px;height:auto">
+        <div>
+            <span style="margin-left: 5px" data-localize="queryMode"></span>
+            <select id="search" class="easyui-combobox" panelHeight="auto" style="width:100px">
+                <option value="deptnum" >部门名称</option>
+                <option value="equipmentNum" >设备编号</option>
+                <option value="name" >姓名</option>
+            </select>
+            <input id="txt" class="easyui-textbox" >
+            <a id="tiehisSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchTiehis()"></a>
+        </div>
+    </div>
+    <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        <table id="tiehis_datagrid"  style="width:100%;">
+
+        </table>
+    </div>
 
 </body>
+
+<script>
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+
+    //调试的时候需要设置url
+    remoteBaseUrl = "http://192.168.0.153:8080";
+
+    //i18n
+    $.language.equipmentNum = {'en':"EquipmentNum",'zh':'设备编号'};
+    $.language.departmentName = {'en':"DepartmentName",'zh':'部门名称'};
+    $.language.name = {'en':"name",'zh':'姓名'};
+    $.language.queryMode = {'en':"QueryMode",'zh':'查询方式'};
+    $.language.equipmentName = {'en':"EquipmentName",'zh':'设备名称'};
+    $.language.personnelNum = {'en':"PersonnelNum",'zh':'人员编号'};
+    $.language.sex = {'en':"Sex",'zh':'性别'};
+    $.language.nation = {'en':"Nation",'zh':'国籍'};
+    $.language.relateTime = {'en':"RelateTime",'zh':'绑定时间'};
+    $.language.endRelateTime = {'en':"EndRelateTime",'zh':'结束绑定时间'};
+    $.language.useless = {'en':"Binding-State",'zh':'绑定状态'};
+    $.language.tiehisTip = {'en':'Tip','zh':'提示'};
+    $.language.tiehisTipText = {'en':'No binding history found','zh':'未找到相关绑定历史'};
+    $.language.tiehisTipError = {'en':'failed query','zh':'查询失败'};
+    $.language.Ok = {'en':'Ok','zh':'确认'};
+    $.language.Cancle = {'en':'Cancel','zh':'取消'};
+    $.language.tiehisSearch = {'en':'Search','zh':'搜索'};
+    $('#tiehisSearch').text($.language.i18n('tiehisSearch'));
+
+
+    //搜索绑定历史
+    function searchTiehis() {
+        //获取搜索方式
+        var search = $('#search').combobox('getValue');
+        //获取输入的内容
+        var txt = $('#txt').textbox('getValue');
+        console.log(txt);
+        var param;
+        if(search == deptnum){
+            param = {deptnum:txt};
+        } else if(search == equipmentNum){
+            param = {equipmentNum:txt};
+        } if(search == name){
+            param = {name:txt};
+        }
+        $.mkUtil.ajax({
+            type: "POST",
+            url: "",
+            data: JSON.stringify(param),
+            success: function (data) {
+                if(data.success == true){
+                    $("#tiehis_datagrid").datagrid('loadData',data.data);
+                }else{
+                    $.messager.confirm($.language.i18n('tiehisTip'),$.language.i18n('tiehisTipText'));
+                }
+            },
+            error:function () {
+                $.messager.confirm($.language.i18n('tiehisTip'),$.language.i18n('tiehisTipError'));
+            }
+        });
+    }
+
+    $(function () {
+        getTiehis();
+        //获取历史绑定
+        function getTiehis() {
+            $.mkUtil.ajax({
+                url:'../api/tiehis.json',
+                type:'GET',
+                contentType:'json',
+                dataTpye: 'application/json',
+                success:function (data) {
+                    $("#tiehis_datagrid").datagrid('loadData',data.data);
+                },
+                error:function () {
+                }
+            });
+        }
+
+        //initView
+        function initView() {
+            $("#tiehis_datagrid").datagrid({
+                singleSelect:true,
+                rownumbers:true,
+                fitColumns:true,
+                pagination:true,
+                pageSize: 30,
+                fit:true,
+                toolbar:'#tb',
+                columns : [ [
+                    {
+                        width : '100',
+                        title : $.language.i18n('departmentName'),
+                        field : 'deptnum'
+                    }
+                    ,
+                    {
+                    width : '80',
+                    title : $.language.i18n('equipmentNum'),
+                    field : 'equipmentNum'
+                   },
+                    {
+                        width : '100',
+                        title : $.language.i18n('equipmentName'),
+                        field : 'equipmentName'
+                    },
+                    {
+                        width : '100',
+                        title : $.language.i18n('personnelNum'),
+                        field : 'personnelNum'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('name'),
+                        field : 'name'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('sex'),
+                        field : 'sex'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('nation'),
+                        field : 'nation'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('relateTime'),
+                        field : 'relateTime'
+                    }
+                    ,
+                    {
+                        width : '80',
+                        title : $.language.i18n('endRelateTime'),
+                        field : 'endRelateTime'
+                    },
+                    {
+                        width : '80',
+                        title : $.language.i18n('useless'),
+                        field : 'useless'
+                    }
+                ]]
+            });
+            var p = $('#tiehis_datagrid').datagrid('getPager');
+            var opts = $('#tiehis_datagrid').datagrid('options');
+            p.pagination({
+                showRefresh:false,
+                showPageList:false,
+                pageNumber: 1,
+                onSelectPage:function (pageNumber,pageSize) {
+                    opts.pageNumber = pageNumber;
+                    opts.pageSize = pageSize;
+                    var param = {page:pageNumber,pageSize:pageSize};
+                    $.mkUtil.ajax({
+                        type:'GET',
+                        url:'',
+                        data:JSON.stringify(param),
+                        success:function (data) {
+                            p.pagination('refresh',{
+                                pageNumber:pageNumber,
+                                pageSize:pageSize
+                            });
+                            $("#equipment_datagrid").datagrid('loadData',data.rows);
+                        }
+                    })
+                }
+            });
+        }
+
+        initView();
+    });
+</script>
 </html>
