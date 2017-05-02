@@ -20,22 +20,22 @@
 <body>
 <div id="tb" style="padding:5px;height:auto">
     <span style="margin-left: 10px" >查询方式</span>
-    <select id="searchMode" class="easyui-combobox" panelHeight="auto" style="width:100px" onSelect="func(y)" >
+    <select id="searchMode" class="easyui-combobox" panelHeight="auto" data-options="editable:false"  style="width:100px;"  >
         <option value="name">人员姓名</option>
         <option value="type">人员类别</option>
         <option value="time" >时间</option>
         <option value="lac">位置</option>
         <option value="alarmname">报警名称</option>
     </select>
-    <div id="ss">
+    <div id="ss" style="display:inline">
         <span  style="margin-left: 10px">开始时间</span>
-        <input id="start" class="easyui-datetimebox" value="10/11/2012 2:3:56" style="width:150px">
+        <input id="start" class="easyui-datetimebox"  editable="false" style="width:150px">
         <span style="margin-left: 10px">结束时间</span>
-        <input id="end" class="easyui-datetimebox" value="10/11/2012 2:3:56" style="width:150px">
+        <input id="end" class="easyui-datetimebox"  editable="false" style="width:150px">
     </div>
-    <div id="cc">
+    <div id="cc" style="display:inline">
     <span style="margin-left: 10px">选择名称</span>
-    <select id="searchName" class="easyui-combobox" panelHeight="auto" style="width:100px">
+    <select id="searchName" class="easyui-combobox" editable="false" panelHeight="auto" style="width:100px">
         <option value="">心率过低</option>
         <option value="">生命状态缺失</option>
         <option value="">超出YL范围</option>
@@ -44,7 +44,7 @@
         <option value="">紧急呼叫</option>
     </select>
     </div>
-    <input id="txt" class="easyui-textbox" style="width:150px; margin-left: 10px">
+    <input id="txt" class="easyui-textbox" style="width:150px; margin-left: 10px;">
     <a id="alarmSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonnelAlarm()">查询</a>
 
 </div>
@@ -68,18 +68,42 @@
         var end = $('#end').datetimebox('getValue');
         var searchName = $('#searchName').combobox('getValue');
         var msg = $('#txt').textbox('getValue');
-        alert(88834);
+
+        var param;
+        if(searchMode == "name"){
+            param = {};
+        } else if(searchMode == "type"){
+            param = {};
+        } else if(searchMode == "time"){
+            param = {};
+        } else if(searchMode == "lac"){
+            param = {};
+        } else if(searchMode == "alarmname"){
+            param = {};
+        }
+        $.mkUtil.ajax({
+
+        })
+
+
 
     }
     $('#searchMode').combobox({
         onSelect:function (rec) {
+//            window.location.reload();
             console.log(rec);
             if(rec.value == "time"){
                 $('#ss').show();
+                $('#cc').hide();
                 $('#txt').next().hide();
             } else if(rec.value == "alarmname"){
                 $('#cc').show();
+                $('#ss').hide();
                 $('#txt').next().hide();
+            } else{
+                $('#cc').hide();
+                $('#ss').hide();
+                $('#txt').next().show();
             }
         }
     });

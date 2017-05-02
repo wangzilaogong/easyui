@@ -5,45 +5,97 @@
     <title>人员绑定设备</title>
 </head>
 <body>
-<div class="easyui-layout" data-options="fit:true,border:false" >
-    <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
-        <form id="boundForm" method="post" onsubmit="return preventForm()">
-            <table id="boundGrid">
-            </table>
-        </form>
-    </div>
+<form id="boundFormPost" method="post" onsubmit="return preventForm()">
+<div>
+    <span data-localize="equipmentClassify">分类</span>
+    <select id="type" class="easyui-combobox" panelHeight="auto" style="width:100px">
+        <option value="4">不限</option>
+        <option value="1">手表</option>
+        <option value="2">手环</option>
+        <option value="0">卡片</option>
+    </select>
+    <span  data-localize="equipmentSearchMode" style="margin-left: 50px" >按需搜索</span>
+    <select id="searchMode" class="easyui-combobox" panelHeight="auto" style="width:100px">
+        <option value="1">卡号</option>
+        <option value="2">编号</option>
+        <option value="3">Mac地址</option>
+        </select>
+    <input id="txt" class="easyui-textbox" >
+    <a id="equipmentSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchEquipment()"></a>
 </div>
+
+    <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+        <table id="eqpt_datagrid"  style="width:100%;">
+        </table>
+    </div>
+    </form>
 <script>
-    //i18n
-
-
     //ajax complete
     function ajaxComplate() {
         progressClose();
         parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
         parent.$.modalDialog.handler.dialog('close');
     }
-    var watchid= $.mkUtil.param.watchid;
-    var abledept = $.mkUtil.param.dept;
+    //国际化
+    $.language.equipmentnum = {'en':"EquipmentNum",'zh':'设备编号'};
+    $.language.equipmentCardNum = {'en':"CardNum",'zh':'卡号'};
+    $.language.equipmentMac = {'en':"Mac",'zh':'mac地址'};
+    $.language.equipmentType = {'en':"Type",'zh':'类型'};
+    $.language.equipmentStandard = {'en':"Standard",'zh':'规格'};
+    $.language.equipmentColor = {'en':"Color",'zh':'颜色'};
+    $.language.equipmentTiedState = {'en':"TiedState",'zh':'绑定状态'};
+    $.language.equipmentPurchaseTime = {'en':"PurchaseTime",'zh':'采购日期'};
+    $.language.equipmentIsRejected = {'en':"IsRejected",'zh':'报废状态'};
+    $.language.equipmentRejectedTime = {'en':"RejectedTime",'zh':'报废时间'};
+    $.language.equipmentOnline = {'en':"Online",'zh':'在线'};
+    $.language.equipmentElectricity = {'en':"Electricity",'zh':'电量'};
+    $.language.equipmentReportTime = {'en':"ReportTime",'zh':'上报时间'};
+    $.language.equipmentScene = {'en':"Scene",'zh':'场景'};
+    $.language.equipmentadd = {'en':"Add","zh":"添加"};
+    $.language.equipmentedit = {'en':"Edit","zh":"编辑"};
+    $.language.equipmentdel = {'en':"Delete","zh":"删除"};
+    $.language.equipmentOk = {'en':'Ok','zh':'确认'};
+    $.language.equipmentCancle = {'en':'Cancel','zh':'取消'};
+    $.language.equipmentSearch = {'en':"Search","zh":"搜索"};
+    $.language.equipmentClassify = {'en':"Classify","zh":"分类"};
+    $.language.equipmentAll = {'en':"All","zh":"不限"};
+    $.language.equipmentWatch = {'en':"Watch","zh":"手表"};
+    $.language.equipmentBracelet = {'en':"bracelet","zh":"手环"};
+    $.language.equipmentCard = {'en':"card","zh":"卡片"};
+    $.language.equipmentSearchMode = {'en':"SearchMode","zh":"搜索方式"};
+    $.language.equipmentTip = {'en':"Tip","zh":"提示"};
+    $.language.equipmentTipE = {'en':"Select the line you want to edit","zh":"请选中要编辑的行"};
+    $.language.equipmentTipD = {'en':"Select the row to delete","zh":"请选中要删除的行"};
+    $.language.equipmentTipF = {'en':"Device not found","zh":"未找到相关设备"};
+    $.language.equipmentTipS = {'en':"Are you sure you want to delete","zh":"确定要删除吗"};
+    $.language.equipmentTipB = {'en':"The device is bound or bound to history","zh":"该设备已绑定或有绑定历史"};
+    $.language.equipmentClassify = {'en':"Classify","zh":"分类"};
+    $.language. personnewarn = {'en':"Warnning","zh":"报错"};
+
+
+    $.language.updateDom($('#boundFormPost'));
+
     //阻止表单提交 改成ajax提交
     function preventForm() {
-        var id = $.trim($('#personneid').val());
+        var watchid = $('#eqpt_datagrid').datagrid('getSelected');
+        console.log(watchid.id);
+        var personid = $.mkUtil.param.personbind;
 
-        var watchid =  $("#watchid").find("option:selected").text();
-
-        var param = {id:id,watch:watchid};
+        var param ={id:personid.id,watch:watchid.id};
         $.mkUtil.ajax({
             type:"POST",
             url:'/client/bound',
             data:JSON.stringify(param),
+            contentType:'application/json',
             success:function (data) {
-                if(data.success==true){
-                    console.log('绑定完成');
+                if(data.success == true){
                     ajaxComplate();
                 }else {
-                    alert(data.error);
-                }
-            },
+                    $.messager.alert($.language.i18n('personnewarn') ,data.error,'info', function () {
+                        if (flag) {
+                        }
+                    });
+                }},
             error:function () {
                 ajaxComplate();
             }
@@ -51,14 +103,145 @@
         return false;
     }
 
+    var abledept =[];
+    //初始化表格
     $.mkUtil.ajax({
-        type:"GET",
-        url:'/watch/findAll?relate=0',
-        success: function (data) {
-            initSet(data.data);
-        }
-    });
-</script>
+        url:$.webapi.equipment.findAll,
+//				url:"http://192.168.0.194:8080/watch/findAll",
+        type:'GET',
+        success:function(data){
 
+            for(var i=0;i<data.rows.length;i++){
+                if(data.rows[i].relate ==0){
+                    abledept.push({"id":data.rows[i].id,"num":data.rows[i].num,"cardNo":data.rows[i].cardNo,"macAddr":data.rows[i].macAddr,"typeM":data.rows[i].typeM,
+                        "standard":data.rows[i].standard,"buyDate":data.rows[i].buyDate,"onlineM":data.rows[i].onlineM,"battery":data.rows[i].battery,
+                        "createAt":data.rows[i].createAt,"sceneM":data.rows[i].sceneM});
+                }
+            }
+            console.log(abledept);
+            $('#eqpt_datagrid').datagrid('loadData',abledept);
+        }
+
+    });
+    $("#eqpt_datagrid").datagrid({
+        singleSelect:true,
+        rownumbers:true,
+        fitColumns:true,
+        pagination:true,
+        fit:true,
+        columns: [[
+            {
+                width : 100,
+                title : $.language.i18n('equipmentnum'),
+                field : 'num'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentCardNum'),
+                field : 'cardNo'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentMac'),
+                field : 'macAddr'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentType'),
+                field : 'typeM'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentStandard'),
+                field : 'standard'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentPurchaseTime'),
+                field : 'buyDate'
+            },
+            {
+                width : 100,
+                title : $.language.i18n('equipmentOnline'),
+                field : 'onlineM'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentElectricity'),
+                field : 'battery'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentReportTime'),
+                field : 'createAt'
+            }
+            ,
+            {
+                width : 100,
+                title : $.language.i18n('equipmentScene'),
+                field : 'sceneM'
+            }
+        ]]
+    });
+    //查询设备
+    function searchEquipment() {
+        var type = $("#type").combobox('getValue');
+        var mode = $('#searchMode').combobox('getValue');
+        var txt = $('#txt').textbox('getValue');
+        var param;
+        if(type=='4') type='';
+        if(mode == 1){
+            param = {type:type,cardNo:txt};
+        } else if (mode == 2){
+            param = {type:type,num:txt};
+        } else if(mode == 3){
+            param = {type:type,macAddr:txt};
+        }
+        var dic = {};
+        for(var k in param){
+            var v = param[k];
+            if(v == ''||v.replace(new RegExp(' ','gm'),'')==''){
+                continue;
+            }else {
+                dic[k]=v;
+            }
+        }
+
+        $.mkUtil.ajax({
+            type: "GET",
+            url: $.webapi.equipment.findEquipment,
+//			url:'http://192.168.0.194:8080//watch/findAll',
+            data:dic,
+
+            success: function (data) {
+                if(data.rows.length>0){
+                    var updatearry=[];
+                    for(var i = 0; i<data.rows.length;i++){
+                        if(data.rows[i].relate==0){
+
+                            updatearry.push({"id":data.rows[i].id,"num":data.rows[i].num,"cardNo":data.rows[i].cardNo,"macAddr":data.rows[i].macAddr,"typeM":data.rows[i].typeM,
+                                "standard":data.rows[i].standard,"buyDate":data.rows[i].buyDate,"onlineM":data.rows[i].onlineM,"battery":data.rows[i].battery,
+                                "createAt":data.rows[i].createAt,"sceneM":data.rows[i].sceneM});
+                        }
+                        console.log(11);
+                        console.log(updatearry);
+                       $('#eqpt_datagrid').datagrid('loadData',updatearry);
+                    }
+                }else{
+                    $.messager.confirm($.language.i18n('equipmentTip'),$.language.i18n('equipmentTipF'));
+                }
+            }
+        });
+    }
+
+</script>
 </body>
+
 </html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改舱室</title>
+</head>
+<body>
+     <div class="easyui-layout" data-options="fit:true,border:false" >
+        <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+            <form id="cabinUpdateForm" method="post" onsubmit="return preventForm()">
+                <table class="grid">
+                    <tr>
+                        <td data-localize="cabintitle"></td>
+                        <input id="cabinid" type="hidden" data-localize="cabin_title" name="title" type="text" style="height: 25px;width: 292px;" placeholder="" class=" span2" data-options="required:true" >
+                        <td>
+                            <input id="cabintitle" data-localize="cabin_title" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin title" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                     <tr>
+                        <td data-localize="cabinmapid"></td>
+                        <td>
+                            <input id="cabinmapid" data-localize="cabin_mapid" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin mapid" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                     <tr>
+                        <td data-localize="cabincolor"></td>
+                        <td>
+                            <input id="cabincolor" data-localize="cabin_color" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin color" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                     <tr>
+                        <td data-localize="cabincoordinate"></td>
+                        <td>
+                            <input id="cabincoordinate" data-localize="cabin_coordinate" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin coordinate" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+    </div>
+    <script>
+        $.language.cabintitle = {'en':'Cabin Title','zh':'舱室名称'};
+        $.language.cabin_title = {'en':'Please input cabin title','zh':'请输入舱室名称'};
+
+        $.language.cabinmapid = {'en':'Cabin MapId','zh':'地图ID'};
+        $.language.cabin_mapid = {'en':'please input cabin mapid','zh':'请输入地图ID'};
+
+        $.language.cabincolor = {'en':'Cabin Color','zh':'舱室颜色'};
+        $.language.cabin_color = {'en':'please input cabin color','zh':'请输入舱室颜色'};
+
+        $.language.cabincoordinate = {'en':'Cabin Coordinates','zh':'坐标集'};
+        $.language.cabin_coordinate = {'en':'please input cabin coordinates','zh':'请输入地图坐标集'};
+
+        $.language.updateDom($("#cabinUpdateForm"));
+
+        //init easyui-validatebox
+        $("#cabintitle").validatebox();
+        $("#cabinmapid").validatebox();
+        $("#cabincoordinate").validatebox();
+        $("#cabincolor").combobox();
+
+
+
+
+     function ajaxComplate() {
+          progressClose();
+          parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+          parent.$.modalDialog.handler.dialog('close');
+    }
+    //根据id查找org
+     var cabinid = $.mkUtil.param.cabinid;
+
+    getCabinByID(cabinid);
+
+    function getAllColor(value) {
+        $.mkUtil.ajax({
+            type:"GET",
+            url:"/color/find?page=1&pagesize=1000",
+            contentType:"application/json",
+            dataType:'json',
+            success:function (data) {
+                if(data.success == true){
+                      $("#cabincolor").combobox({
+                          data:data.data,
+                          textField:'title',
+                          valueField:'id',
+                          value:value,
+                          panelHeight:'auto'
+                      });
+                }
+            }
+    });
+    }
+
+     function getCabinByID(cabinid) {
+         $.mkUtil.ajax({
+             type:'GET',
+             url:'/cabin/find?id='+cabinid,
+             dataType:'json',
+             contentType:'application/json',
+             success:function (data) {
+                 if(data.success == true){
+                        $("#cabinid").val(data.data.id);
+                        $("#cabintitle").val(data.data.title);
+                         $("#cabinmapid").val(data.data.mapId);
+                        $("#cabincoordinate").val(data.data.coordinate);
+                         getAllColor(data.data.colorId);
+                 }
+             }
+         })
+     }
+
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+         var cabinid = $("#cabinid").val();
+         var title = $('#cabintitle').val();
+         var colorid =  $('#cabincolor').combobox('getValue');
+         var mapid = $("#cabinmapid").val();
+         var coordinate = $("#cabincoordinate").val();
+        if(title.length<1||colorid.length<1||mapid.length<1||coordinate.length<1||!cabinid) return false;
+        var param = {title:title,colorId:colorid,mapId:mapid,coordinate:coordinate,id:cabinid};
+         $.mkUtil.ajax({
+            type:"POST",
+            url:'/cabin/update',
+             contentType:'application/json',
+            dataType:'json',
+            data:JSON.stringify(param),
+            success:function () {
+                ajaxComplate();
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+
+
+    </script>
+
+</body>
+</html>

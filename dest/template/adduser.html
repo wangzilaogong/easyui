@@ -10,10 +10,10 @@
         <form id="addUserForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td data-localize="username1" >登录名</td>
-                    <td><input id="loginusername" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2" data-options="required:true" ></td>
+                    <td data-localize="username1">登录名</td>
+                    <td><input id="loginusername" name="username"  style="height: 25px;width: 100px;" placeholder="请输入用户名" class="easyui-validatebox span2 easyui-textbox" data-options="required:true" ></td>
                     <td data-localize="password18n">登录密码</td>
-                    <td><input id="password" name="name" type="password" style="height: 25px;width: 100px;" placeholder="请输入密码" class="easyui-validatebox span2" data-options="required:true" ></td>
+                    <td><input id="password" name="name" type="password" style="height: 25px;width: 100px;" placeholder="请输入密码" class="easyui-validatebox span2 easyui-textbox" data-options="required:true" ></td>
                 </tr>
                 <tr>
                     <td data-localize="dept">所属部门</td>
@@ -22,7 +22,7 @@
                         </select>
                     </td>
                     <td data-localize="name">姓名</td>
-                    <td><input id="name" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><input id="name" name="username"  style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2 easyui-textbox" data-options="required:true" value=""></td>
                 </tr>
                 <tr>
                     <td data-localize="sex">性别</td>
@@ -32,7 +32,7 @@
                     </td>
                     <td data-localize="type">类型</td>
                     <td>
-                        <select id="type" style="width: 100px">
+                        <select id="type" class="easyui-combobox" data-options=" panelHeight : 'auto'" style="width: 100px">
                             <option >超级管理员</option>
                             <option >管理员</option>
                             <option >用户</option>
@@ -72,6 +72,8 @@
     $.language.deledlgTitle = {"en":"warn ","zh":"确认删除"};
     $.language.role = {"en":"role ","zh":"角色"};
     $.language.password18n = {"en":"password ","zh":"密码"};
+
+    $.language.updateDom($("#addUserForm"));
 
     //ajax complete
     function ajaxComplate() {

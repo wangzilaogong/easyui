@@ -287,7 +287,7 @@ $.mkUtil.isLogin = function () {
  * login
  * @param var param =  {username:"root",password:"u12345",remember:"Remember Me"};
  */
-$.mkUtil.doLogin = function (param) {
+$.mkUtil.doLogin = function (param,errorcallback) {
      $.ajax({
             type:'POST',
             url:remoteBaseUrl+'/login',//?username=admin&password=admin
@@ -301,6 +301,8 @@ $.mkUtil.doLogin = function (param) {
                     $.mkUtil.token= data.access_token;
                     $.mkUtil.user = data.user;
                     window.top.location = '../template/index.html';
+                }else {
+                    errorcallback(data)
                 }
             },
             error:function () {
@@ -347,28 +349,28 @@ $.mkUtil.ajax = function (opts) {
               opts.url = remoteBaseUrl +opts.url;
           }
       }
-      // if(!opts.contentType){
-      //     opts.contentType = "application/json";
-      // }
-      // if(!opts.dataType){
-      //     opts.dataType = 'json';
-      // }
+      if(!opts.contentType){
+          opts.contentType = "application/json";
+      }
+      if(!opts.dataType){
+          opts.dataType = 'json';
+      }
       if(!opts.cache){
           opts.cache = false;
       }
-      if(opts.error){
-          error = opts.error;
-          opts.error = function (a,b) {
-              if(a.status==401){
-                  $.mkUtil.clearCache();
-                  $.mkUtil.redirectToLogin();
-              }else {
-                  if(error){
-                      error(a,b)
-                  }
+      error = opts.error;
+      opts.error = function (a,b) {
+          console.log(a);
+          if(a.status==401){
+              console.log('401');
+              $.mkUtil.clearCache();
+              $.mkUtil.redirectToLogin();
+          }else {
+              if(error){
+                  error(a,b)
               }
-          };
-      }
+          }
+      };
       $.ajax(opts);
 };
 

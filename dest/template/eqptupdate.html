@@ -23,9 +23,6 @@
                     <td data-localize="equipmentColor">颜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;色</td>
                     <td>
                         <select id="eqptColor" class="easyui-combobox" editable="false" panelHeight="auto" style="width: 130px;height:32px">
-                            <option value="white">白</option>
-                            <option value="black">黑</option>
-                            <option value="blue">蓝</option>
                         </select>
                     </td>
                 </tr>
@@ -117,11 +114,13 @@
         var useless = $("#eqptIsRejected").combobox('getValue');
         var uselessDate = $("#eqptRejectedTime").datebox('getValue');
         var scene = $("#eqptScene").combobox('getValue');
+        console.log(type);
         if(num == "" || cardNo == "" || macAddr == ""){
             $.messager.confirm($.language.i18n('equipmentTip'),$.language.i18n('equipmentTipC'));
             return false;
-
         }
+
+
         var param = {id:id,num:num,cardNo :cardNo,macAddr:macAddr,color:color,type:type,
             standard:standard,buyDate:buyDate,useless:useless,uselessDate:uselessDate,scene:scene};
         $.mkUtil.ajax({
@@ -159,6 +158,27 @@
         })
     })();
 
+    //获取颜色
+    (function () {
+        console.log($.webapi.color.findColor);
+        $.mkUtil.ajax({
+            type: 'GET',
+            url: "/color/find",
+            contentType: 'application/json',
+            dataType: 'json',
+            success: function (data) {
+                if(data.success){
+                    $('#eqptColor').combobox({
+                        data: data.data,
+                        valueField: 'id',
+                        textField: 'title'
+                    });
+                }
+            }
+        });
+    })();
+
+    //加载原始数据到编辑页面
     (function getData() {
 //       console.log(eqptRow);
 //        var dic = {};
@@ -170,6 +190,7 @@
 //            dic[k] = eqptRow[k];
 //        }
 //        console.log(dic);
+        console.log(eqptRow);
         $("#eqptNum").val(eqptRow.num);
 
         $("#eqptIdnum").val(eqptRow.cardNo);

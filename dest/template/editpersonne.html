@@ -10,33 +10,33 @@
         <form id="editPersonneForm" method="post" onsubmit="return preventForm()">
             <table class="grid">
                 <tr>
-                    <td><select id="numtype" class="easyui-combobox">
+                    <td><select  id="numtype" data-options="panelHeight:'auto'" class="easyui-combobox">
                         <option >证件类型</option>
                         <option>bbbbbb</option>
                         <option>cccccc</option>
                     </select></td>
-                    <td><input id="num"  type="text" style="height: 15px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2" data-options="required:true" value=""></td>
-                    <td >姓名</td>
-                    <td><input id="name"  type="text" style="height: 15px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                    <td><input id="num"   style="height: 25px;width: 100px;" placeholder="请输入证件号码"  class="easyui-validatebox span2 easyui-textbox" data-options="required:true" value=""></td>
+                    <td data-localize="personneName" >姓名</td>
+                    <td><input id="name"   style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-validatebox span2 easyui-textbox" data-options="required:true" value=""></td>
                 </tr>
                 <tr>
-                    <td >所属部门</td>
+                    <td  data-localize="personneDept">所属部门</td>
                     <td>
                         <select id="personnedept" style="width: 100px">
                         </select>
                     </td>
-                    <td >国家</td>
+                    <td data-localize="personneCountry">国家</td>
                     <td><select id="country" name="username" type="text" style="height: 25px;width: 100px;" placeholder="请输入姓名" class="easyui-combobox" data-options="required:true" >
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <td >性别</td>
+                    <td data-localize="personneSex" >性别</td>
                     <td>
-                        <span>男</span> <input type="radio" checked="checked" name="Sex" value="男" />
-                        <span>女</span><input type="radio" name="Sex" value="女" />
+                        <span data-localize="personneMale">男</span> <input type="radio" checked="checked" name="Sex" value="男" />
+                        <span data-localize="personneFemale">女</span><input type="radio" name="Sex" value="女" />
                     </td>
-                    <td >人员类型</td>
+                    <td data-localize="personnepersontype">人员类型</td>
                     <td>
                         <select id="renyuanleixing" style="width: 100px" data-options=" panelHeight : 'auto'">
                             <option >医务人员</option>
@@ -45,29 +45,58 @@
                     </td>
                 </tr>
                 <tr>
-                    <td >单位</td>
-                    <td colspan="4" align="left">
-                        <input id="danwei"  type="text" class="easyui-textbox" style="width:350px;"   data-options="required:true" value="">
-                    </td>
-
-                </tr>
-                <tr>
-                    <td>入院时间</td>
+                    <td data-localize="personneAdmissionTime">入院时间</td>
                     <td>
                         <input id="dd" type="text">
                     </td>
-                    <td >出院时间</td>
+                    <td  data-localize="personneDischargeTime">出院时间</td>
                     <td>
                         <input id="dd2" type="text">
                     </td>
+                </tr>
+                <tr>
+                    <td data-localize="personneDanwei">单位</td>
+                    <td colspan="4" align="left">
+                        <input id="danwei"  type="text" class="easyui-textbox" style="width:145px;"   data-options="required:true" value="">
+                    </td>
+
                 </tr>
             </table>
         </form>
     </div>
 </div>
 <script>
-    //刷新dom
-    $.language.updateDom($("#editPersonneForm"));
+
+    //i18n
+
+    $.language.personneNum = {'en':"Num","zh":"证件号"};
+    $.language.personneName = {'en':"Name","zh":"姓名"};
+    $.language.personneDept = {'en':"Departmen","zh":"部门"};
+    $.language.personneAble = {'en':"Able","zh":"状态"};
+    $.language.personneSex = {'en':"Sex","zh":"性别"};
+    $.language.personneAble = {'en':"Able","zh":"状态"};
+    $.language.personneCountry = {'en':"Country","zh":"国籍"};
+    $.language.personneDanwei = {'en':"Company","zh":"单位"};
+    $.language.personneWatch = {'en':"Equipment number","zh":"设备编号"};
+    $.language.personneMale = {'en':"Male","zh":"男"};
+    $.language. personneFemale = {'en':"Female","zh":"女"};
+    $.language. personnewarn = {'en':"Warnning","zh":"报错"};
+
+
+
+    $.language.personneadd = {'en':"Add","zh":"添加"};
+    $.language.personneedit = {'en':"Edit","zh":"编辑"};
+    $.language.personnedel = {'en':"Delete","zh":"删除"};
+    $.language.personneSearch = {'en':"Search","zh":"搜索"};
+    $.language.personneClear = {'en':"Clear","zh":"清除"};
+    $.language.personneStarTime = {'en':"StartTime","zh":"开始时间"};
+    $.language.personneEndTime = {'en':"EndTime","zh":"结束时间"};
+    $.language.Certificatetype = {'en':"Certificatetype","zh":"证件类型"};
+    $.language.personneAdmissionTime = {'en':"Admission time","zh":"入院时间"};
+    $.language.personneDischargeTime = {'en':"Discharge time","zh":"出院时间"};
+    $.language.personnepersontype = {'en':"Personnel type","zh":"人员类型"};
+
+    $.language.updateDom($('#editPersonneForm'));
 
     function ajaxComplate() {
         progressClose();
@@ -191,7 +220,11 @@
 
                     ajaxComplate();
                 }else {
-                    console.log(data.error);
+                    $.messager.alert($.language.i18n('personnewarn') ,data.error,'info', function () {
+                        if (flag) {
+                        }
+                    });
+
                 }
 
             },

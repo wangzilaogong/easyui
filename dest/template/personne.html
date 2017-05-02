@@ -36,7 +36,7 @@
         <span  data-localize="personneEndTime">结束时间:</span>
         <input id="dd2" type="text" >
 
-        <a style="margin-left: 45%" id="personneSearchBtn" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonneByLike()">搜索</a>
+        <a style="" id="personneSearchBtn" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonneByLike()">搜索</a>
         <a id="personneClearBtn" href="#" class="easyui-linkbutton" iconCls="icon-bin" onclick="clearPersonneForm()">清除</a>
 
     </div>
@@ -79,7 +79,12 @@
     $.language.personneAdmissionTime = {'en':"Admission time","zh":"入院时间"};
     $.language.personneDischargeTime = {'en':"Discharge time","zh":"出院时间"};
     $.language.personnepersontype = {'en':"Personnel type","zh":"人员类型"};
-
+    $.language.personneeditdlg = {'en':"Please choose one rowdata you want to edit .","zh":"请选择你要编辑的数据！"};
+    $.language.personnedelcfm = {'en':"You cannot delete a person with device or binding history","zh":"不能删除有绑定设备或是历史的人员"};
+    $.language.personneConfirm = {'en':"Confrim","zh":"确认"};
+    $.language.personneConfirmDel = {'en':"Do you really want to delete","zh":"你确认要删除吗？"};
+    $.language.Unbundling = {'en':"Unbundling","zh":"解绑"};
+    $.language.personneunb = {'en':"Do you really want to Unbundling","zh":"你真的要解绑吗？"};
 
 
     $("#personnebind").text($.language.i18n("Bindingsettings"));
@@ -169,76 +174,48 @@
 
     function tieequipment(){
         if($("#personne_datagrid").datagrid('getSelected')){
-            if (!$("#personne_datagrid").datagrid('getSelected').watch){//要把感叹号去掉的写完之后
-                    //进行解绑，等待确认
-
-                //解绑4-22这边需要的一个Boolean值来确认是否已经经过确认
-                var param = {id:watchid.id,sure:s};
-                $.mkUtil.ajax({
-                    type:"POST",
-                    url:':/client/bound',
-                    data:JSON.stringify(param),
-                    success:function (data) {
-                        if(data.success==true){
-                            console.log('绑定完成');
-                            ajaxComplate();
-                        }else {
-                            alert(data.error);
-                        }
-                    },
-                    error:function () {
-                        ajaxComplate();
+            if ($("#personne_datagrid").datagrid('getSelected').watch){//要把感叹号去掉的写完之后
+                    //进行解绑
+                $.messager.confirm($.language.i18n("Unbundling"),$.language.i18n("personneunb"), function (flag) {
+                    if (flag) {
+                        $.mkUtil.ajax({
+                            type:'POST',
+                            url:'/client/boundless?id='+$("#personne_datagrid").datagrid('getSelected').id+'&sure='+true,
+                            cache:false,
+                            contentType:'application/json',
+                            success:function(data){
+                                window.location.reload();
+                            }
+                        });
                     }
                 });
-
             }else{
-
-                //查询设备返回出一个data
-                var deptarry =[];
-                $.mkUtil.ajax({
-                    type:'GET',
-                    url:'/watch/find',
-                    cache:false,
-                    contentType:'application/json',
-                    success:function(data){
-                        if (data.success==true){
-                           for (var i=0;i<data.data.length;i++){
-                                if(data.data[i].relate==0){
-                                    deptarry.push(data.data[i].id);
-                                }
-                           }
-
-                        }else {
-                            alert('获取可用设备失败！');
-                        }
-                    },
-                    error: function (data) {
-
-                    }
-                });
-
                 //打开一个窗
                 console.log($("#personne_datagrid").datagrid('getSelected'));
-                $.mkUtil.param = {watchid:$("#personne_datagrid").datagrid('getSelected'),dept:deptarry};
+                var personbind = $("#personne_datagrid").datagrid('getSelected');
+
+                $.mkUtil.param={personbind:personbind};
+                console.log('xsdas');
                 parent.$.modalDialog({
-                    title : '绑定设备',
+                    title : $.language.i18n("Bindingsettings"),
                     width : 800,
                     height : 500,
                     href : '../template/bound.html',
                     buttons : [ {
-                        text : 'add',
+                        text :$.language.i18n("personneConfirm") ,
                         handler : function() {
                             parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
-                            var f = parent.$.modalDialog.handler.find('#boundForm');
+                            var f = parent.$.modalDialog.handler.find('#boundFormPost');
                             f.submit();
                         }
                     } ]
                 });
-
-
             }
         }else {
-            alert('请选中要进行绑定设置的数据！');
+            $.messager.alert('绑定数据','请选择要绑定的数据','info', function () {
+                if (flag) {
+                }
+            });
         }
     }
     //获取列表数据
@@ -249,6 +226,7 @@
         contentType:'application/json',
         success:function(data){
             if (data.success==true){
+                console.log(data);
                 initPersonneGrid(data.data);
             }
         }
@@ -263,7 +241,7 @@
             rownumbers:true,
             fitColumns:true,
             pagination:true,
-            pageSize:30,
+            pageSize:10,
             toolbar:"#tb",
             fit:true,
             columns : [ [{
@@ -348,26 +326,50 @@
                 }
             ]]
         });
+
+        /**
+         * 分页等待后台修改好数据格式
+         * **/
         var p = $('#personne_datagrid').datagrid('getPager');
         p.pagination({
             showRefresh:false,
             showPageList:false,
             onSelectPage:function (page,pageSize) {
-                $.mkUtil.console(page+",...."+pageSize);
+                $.mkUtil.ajax({
+                    type:'GET',
+                    url:'/client/find?page='+page+'&pagesize='+pageSize,
+                    cache:false,
+                    contentType:'application/json',
+                    success:function(data){
+                        pager.pagination('refresh',{
+                            pageNumber:page,
+                            pageSize:pageSize
+                        });
+                        if (data.success==true){
+                            initPersonneGrid(data.data);
+                        }
+                    }
+
+                });
             }
         });
 
     }
     initPersonneGrid([]);
+
+
     //删除所选行数据
     function delSelectedRow(){
         if($("#personne_datagrid").datagrid('getSelected')){
             //获取所选人员的设备情况
             var flaga=Boolean($("#personne_datagrid").datagrid('getSelected').watch);
             if(flaga){
-                alert('不能删除有绑定的人员或是绑定历史的人员！');
+                $.messager.alert($.language.i18n("personnedel"),$.language.i18n("personnedelcfm"),'info', function () {
+                    if (flag) {
+                    }
+                });
             }else{
-                    $.messager.confirm('确认对话框','你真的要删除吗？', function (flag) {
+                    $.messager.confirm($.language.i18n("personneConfirm"),$.language.i18n("personneConfirmDel"), function (flag) {
                         if (flag) {
                             var row = $('#personne_datagrid').datagrid('getSelected');
                             if (row) {
@@ -393,13 +395,17 @@
                     });
                 }
         }else{
-            alert('请选中你要删除的行!');
+            $.messager.alert('删除数据','请先选中你要删除的数据','info', function () {
+                if (flag) {
+                }
+            });
+
         }
     }
     //添加personne
     function addPersonne() {
         parent.$.modalDialog({
-            title :'add',
+            title : $.language.i18n('personneadd'),
             width : 550,
             height :300,
             href : '../template/addpersonne.html',
@@ -414,20 +420,19 @@
         });
 
     }
-
-
+    //编辑
     function editPersonne() {
         var choosedatarow = $("#personne_datagrid").datagrid('getSelected');
         $.mkUtil.param = {choosedatarow:choosedatarow};
         console.log(choosedatarow);
         if(choosedatarow){
             parent.$.modalDialog({
-            title :'edit',
+            title :$.language.i18n("personneedit"),
             width : 550,
             height : 300,
             href : '../template/editpersonne.html',
             buttons : [ {
-                text : $.language.i18n('personneadd'),
+                text : $.language.i18n("personneedit"),
                 handler : function() {
                     parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
                     var f = parent.$.modalDialog.handler.find('#editPersonneForm');
@@ -435,10 +440,28 @@
                 }
             } ]
         });}else {
-            alert('请选择你要编辑的行数据！');
+            $.messager.alert($.language.i18n("personneedit"),$.language.i18n("personneeditdlg"),'info', function () {
+                if (flag) {
+                }
+            });
         }
     }
-
+    //权限
+    function power(){
+        if(!$.mkUtil.perms.allitems.personnelManage.create){
+            $('#personneadd').hide();
+        }
+        if(!$.mkUtil.perms.allitems.personnelManage.update){
+            $('#personneedit').hide();
+        }
+        if(!$.mkUtil.perms.allitems.personnelManage.delete){
+            $('#personnedel').hide();
+        }
+        if(!$.mkUtil.perms.allitems.personnelManage.view){
+            $('#personnebind').hide();
+        }
+    }
+    power();
 
 </script>
 

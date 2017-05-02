@@ -18,16 +18,22 @@
 </head>
 <body>
     <div id="tb" style="padding:5px;height:auto">
+        <form id="reportForm">
         <div>
-            <span style="margin-left: 10px" data-localize="reportquerymode">查询方式</span>
-            <select id="search" class="easyui-combobox" panelHeight="auto" style="width:100px">
+            <span data-mode="0" id="swichMode" style="margin-left: 10px;margin-right: 5px;background-color: #00bbee;border-radius: 4px;padding: 5px 10px;color: white;line-height: 25px;height: 25px;cursor: pointer" data-localize="reportquerymode"></span>
+                <select id="search" class="easyui-combobox" panelHeight="auto" style="width:100px">
                 <option value="name">姓名</option>
                 <option value="eqptnum">设备编号</option>
-                <option value="deptnm">部门</option>
             </select>
             <input id="equipmentCardnum" class="easyui-textbox" placeholder="请输入">
-            <a id="reportSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchHealthyReport()"></a>
+                <input class="easyui-datetimebox" name="from"
+        data-options="required:true,showSeconds:false" value="3/4/2010 2:3" style="width:150px">
+                <input class="easyui-datetimebox" name="to"
+        data-options="required:true,showSeconds:false" value="3/4/2010 2:3" style="width:150px">
+            <a id="reportSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" ></a>
+            <a id="reporttable" href="#" class="easyui-linkbutton" iconCls="icon-table3" ></a>
         </div>
+        </form>
     </div>
     <div class="body-container" style="width: 100%;height: 100%;position: absolute;">
         <table id="healthyreport_datagrid"  style="width:100%;">
@@ -37,41 +43,103 @@
 </body>
 <script>
 
+    var currentMode = '0';
+
     //i18n
-    $.language.reportquerymode = {'en':"querymode",'zh':'查询方式'};
-    $.language.reportquery = {'en':"query",'zh':'查询'};
-    $.language.reportname = {'en':"name",'zh':'人员姓名'};
-    $.language.reporttype = {'en':"type",'zh':'人员类型'};
-    $.language.reportsex = {'en':"sex",'zh':'性别'};
-    $.language.reportdate = {'en':"date",'zh':'日期'};
-    $.language.reportstepnumber = {'en':"stepnumber",'zh':'步数'};
-    $.language.reportmileage = {'en':"mileage",'zh':'里程'};
-    $.language.reportconsume = {'en':"consume",'zh':'消耗'};
-    $.language.reportheartrate = {'en':"heartrate",'zh':'心率'};
-    $.language.reportdailyheartrate = {'en':"dailyheartrate",'zh':'日均心率'};
+    $.language.reportquerymode = {'en':"Heart",'zh':'心率'};
+    $.language.reportquerymode2 = {'en':"Step",'zh':'步数'};
+    $.language.reportquery = {'en':"Query",'zh':'查询'};
+    $.language.reporttable = {'en':"ReportTable",'zh':'报表'};
+    $.language.reportname = {'en':"Name",'zh':'人员姓名'};
+    $.language.reporttype = {'en':"Type",'zh':'人员类型'};
+    $.language.reportsex = {'en':"Sex",'zh':'性别'};
+    $.language.reportdate = {'en':"Date",'zh':'日期'};
+    $.language.reportstepnumber = {'en':"Stepnumber",'zh':'步数'};
+    $.language.reportmileage = {'en':"Mileage",'zh':'里程'};
+    $.language.reportconsume = {'en':"Consume",'zh':'消耗'};
+    $.language.reportheartrate = {'en':"Heartrate",'zh':'心率'};
+    $.language.reportdailyheartrate = {'en':"Dailyheartrate",'zh':'日均心率'};
     $.language.reportweight = {'en':"weight",'zh':'体重'};
 
     $("#reportSearch").text($.language.i18n("reportquery"));
+    $("#reporttable").text($.language.i18n("reporttable"));
 
     $(function () {
-        getData();
-        console.log(3333);
         //获取数据
-        function getData() {
+        function getData(param) {
             $.mkUtil.ajax({
                 url:"../api/healthyreport.json",
                 type:'GET',
+                data:param,
                 contentType:'json',
                 dataTpye: 'application/json',
                 success:function (data) {
-
-                    $("#healthyreport_datagrid").datagrid('loadData',data.data);
+                    if(data.success == true){
+                        $("#healthyreport_datagrid").datagrid('loadData',data.data);
+                    }
                 }
             });
         }
+
+        $("#swichMode").click(function () {
+        var mode = $(this).attr('data-mode');
+        if(mode=='0'){
+            $(this).attr('data-mode','1');
+            $(this).text($.language.i18n('reportquerymode2'));
+            currentMode = '1';
+        }else {
+            $(this).attr('data-mode','0');
+            $(this).text($.language.i18n('reportquerymode'));
+            currentMode = '0';
+        }
+       });
+
+       //搜索
+       $("#reportSearch").click(function () {
+           var data = new FormData($('#reportForm')[0]);
+           var url;
+           if(currentMode==0){
+               //心率
+                url = '/heart/findAll'
+           }else {
+               //步数
+               url = '/step/findAll'
+           }
+
+           $.mkUtil.ajax({
+               type:'GET',
+               url:url,
+               dataType:'json',
+               contentType:'application/json',
+               success:function (data) {
+                   console.log(data);
+                   if(data.success == true){
+                       initView(data.data);
+                   }else {
+                       initView([]);
+                   }
+               }
+           })
+       });
+
+       //查看报表
+        $("#reporttable").click(function () {
+            var data = new FormData($('#reportForm')[0]);
+            $.mkUtil.param = {reporttbale:data,reposttype:currentMode};
+            parent.$.modalDialog({
+                title : '健康报表',
+                width : window.innerWidth*0.95,
+                height : window.innerHeight*0.9,
+                href : '../template/reporttable.html'
+            });
+        });
+
         //initView
-        function initView() {
+        function initView(data) {
+            var title = currentMode=='0'?$.language.i18n('reportquerymode'):$.language.i18n('reportquerymode2');
+            var field = currentMode=='0'?'heart':'step';
             $("#healthyreport_datagrid").datagrid({
+                data:data,
                 rownumbers:true,
                 fitColumns:true,
                 pagination:true,
@@ -80,15 +148,9 @@
                 toolbar:'#tb',
                 columns : [ [
                     {
-                        width : '80',
+                        width : '150',
                         title : $.language.i18n('reportname'),
                         field : 'name'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reporttype'),
-                        field : 'type'
                     }
                     ,
                     {
@@ -98,51 +160,21 @@
                     }
                     ,
                     {
-                        width : '80',
+                        width : '150',
                         title : $.language.i18n('reportdate'),
-                        field : 'date'
+                        field : 'updateAt'
                     }
                     ,
                     {
-                        width : '80',
-                        title : $.language.i18n('reportstepnumber'),
-                        field : 'stepNumber'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reportmileage'),
-                        field : 'mileage'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reportconsume'),
-                        field : 'consume'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reportheartrate'),
-                        field : 'heartFre'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reportdailyheartrate'),
-                        field : 'dailyHeartRate'
-                    }
-                    ,
-                    {
-                        width : '80',
-                        title : $.language.i18n('reportweight'),
-                        field : 'weight'
+                        width : '100',
+                        title : title,
+                        field : field
                     }
                 ]]
             });
         }
 
-        initView();
+        initView([]);
 
     });
 

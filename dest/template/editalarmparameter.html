@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改报警参数</title>
+</head>
+<body>
+     <div class="easyui-layout" data-options="fit:true,border:false" >
+        <div data-options="region:'center',border:false" style="overflow: hidden;padding: 3px;" >
+            <form id="alarmparamUpdateForm" method="post" onsubmit="return preventForm()">
+                <table class="grid">
+                    <tr>
+                        <td data-localize="alarmparamheartDown"></td>
+                        <input id="alarmparamid" type="hidden"  name="title" type="text" style="height: 25px;width: 292px;" placeholder="" class=" span2" data-options="required:true" >
+                        <td>
+                            <input id="alarmparamheartDown" data-localize="alarmparamheart_Down" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin title" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                     <tr>
+                        <td data-localize="alarmparamheartUp"></td>
+                        <td>
+                            <input id="alarmparamheartUp" data-localize="alarmparam_heartUp" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin mapid" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                      <tr>
+                        <td data-localize="alarmparamstate"></td>
+                        <td>
+                            <input id="alarmparamstate" data-localize="alarmparam_state" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin coordinate" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                     <tr>
+                        <td data-localize="alarmparamwatchleave"></td>
+                        <td>
+                            <input id="alarmparamwatchleave" data-localize="alarmparamwatch_leave" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin color" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+
+                     <tr>
+                        <td data-localize="alarmparamtire"></td>
+                        <td>
+                            <input id="alarmparamtire" data-localize="alarmparam_tire" name="title" type="text" style="height: 25px;width: 292px;" placeholder="please input cabin coordinate" class=" span2" data-options="required:true" >
+                        </td>
+                    </tr>
+
+                </table>
+            </form>
+        </div>
+    </div>
+    <script>
+        $.language.alarmparamheartDown = {'en':'Heart Down','zh':'心率波谷'};
+        $.language.alarmparamheart_Down = {'en':'Pleas input heart lower','zh':'请输入心率波谷'};
+
+        $.language.alarmparamheartUp = {'en':'Heart Up','zh':'心率波峰'};
+        $.language.alarmparam_heartUp = {'en':'please input heart higher','zh':'请输入心率波峰'};
+
+        $.language.alarmparamwatchleave = {'en':'Equip Leave','zh':'离线时间'};
+        $.language.alarmparamwatch_leave = {'en':'please input equip leave time','zh':'请输入设备最长离线时间'};
+
+        $.language.alarmparamstate = {'en':'Same State Time','zh':'同一状态'};
+        $.language.alarmparam_state = {'en':'please input Same State Time','zh':'请输入同一状态维持时间'};
+
+        $.language.alarmparamtire = {'en':'Tired','zh':'过劳度'};
+        $.language.alarmparam_tire = {'en':'please input Tired','zh':'请输入过劳度峰值'};
+
+        $.language.updateDom($("#alarmparamUpdateForm"));
+
+        //init easyui-validatebox
+        $("#alarmparamheartDown").validatebox();
+        $("#alarmparamheartUp").validatebox();
+        $("#alarmparamwatchleave").validatebox();
+        $("#alarmparamstate").validatebox();
+        $("#alarmparamtire").validatebox();
+
+
+
+     function ajaxComplate() {
+          progressClose();
+          parent.$.modalDialog.success();//.datagrid('reload');//之所以能在这里调用到parent.$.modalDialog.openner_dataGrid这个对象，是因为user.jsp页面预定义好了
+          parent.$.modalDialog.handler.dialog('close');
+    }
+    //根据id查找org
+     var alarmparamid = $.mkUtil.param.alarmid;
+
+    getAlarmparamByID(alarmparamid);
+
+     function getAlarmparamByID(alarmparamid) {
+         $.mkUtil.ajax({
+             type:'GET',
+             url:'/warn/findById?id='+alarmparamid,
+             dataType:'json',
+             contentType:'application/json',
+             success:function (data) {
+                 if(data.success == true){
+                        $("#alarmparamid").val(data.data.id);
+                        $("#alarmparamheartDown").val(data.data.heartDown);
+                        $("#alarmparamheartUp").val(data.data.heartUp);
+                        $("#alarmparamwatchleave").val(data.data.watchLeave);
+                        $("#alarmparamstate").val(data.data.state);
+                        $("#alarmparamtire").val(data.data.tire);
+                 }
+             }
+         })
+     }
+
+    //阻止表单提交 改成ajax提交
+    function preventForm() {
+          var paramid= $("#alarmparamid").val();
+          var heartdown=  $("#alarmparamheartDown").val();
+          var heartup=  $("#alarmparamheartUp").val();
+          var watchleave =  $("#alarmparamwatchleave").val();
+          var state =  $("#alarmparamstate").val();
+          var tire =   $("#alarmparamtire").val();
+        if(heartdown.length<1||heartup.length<1||watchleave.length<1||state.length<1||tire.length<1||!paramid) return false;
+        var param = {heartDown:heartdown,heartUp:heartup,watchLeave:watchleave,state:state,id:paramid,tire:tire};
+         $.mkUtil.ajax({
+            type:"POST",
+            url:'/warn/update',
+             contentType:'application/json',
+            dataType:'json',
+            data:JSON.stringify(param),
+            success:function () {
+                ajaxComplate();
+            },
+            error:function () {
+                ajaxComplate();
+            }
+        });
+        return false;
+    }
+
+
+    </script>
+
+</body>
+</html>

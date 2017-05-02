@@ -12,20 +12,20 @@
                     <tr>
                         <td id="sn"></td>
                         <td>
-                        <input id="sceneName" name="title" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " required="true" value="">
+                        <input id="sceneName" name="title" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " required="true" >
                         </td>
                     </tr>
                     <tr>
                         <td id="hf"></td>
-                        <td><input id="heartf" name="heartf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                        <td><input id="heartf" name="heartf" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入整数，单位是秒" ></td>
                     </tr>
                     <tr>
                         <td id="df">数据上传频率/S</td>
-                        <td><input id="dataf" name="dataf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                        <td><input id="dataf" name="dataf" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入整数，单位是秒"  ></td>
                     </tr>
                     <tr>
                         <td id="sf">同步频率/S</td>
-                        <td><input id="syncf" name="syncf" type="number" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入数字，单位是秒"  value=""></td>
+                        <td><input id="syncf" name="syncf" type="text" style="height: 25px;width: 292px;"  class="easyui-validatebox " data-localize="sceneTipO" placeholder="只能输入整数，单位是秒"  ></td>
                     </tr>
                 </table>
             </form>
@@ -39,7 +39,8 @@
         $.language.scenesync = {'en':"syncFre","zh":"同步频率/S"};
         $.language.sceneTip = {'en':"tip","zh":"提示"};
         $.language.sceneTipE = {'en':"Scene name cannot be empty","zh":"场景名称不能为空"};
-        $.language.sceneTipO = {'en':" Enter numbers only","zh":"只能输入数字，单位是秒"};
+        $.language.sceneTipO = {'en':" Input integer only",'zh':"只能输入整数，单位是秒"};
+        $.language.sceneTipS = {'en':" please enter a number",'zh':"请输入数字"};
 
         $.language.updateDom($("#sceneUpdateForm"));
 
@@ -74,11 +75,17 @@
             var heartFre = $('#heartf').val();
             var dataFre = $('#dataf').val();
             var syncFre = $('#syncf').val();
-            var param = {id:id,title:title,heartFre:heartFre,dataFre:dataFre,syncFre:syncFre,able:1};
+
+            //判断场景名称是否为空
             if(title == ""){
                 $.messager.confirm($.language.i18n('sceneTip'),$.language.i18n('sceneTipE'));
                 return false;
             }
+            //判断频率是否为整数
+            if(isNaN(heartFre) ||isNaN(dataFre)||isNaN(syncFre)){
+                alert($.language.i18n('sceneTipS')); return false;
+            }
+            var param = {id:id,title:title,heartFre:heartFre,dataFre:dataFre,syncFre:syncFre,able:1};
             $.mkUtil.ajax({
                 type:"POST",
                 url:$.webapi.scene.updateEquipmentScene,

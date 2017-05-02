@@ -18,12 +18,12 @@
 <body>
      <div  class="body-container" style="width: 100%;height: 100%;position: absolute;">
          <div id="contanier_layput" class="easyui-layout" style="width:100%;height:100%;">
-            <div id="right_menu" data-options="region:'east',split:true" title="网关" style="width:300px;">
+            <div id="right_menu" data-options="region:'east',split:true,collapsed:true" title="网关" style="width:300px;">
                     <table id="right_menu_datagrid" class="easyui-datagrid" data-options="rownumbers:true,toolbar:'#right_menu_tb',singleSelect:true,">
                         <thead>
                             <tr>
-                                <th width="30%" data-options="field:'mac',editor :'text'">Mac</th>
-                                <th  width="70%" data-options="field:'cordinate',editor :'text' ">Cordinate</th>
+                                <th width="30%" data-options="field:'macAddr',editor :'text'">MacAddr</th>
+                                <th  width="70%" data-options="field:'coordinate',editor :'text' ">Coordinate</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -65,14 +65,13 @@
          $("#mapGridCancel").text($.language.i18n("mapGridCancel"));
 
         $(function () {
-            $('#contanier_layput').layout('collapse','east');
+//            $('#contanier_layput').layout('collapse','east');
             $('#right_menu_datagrid').datagrid({
                 onClickRow:function () {
                     cancelWifiEquip();
                 },
                 onAfterEdit:function (rowIndex, rowData, changes) {
-                    for( var k in rowData){
-                        if(rowData[k] == ''){
+                        if(rowData.macAddr == ''||rowData.coordinate==''){
                             if(rowData.id){
                                 $('#right_menu_datagrid').datagrid('updateRow',{
                                                         index: rowIndex,
@@ -86,16 +85,15 @@
 
                             return;
                         }
-                    }
                     if(rowData.id){
                         if(CURRENT_SElECTED == -1) return;
                         //update
-                        var param = {id:rowData.id,mac:rowData.mac,cordinate:rowData.cordinate};
+                        var param = {id:rowData.id,macAddr:rowData.macAddr,coordinate:rowData.coordinate};
                         updateWifiEquipAjax(param);
                         console.log('update');
                     }else {
                         //add
-                        var param = {mac:rowData.mac,cordinate:rowData.cordinate};
+                        var param = {macAddr:rowData.macAddr,coordinate:rowData.coordinate,major:'1',cabinId:'1',minor:'1',uuid:'1'};
                         addWifiEquipAjax(param);
                         isAddFlag = false;
                         console.log('add');
@@ -110,7 +108,7 @@
             var editors = $('#right_menu_datagrid').datagrid('getEditors', ROW_LENGTH-1);
             if(!editors) return;
             for(var i =0;i<editors.length;i++){
-                if(editors[i].field=='cordinate'){
+                if(editors[i].field=='coordinate'){
                     editors[i].target.val(position.x+','+position.y);
                     break;
                 }
@@ -122,7 +120,9 @@
         function getWifiEquip() {
             $.mkUtil.ajax({
                type:'GET',
-               url:'../api/wifiequip.json',
+               url:'/wifiProbe/findWifiProbes',
+               contentType:'application/json',
+                dataType:'json',
                success:function (data) {
                     if(data.success = true){
                         var index = 0;
@@ -139,12 +139,14 @@
         function updateWifiEquipAjax(param) {
              $.mkUtil.ajax({
                type:'POST',
-               url:'../api/wifiequip.json',
+               url:'/wifiProbe/update',
+               dataType:'json',
+               contentType:'application/json',
                data:JSON.stringify(param),
                success:function (data) {
                     if(data.success = true){
                        //刷新
-//                        getWifiEquip();
+                        getWifiEquip();
                     }
                }
             });
@@ -153,9 +155,10 @@
         //delete
          function deleteWifiEquipAjax(id) {
              $.mkUtil.ajax({
-               type:'POST',
-               url:'../api/wifiequip.json',
-               data:JSON.stringify(param),
+               type:'DELETE',
+               url:'/wifiProbe/delete?id='+id,
+               contentType:'application/json',
+               dataType:'json',
                success:function (data) {
                     if(data.success = true){
                        //刷新
@@ -169,7 +172,9 @@
          function addWifiEquipAjax(param) {
              $.mkUtil.ajax({
                type:'POST',
-               url:'../api/wifiequip.json',
+                 url:'/wifiProbe/create',
+               dataType:'json',
+               contentType:'application/json',
                data:JSON.stringify(param),
                success:function (data) {
                     if(data.success = true){
@@ -191,10 +196,10 @@
         //initMap
         function initMapMarks(data) {
             console.log(data);
+            var items = [];
             for(var i=0;i<data.length;i++){
                 var item = data[i];
-                var j = item.cordinate.split(',');
-                console.log(j);
+                var j = item.coordinate.split(',');
                 if(j.length<2){
 
                 }else {
@@ -213,9 +218,19 @@
                     console.log(x);
                     var positon = {x:x,y:y,z:0};
                     console.log(positon);
-                    $.mkMap.updateOrAddMark('../static/images/women.png',item.mac,'fjafjafj',positon,{width:22,height:22});
+                    //imgurl,text,makid,position,size
+                    item.imgurl = '../static/images/wifi.png';
+                    item.text = '';
+                    item.markid = item.macAddr;
+                    item.position = positon;
+                    item.size = {width:22,height:22};
+                    items.push(item);
+//                    $.mkMap.updateOrAddMark('../static/images/wifi.png','',item.macAddr,positon,{width:22,height:22});
                 }
+
             }
+            $.mkMap.addMarkWithItems(items,{deleteOthers:true});
+            console.log('.............')
         };
 
         //getSeleted
@@ -233,8 +248,8 @@
             var dom = $('#right_menu_datagrid');
             dom.datagrid('appendRow',{
                     index:ROW_LENGTH++,
-                    mac: '',
-                    cordinate: ''
+                    macAddr: '',
+                    coordinate: ''
             });
             dom.datagrid('beginEdit',ROW_LENGTH-1);
          }
@@ -255,6 +270,7 @@
         function deleteWifiEquip() {
             if(isAddFlag) return;
             var selected = getSelected();
+            console.log(selected);
             if(!selected) return;
             deleteWifiEquipAjax(selected.id);
         }
@@ -300,12 +316,12 @@
          * @param opts
          */
         var opts = {
-            objurl:'../static/mkmap/chuan.obj',
+            objurl:'../static/mkmap/ship.obj',
             planeWidth:100,
             planeHeight:100,
             planeOrigin:{x:0,y:0},
             planeColor:0x9999ff,
-            neerFov:10,
+            neerFov:2,
             farFov:100,
             defaultFov:35,
             canTransform:false,
@@ -320,9 +336,9 @@
        $.mkMap.map(opts);
        $.mkMap.addEvent('click',function (intersects) {
            if(intersects.length==0)return;
+           console.log(intersects[0]);
            getCordinateToEditor(intersects[0].point);
           intersects[0].object.material.color.setHex( Math.random() * 0xffffff );
-//          $.mkMap.updateOrAddMark('../static/images/women.png','一个人好人','wifi3'+Math.random(1000),intersects[0].point,{width:10,height:10});
        });
     });
     </script>

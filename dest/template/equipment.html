@@ -65,8 +65,8 @@
     $.language.equipmentMac = {'en':"Mac",'zh':'mac地址'};
     $.language.equipmentType = {'en':"Type",'zh':'类型'};
     $.language.equipmentStandard = {'en':"Standard",'zh':'规格'};
-    $.language.equipmentnumColor = {'en':"Color",'zh':'颜色'};
-    $.language.equipmentnumTiedState = {'en':"TiedState",'zh':'绑定状态'};
+    $.language.equipmentColor = {'en':"Color",'zh':'颜色'};
+    $.language.equipmentTiedState = {'en':"TiedState",'zh':'绑定状态'};
     $.language.equipmentPurchaseTime = {'en':"PurchaseTime",'zh':'采购日期'};
     $.language.equipmentIsRejected = {'en':"IsRejected",'zh':'报废状态'};
     $.language.equipmentRejectedTime = {'en':"RejectedTime",'zh':'报废时间'};
@@ -174,13 +174,13 @@
 
         $.mkUtil.ajax({
             type: "GET",
-            url: $.webapi.equipment.findEquipment,
+            url: $.webapi.equipment.findAll+'?start=1&size=10',
 //			url:'http://192.168.0.194:8080//watch/findAll',
             data:dic,
 
             success: function (data) {
                 if(data.rows.length>0){
-                    $("#equipment_datagrid").datagrid('loadData',data.rows);
+                    $("#equipment_datagrid").datagrid('loadData',data);
 				}else{
                     $.messager.confirm($.language.i18n('equipmentTip'),$.language.i18n('equipmentTipF'));
 				}
@@ -192,12 +192,14 @@
     function deleteEquipment() {
         var eqptRow = $("#equipment_datagrid").datagrid('getSelected');
         if(eqptRow != null){
-            var binding = "已绑定";
+
             var eqptid = eqptRow.id;
             var state = eqptRow.relate;
-            $.messager.confirm($.language.i18n('equipmentTip'), $.language.i18n('equipmentTipS'), function () {
+            console.log(state);
+            $.messager.confirm($.language.i18n('equipmentTip'), $.language.i18n('equipmentTipS'), function (r) {
                 //判断是否有绑定历史和绑定状态
-                if ((!isTiehis(eqptid)) && state != binding) {
+				if(r){
+                if (state != 1) {
                     $.mkUtil.ajax({
                         type:"DELETE",
                         url:$.webapi.equipment.deleteEquipment+'?id='+eqptid,
@@ -216,6 +218,7 @@
                     $.messager.confirm($.language.i18n('equipmentTip'),$.language.i18n('equipmentTipB'));
 
                 }
+                }
             });
 		}else{
             $.messager.confirm($.language.i18n('equipmentTip'),$.language.i18n('equipmentTipD'));
@@ -223,35 +226,35 @@
     }
 
     //判断是否存在绑定历史
-	function isTiehis(equipmentId) {
-		var param = {id:equipmentId};
-		$.mkUtil.ajax({
-			type:'GET',
-			url:'',
-            dataType:'json',
-            contentType:'application/json',
-            data:JSON.stringify(param),
-			success:function (data) {
-				if(data.success){
-				    return true;
-				}
-            }
-		});
-        return false
-    }
+//	function isTiehis(equipmentId) {
+//		var param = {id:equipmentId};
+//		$.mkUtil.ajax({
+//			type:'GET',
+//			url:'',
+//            dataType:'json',
+//            contentType:'application/json',
+//            data:JSON.stringify(param),
+//			success:function (data) {
+//				if(data.success){
+//				    return true;
+//				}
+//            }
+//		});
+//        return false
+//    }
 
     $(function () {
 		getEquipment();
         //获取设备
         function getEquipment() {
             $.mkUtil.ajax({
-
-				url:$.webapi.equipment.findAll,
+				url:$.webapi.equipment.findAll+'?start=1&size=10',
 //				url:"http://192.168.0.194:8080/watch/findAll",
                 type:'GET',
                success:function (data) {
+					console.log(data.rows);
                    if(data.rows.length>0){
-                       $("#equipment_datagrid").datagrid('loadData',data.rows);
+                       $("#equipment_datagrid").datagrid('loadData',data);
                    }
                },
                error:function (data) {
@@ -276,10 +279,9 @@
                 fitColumns:true,
                 pagination:true,
                 pageSize: 10,
-               // loadFilter:pagerFilter,
                 fit:true,
                 toolbar:'#tb',
-                columns : [ [
+                columns : [[
                     {
                     width : '80',
                     title : $.language.i18n('equipmentnum'),
@@ -301,7 +303,7 @@
                     {
                     width : '80',
                     title : $.language.i18n('equipmentType'),
-                    field : 'type'
+                    field : 'typeM'
                     }
                     ,
                     {
@@ -312,14 +314,14 @@
                     ,
                     {
                     width : '80',
-                    title : $.language.i18n('equipmentnumColor'),
-                    field : 'color'
+                    title : $.language.i18n('equipmentColor'),
+                    field : 'colorM'
                     }
                     ,
                     {
                     width : '80',
-                    title : $.language.i18n('equipmentnumTiedState'),
-                    field : 'relate'
+                    title : $.language.i18n('equipmentTiedState'),
+                    field : 'relateM'
                     }
                     ,
                     {
@@ -331,7 +333,7 @@
                     {
                     width : '80',
                     title : $.language.i18n('equipmentIsRejected'),
-                    field : 'useless'
+                    field : 'uselessM'
                     }
                      ,
                     {
@@ -343,7 +345,7 @@
                     {
                     width : '80',
                     title : $.language.i18n('equipmentOnline'),
-                    field : 'online'
+                    field : 'onlineM'
                     }
                      ,
                     {
@@ -361,15 +363,38 @@
                     {
                     width : '100',
                     title : $.language.i18n('equipmentScene'),
-                    field : 'scene'
+                    field : 'sceneM'
                     }
                 ]]
             });
-
+		//分页处理
+		var opts = $("#equipment_datagrid").datagrid('options');
+		var pager = $("#equipment_datagrid").datagrid('getPager');
+        pager.pagination({
+            showRefresh:false,
+            showPageList:false,
+            onSelectPage:function(pageNumber, pageSize){
+                opts.pageNumber = pageNumber;
+                opts.pageSize = pageSize;
+                $.mkUtil.ajax({
+                    type:'GET',
+                    url:$.webapi.equipment.findAll+'?start='+pageNumber+'&size='+pageSize,
+                    success:function (data) {
+                        pager.pagination('refresh',{
+                            pageNumber:pageNumber,
+                            pageSize:pageSize
+                        });
+                        console.log(data.total);
+                        $("#equipment_datagrid").datagrid('loadData',data);
+                    }
+                })
+            }
+        });
         }
 
         initView();
-
     });
+
+
 </script>
 </html>

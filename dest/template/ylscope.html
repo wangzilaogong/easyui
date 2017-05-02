@@ -1,10 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>YL预设范围</title>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/mkmap.min.js"></script>
 </head>
-<body>
 
+<body>
+    <div  class="body-container" style="width: 100%;height: 100%;position: absolute;">
+         <div id="contanier_layput" class="easyui-layout" style="width:100%;height:100%;">
+            <div id="right_menu" data-options="region:'south',collapsed:true" title="YLScope" style="height:200px;">
+                    <table id="right_menu_datagrid" class="easyui-datagrid" data-options="rownumbers:true,singleSelect:true,fit:true">
+
+                    </table>
+                    <div style="display: none">
+                        <div id="ysl_tb">
+                            <a  id="ysladd" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-addd3',plain:true"></a>
+                            <a  id="yslcancel" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-addd3',plain:true"></a>
+                        </div>
+                    </div>
+            </div>
+            <div data-options="region:'center'" style="overflow: hidden">
+                <div id="map_container">
+                </div>
+            </div>
+        </div>
+     </div>
 </body>
+
+ <script>
+
+         var updateper = $.mkUtil.perms.allitems.YLScope.update;
+         var create = $.mkUtil.perms.allitems.YLScope.create;
+         var deleteper = $.mkUtil.perms.allitems.YLScope.delete;
+
+
+        $.language.ysledit = {'en':'forbidden','zh':'禁用'};
+        $.language.yslrecover = {'en':'Recover','zh':'恢复'};
+        $.language.ysldelete = {'en':'delete','zh':'删除'};
+        $.language.ysladd = {'en':'Add','zh':'添加'};
+        $.language.yslcancel = {'en':'Cancle','zh':'取消'};
+        $("#ysladd").linkbutton({
+            text:$.language.i18n('ysladd')
+        });
+        $("#yslcancel").linkbutton({
+            text:$.language.i18n('yslcancel')
+        });
+
+        var edit = $.language.i18n('ysledit');
+        var recover = $.language.i18n('yslrecover');
+        var deletetext = $.language.i18n('ysldelete');
+
+           //禁用/恢复
+            function editYl(idandavaliable) {
+                var res = idandavaliable.split('|');
+                if(res.length<2)return;
+                console.log(res);
+                var a =  res[1] =='1'?"0":'1';
+                 $.mkUtil.ajax({
+                        url:'/preset/update',
+                        type:"POST",
+                        dataType:'json',
+                        data:JSON.stringify({id:res[0],avaliable:a}),
+                        contentType:'application/json',
+                        success:function (data) {
+                            if(data.success == true){
+                                window.location.reload();
+                            }
+                        }
+                    });
+            }
+
+          //删除
+         function deleteYl(id) {
+              $.mkUtil.ajax({
+                        url:'/preset/delete?id='+id,
+                        type:"DELETE",
+                        dataType:'json',
+                        contentType:'application/json',
+                        success:function (data) {
+                            if(data.success == true){
+                                window.location.reload();
+                            }
+                        }
+                    });
+         }
+
+        $(function () {
+
+
+            $('#ysladd').click(function () {
+                if(point.length<3){
+                    point = [];
+                }else {
+                    //add
+                    $.mkUtil.ajax({
+                        url:'/preset/add',
+                        type:"POST",
+                        dataType:'json',
+                        data:JSON.stringify({scope:JSON.stringify(point),avaliable:'1',type:'0'}),
+                        contentType:'application/json',
+                        success:function (data) {
+                            if(data.success == true){
+                                window.location.reload();
+                                point = [];
+                            }
+                        }
+                    });
+                }
+            });
+            $("#yslcancel").click(function () {
+                point = [];
+            });
+
+            var point = [];
+
+            function initMap(successCallback) {
+                 /**
+                 * objurl
+                 * planeWidth
+                 * planeHeight
+                 * planeOrigin
+                 * planeColor
+                 * neerFov
+                 * farFov
+                 * defaultScale
+                 * canTransform false
+                 * canDrag
+                 * planeName
+                 * container
+                 * success
+                 * @param opts
+                 */
+                var opts = {
+                    objurl:'../static/mkmap/ship.obj',
+                    neerFov:2,
+                    offSet:{offSetX:0,offSetY:50},
+                    farFov:100,
+                    defaultFov:35,
+                    canTransform:false,
+                    canDrag:true,
+                    container:document.getElementById("map_container")
+                };
+                opts.success = function () {
+                    successCallback();
+                };
+               $.mkMap.map(opts);
+               $.mkMap.addEvent('click',function (intersects) {
+                   if(intersects.length==0)return;
+                   console.log(intersects[0].point);
+                   if(create){
+                       point.push({x:intersects[0].point.x,y:intersects[0].point.y});
+                   }
+               });
+            }
+
+            getAllYLScope();
+
+           //获取所有YLScope
+            function getAllYLScope() {
+                $.mkUtil.ajax({
+                   type:'GET',
+                    url:'/preset/findAll',
+                    contentType:'application/json',
+                    dataType:'json',
+                    success:function (data) {
+                        if(data.success = true){
+                            initDataGrid(data.data);
+                            initMap(function () {
+                                for(var i=0;i<data.data.length;i++){
+                                    var scope = data.data[i].scope;
+                                    if(scope.indexOf('[')!=-1){
+                                       var a = JSON.parse(scope);
+                                        if(a instanceof Array){
+                                            $.mkMap.addShape(a,0xFF0000,'shape'+data.data[i].id)
+                                        }
+                                    }
+
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+
+            //initView
+            function initDataGrid(data) {
+                var toobar = '';
+                if(create){
+                    toobar = $("#ysl_tb");
+                }
+                $("#right_menu_datagrid").datagrid({
+                        toolbar:toobar,
+                        data:data,
+                        columns:[[
+                            {field:'scope',title:'Scope',width:400},
+                            {field:'avaliable',title:"Avaliable",width:100,
+                                formatter: function(value,row,index) {
+                                                if(value=='1'){
+                                                    return '正常'
+                                                }else {
+                                                    return "禁用"
+                                                }
+                                            }
+                            },
+                            {field:'action',title:'Action',width:100,
+                                        formatter: function(value,row,index) {
+                                            var str = '';
+                                            if(updateper){
+                                                var a ='';
+                                                if(row.avaliable=='1'){
+                                                    a = edit;
+                                                }else {
+                                                    a = recover;
+                                                }
+                                                str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="editYl(\'{0}\');" >'+a+'</a>', row.id+'|'+row.avaliable)
+                                            }
+                                            if(deleteper){
+                                                str = str + '&nbsp;&nbsp;|&nbsp;&nbsp;';
+                                                str = str + $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="deleteYl(\'{0}\');" >'+deletetext+'</a>', row.id)
+                                            }
+                                            return str;
+                                        }
+                            }
+                        ]]
+                });
+            }
+
+        });
+
+    </script>
 </html>

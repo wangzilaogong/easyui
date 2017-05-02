@@ -128,12 +128,12 @@
 //        $('#tt').datagrid('selectRow', editIndex)
 //            .datagrid('beginEdit', editIndex);
         parent.$.modalDialog({
-            title : 'add',
+            title : $.language.i18n("add"),
             width : 500,
             height : 260,
             href : '../template/adduser.html',
             buttons : [ {
-                 text : 'add',
+                 text : $.language.i18n("add"),
                 handler : function() {
                     parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
                     var f = parent.$.modalDialog.handler.find('#addUserForm');
@@ -371,7 +371,13 @@
         error:function(){
         }
     });
-
+        //权限
+    function power(){
+        if(!$.mkUtil.perms.allitems.user.create){
+            $('#addbtn').hide();
+        }
+    }
+        power();
 </script>
 </body>
 </html>

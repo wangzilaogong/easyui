@@ -2,9 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="../static/js/mkmap.min.js"></script>
 </head>
-<body>
 
+<body>
+    <div  class="body-container" style="width: 100%;height: 100%;position: absolute;">
+         <div id="contanier_layput" class="easyui-layout" style="width:100%;height:100%;">
+            <div id="right_menu" data-options="region:'east',split:true,collapsed:true" title="人员信息" style="width:300px;">
+                    <table id="right_menu_datagrid" class="easyui-datagrid" data-options="rownumbers:true,singleSelect:true,">
+                        <thead>
+                            <tr>
+                                <th width="50%" data-options="field:'name'">Mac</th>
+                                <th  width="50%" data-options="field:'action'">Cordinate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+            </div>
+            <div data-options="region:'center'" style="overflow: hidden">
+                <div id="map_container">
+                    <div id="swichsegment" class="segment">
+                        <span data-index="0" class="active">A甲板</span>
+                        <span data-index="1">B甲板</span>
+                        <span data-index="2">AB甲板</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
 </body>
+<style>
+    .active{
+        background-color: #0099FF;
+    }
+    .segment{
+        overflow: hidden;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 200px;
+        height: 30px;
+        border-radius: 4px;
+        background-color: #00bbee;
+        color: white;
+        line-height: 35px;
+        cursor: pointer;
+    }
+    .segment span{
+        float: left;
+        width: 33%;
+        text-align: center;
+        border-right: 1px solid #cdcdcd;
+    }
+    .segment span:last-child{
+        border: none;
+    }
+</style>
+ <script>
+        var successfalg = false;
+        var currentindex = 0;
+        $("#swichsegment span").click(function () {
+           $(this).parent().children().removeClass("active");
+           $(this).addClass('active');
+           currentindex = $(this).attr('data-index');
+           segment(currentindex);
+        });
+        //           var group = $.mkMap.findObjectByName('item_b');
+//           group.visible = false;
+//           $.mkMap.mapitemRemoveMark(group);
+        var mapitem_a;
+        var mapitem_b;
+        function segment(flag) {
+            if(!successfalg) return;
+             //0 a 1 b 2ab
+            if(!mapitem_a){
+                mapitem_a = $.mkMap.findObjectByName('item_a');
+            }
+            if(!mapitem_b){
+                mapitem_b = $.mkMap.findObjectByName('item_b');
+            }
+            if(flag==0){
+                mapitem_a.visible = true;
+                mapitem_b.visible = false;
+                $.mkMap.mapitemRemoveMark(mapitem_b);
+            }else if(flag==1){
+                mapitem_a.visible = false;
+                mapitem_b.visible = true;
+                $.mkMap.mapitemRemoveMark(mapitem_a);
+            }else {
+                mapitem_a.visible = true;
+                mapitem_b.visible = true;
+            }
+
+        }
+
+
+
+         $(function () {
+        /**
+         * objurl
+         * planeWidth
+         * planeHeight
+         * planeOrigin
+         * planeColor
+         * neerFov
+         * farFov
+         * defaultScale
+         * canTransform false
+         * canDrag
+         * planeName
+         * container
+         * success
+         * @param opts
+         */
+        var opts = {
+            objurl:'../static/mkmap/ship.obj',
+            neerFov:2,
+            offSet:{offSetX:0,offSetY:100},
+            farFov:100,
+            defaultFov:35,
+            canTransform:false,
+            canDrag:true,
+            container:document.getElementById("map_container"),
+            mapitems:['a','b'],
+            showmapitems:['a']
+        };
+        opts.success = function () {
+            successfalg = true;
+        };
+       $.mkMap.map(opts);
+       $.mkMap.addEvent('click',function (intersects) {
+           if(intersects.length==0)return;
+           console.log(intersects[0].object.name);
+       });
+    });
+    </script>
 </html>

@@ -1,10 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+     <meta charset="utf-8">
+        <title>报警参数</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
+       <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
+        <table id="cabin_datagrid">
+
+        </table>
 
 </body>
+
+<script>
+     var iframereloadfunc = function () {
+           window.location.reload();
+        };
+
+    //i18n
+    $.language.heartDown = {'en':'Heart Lower','zh':'心率波谷'};
+    $.language.heartUp = {'en':'Heart Higher','zh':'心率波峰'};
+    $.language.heartAction = {'en':'Action','zh':'操作'};
+    $.language.watchLeave = {'en':'Equip Leave Time','zh':'设备离线时间'};
+    $.language.sameState = {'en':'Same State Long Time','zh':'同一状态维持时间'};
+    $.language.tire = {'en':'Tire Higher','zh':'过劳度峰值'};
+    $.language.updateAt = {'en':'UpdateAt','zh':'更新时间'};
+    $.language.alarmedit = {'en':'Edit','zh':'编辑'};
+
+    var heartDown = $.language.i18n('heartDown');
+    var heartUp = $.language.i18n('heartUp');
+    var heartAction = $.language.i18n('heartAction');
+    var watchLeave = $.language.i18n('watchLeave');
+    var sameState = $.language.i18n('sameState');
+    var tire = $.language.i18n('tire');
+    var updateAt = $.language.i18n('updateAt');
+    var edit = $.language.i18n('alarmedit');
+
+    //获取报警参数
+     (function getAllCabin() {
+        $.mkUtil.ajax({
+            type:"GET",
+            url:"/warn/findAll",
+            contentType:"application/json",
+            dataType:'json',
+            success:function (data) {
+                if(data.success == true){
+                    initDatagrid(data.data);
+                }
+            }
+        })
+    })();
+
+    //initView
+    var updateper = $.mkUtil.perms.allitems.alarmParameter.update;
+    function initDatagrid(data) {
+        $("#cabin_datagrid").datagrid({
+            data:data,
+            columns:[[
+                {field:'id',title:'ID',width:100},
+                {field:'heartDown',title:heartDown,width:100},
+                {field:'heartUp',title:heartUp,width:100},
+                {field:'state',title:sameState,width:100},
+                {field:'watchLeave',title:watchLeave,width:100},
+                {field:'tire',title:tire,width:100},
+                {field:'updateAt',title:updateAt,width:150},
+                {field:'action',title:heartAction,width:100,
+                			formatter: function(value,row,index) {
+                                var str = '';
+                                if(updateper){
+                                    str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="editalarmparam(\'{0}\');" >'+edit+'</a>', row.id)
+                                }
+                                return str;
+                            }
+                }
+            ]],
+        });
+    }
+
+    //editcabin
+    function editalarmparam(alarmid) {
+        $.mkUtil.param = {alarmid:alarmid};
+           parent.$.modalDialog({
+                title : edit,
+                width : 500,
+                height : 300,
+                href : '../template/editalarmparameter.html',
+                buttons : [ {
+                    text : edit,
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#alarmparamUpdateForm');
+                        f.submit();
+                    }
+                } ]
+            });
+    }
+
+</script>
 </html>

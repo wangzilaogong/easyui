@@ -14,6 +14,9 @@
         <script type="text/javascript" src="../static/js/extJs.js"></script>
         <script type="text/javascript" src="../static/js/language.js"></script>
         <script type="text/javascript" src="../static/js/webapi.js"></script>
+         <script type="text/javascript" src="../static/libs/highcharts/code/highcharts.js"></script>
+        <script type="text/javascript" src="../static/libs/highcharts/code/modules/exporting.js"></script>
+        <script type="text/javascript" src="../static/libs/highcharts/code/modules/data.js"></script>
 
         <script>
             function loadjscssfile(filename, filetype) {
@@ -160,7 +163,7 @@
             $.mkUtil.getUserInfo();
             //获取nav
            (function getNav() {
-               var perms =  $.mkUtil.perms;
+               var perms =  $.mkUtil.perms||{dataArr:[]};
                $.mkUtil.console(perms);
                for(var i=0;i<perms.dataArr.length;i++){
                     var selected = i==0;

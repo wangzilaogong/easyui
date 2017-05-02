@@ -1,9 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+     <meta charset="utf-8">
+        <title>舱室管理</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+        <script type="text/javascript" src="../static/js/util.js"></script>
+        <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+        <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+        <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+        <script type="text/javascript" src="../static/js/extJs.js"></script>
+        <script type="text/javascript" src="../static/js/language.js"></script>
+       <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
+        <table id="cabin_datagrid">
+
+        </table>
+        <div style="display: none">
+            <div id="cabin_tb">
+                <a id="cabin_add_btn" onclick="addCabin()" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-addd3',plain:true"></a>
+            </div>
+        </div>
 </body>
+
+<script>
+     var iframereloadfunc = function () {
+           window.location.reload();
+        };
+
+    //i18n
+    $.language.cabintitle = {'en':'Cabin Title','zh':'舱室名称'};
+    $.language.cabinAction = {'en':'Action','zh':'操作'};
+    $.language.mapId = {'en':'MapId','zh':'地图ID'};
+    $.language.color = {'en':'Color','zh':'颜色'};
+    $.language.cabinedit = {'en':'Edit','zh':'编辑'};
+    $.language.cabinadd = {'en':'Add','zh':'添加'};
+    $.language.cabindelete = {'en':'Delete','zh':'删除'};
+    $.language.cabindeletetip = {'en':'Tip','zh':'提示'};
+    $.language.createAt = {'en':'CreateAt','zh':'创建时间'};
+    $.language.updateAt = {'en':'UpdateAt','zh':'更新时间'};
+    $.language.cabindeletemsg = {'en':'Sure to delete this cabin?','zh':'是否确认删除该舱室?'};
+
+    var title = $.language.i18n("cabintitle");
+    var color = $.language.i18n("color");
+    var mapId = $.language.i18n("mapId");
+    var action = $.language.i18n("cabinAction");
+    var edit = $.language.i18n("cabinedit");
+    var add = $.language.i18n("cabinadd");
+    var deletetext = $.language.i18n("cabindelete");
+    var tip = $.language.i18n("cabindeletetip");
+    var showms = $.language.i18n('cabindeletemsg');
+    var createAt = $.language.i18n('createAt');
+    var updateAt = $.language.i18n('updateAt');
+
+    $('#cabin_add_btn').linkbutton({
+        text: add
+    });
+
+    //获取所有舱室
+     (function getAllCabin() {
+        $.mkUtil.ajax({
+            type:"GET",
+            url:"/cabin/findAll",
+            contentType:"application/json",
+            dataType:'json',
+            success:function (data) {
+                if(data.success == true){
+                    initDatagrid(data.data);
+                }
+            }
+        })
+    })();
+
+    //initView
+    var createper = $.mkUtil.perms.allitems.cabinManage.create;
+    var updateper = $.mkUtil.perms.allitems.cabinManage.update;
+    var deleteper = $.mkUtil.perms.allitems.cabinManage.delete;
+    var toolbar = createper?$("#cabin_tb"):'';
+    function initDatagrid(data) {
+        $("#cabin_datagrid").datagrid({
+           data:data,
+            columns:[[
+                {field:'title',title:title,width:100},
+                {field:'mapId',title:mapId,width:100},
+                {field:'color',title:color,width:100},
+                {field:'createAt',title:createAt,width:150},
+                {field:'updateAt',title:updateAt,width:150},
+                {field:'action',title:action,width:100,
+                			formatter: function(value,row,index) {
+                                var str = '';
+                                if(updateper){
+                                    str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="editcabin(\'{0}\');" >'+edit+'</a>', row.id)
+                                }
+                                if(deleteper){
+                                    str = str + '&nbsp;&nbsp;|&nbsp;&nbsp;';
+                                    str = str + $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="deleteCabin(\'{0}\');" >'+deletetext+'</a>', row.id)
+                                }
+                                return str;
+                            }
+                }
+            ]],
+            rownumbers:true,
+            toolbar:toolbar
+        });
+    }
+
+    //editcabin
+    function editcabin(cabinid) {
+        $.mkUtil.param = {cabinid:cabinid};
+           parent.$.modalDialog({
+                title : edit,
+                width : 500,
+                height : 260,
+                href : '../template/editcabin.html',
+                buttons : [ {
+                    text : edit,
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#cabinUpdateForm');
+                        f.submit();
+                    }
+                } ]
+            });
+    }
+
+    //deleteCabin
+    function deleteCabin(cabinid) {
+        $.messager.confirm(tip, showms, function(r) {
+                    if (r) {
+                        $.mkUtil.ajax({
+                            type:"DELETE",
+                            url : '/cabin/delete'+'/?id='+cabinid,
+                            success : function(data) {
+                                if (data.success) {
+                                    iframereloadfunc();
+                                }
+                            }
+                        });
+                    }
+        });
+    }
+
+    //addCabin
+    function addCabin() {
+            parent.$.modalDialog({
+                title : add,
+                width : 500,
+                height : 260,
+                href : '../template/addcabin.html',
+                buttons : [ {
+                    text : add,
+                    handler : function() {
+                        parent.$.modalDialog.success = iframereloadfunc;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+                        var f = parent.$.modalDialog.handler.find('#cabinAddForm');
+                        f.submit();
+                    }
+                } ]
+            });
+    }
+
+</script>
 </html>

@@ -155,15 +155,15 @@
         console.log($.webapi.color.findColor);
         $.mkUtil.ajax({
             type: 'GET',
-            url: "/color/find?page=1&pagesize=1000",
-            contentType: 'json',
-            dataType: 'application/json',
+            url: "/color/find",
+            contentType: 'application/json',
+            dataType: 'json',
             success: function (data) {
                 if(data.success){
                     $('#eqptColor').combobox({
                         data: data.data,
                         valueField: 'id',
-                        textField: 'color'
+                        textField: 'title'
                     });
                 }
             }
