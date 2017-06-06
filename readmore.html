@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人员报警</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript" src="../static/libs/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/util.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/jquery.easyui.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../static/libs/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="../static/font/icomoon/style.css">
+    <script type="text/javascript" src="../static/js/language.js"></script>
+    <script type="text/javascript" src="../static/js/extJs.js"></script>
+    <script type="text/javascript" src="../static/libs/easyui/locale/easyui-lang-zh_CN.js"></script>
+
+</head>
+<body>
+<div id="tb" style="padding:5px;height:auto">
+    <span style="margin-left: 10px" data-localize="alarmtable_findWay">查询方式</span>
+    <select id="searchMode" class="easyui-combobox" panelHeight="auto" data-options="editable:false"  style="width:100px;"  >
+    </select>
+    <span style="margin-left: 10px" data-localize="alarmtbale_name" >姓名</span>
+    <input id="search_name" class="easyui-textbox"  style="width:150px">
+    <span  style="margin-left: 10px" data-localize="alarmtable_start">开始时间</span>
+    <input id="start" class="easyui-datetimebox"  editable="false" style="width:150px">
+    <span style="margin-left: 10px" data-localize="alarmtable_end">结束时间</span>
+    <input id="end" class="easyui-datetimebox"  editable="false" style="width:150px">
+    <a id="alarmSearch" href="#" class="easyui-linkbutton" iconCls="icon-search" onclick="searchPersonnelAlarm()">查询</a>
+        <a style="margin-right: 12px;float: right" id="readabled"  class="easyui-linkbutton" iconCls="icon-book" onclick="readtime()">标记为已读</a>
+
+</div>
+<div class="body-container" style="width: 100%;height: 100%;position: absolute;">
+    <table id="personnelalarm_datagrid"  style="width:100%;">
+
+    </table>
+</div>
+</body>
+<script>
+    $(function(){
+        $.mkUtil.getSysAlarm();
+    });
+
+    var iframereloadfunc = function () {
+        window.location.reload();
+    };
+
+
+    $.language.alarmtbale_name = {'en':'Name','zh':'姓名'};
+    $.language.alarmtbale_type = {'en':'Type','zh':'类型'};
+    $.language.alarmtbale_des = {'en':'Des','zh':'内容'};
+    $.language.alarmtbale_time = {'en':'Time','zh':'时间'};
+    $.language.alarmtbale_sureperson = {'en':'SurePerson','zh':'确认人'};
+    $.language.alarmtbale_sureTime = {'en':'Sure Time','zh':'确认时间'};
+    $.language.alarmtbale_action = {'en':'Action','zh':"操作"};
+    $.language.alarmtbale_action_sure = {'en':'Sure','zh':"确认"};
+    $.language.alarmtbale_read = {'en':'read status','zh':"查看情况"};
+    $.language.alarmtable_start = {'en':'Start Time','zh':"开始时间"};
+    $.language.alarmtable_end = {'en':'End Time','zh':"结束时间"};
+    $.language.alarmtable_find = {'en':'Search','zh':"查询"};
+    $.language.alarmtable_readable = {'en':'Mark as read','zh':"标记为已读"};
+    $.language.alarmtable_findWay = {'en':'Inquiry Mode','zh':"查询方式"};
+    $.language.alarmtable_Warn = {'en':'Warning','zh':"警告框"};
+    $.language.alarmtable_WarnInfo = {'en':'Select the rows of data to be marked！','zh':"选择要标记的数据行！"};
+
+
+    var alarmtable_Warninfo =$.language.i18n('alarmtable_WarnInfo');
+    var alarmtable_Warn = $.language.i18n('alarmtable_Warn');
+    var alarmtbale_name = $.language.i18n('alarmtbale_name');
+    var alarmtbale_type = $.language.i18n('alarmtbale_type');
+    var alarmtbale_des = $.language.i18n('alarmtbale_des');
+    var alarmtbale_time = $.language.i18n('alarmtbale_time');
+    var alarmtbale_sureperson = $.language.i18n('alarmtbale_sureperson');
+    var alarmtbale_sureTime  = $.language.i18n('alarmtbale_sureTime');
+    var alarmtbale_action = $.language.i18n('alarmtbale_action');
+    var alarmtbale_action_sure = $.language.i18n('alarmtbale_action_sure');
+    var alarmtbale_read = $.language.i18n('alarmtbale_read');
+    var alarmtable_start = $.language.i18n('alarmtable_start');
+    var alarmtable_end =$.language.i18n('alarmtable_end');
+    var alarmtable_find = $.language.i18n('alarmtable_find');
+    var alarmtable_readable =$.language.i18n('alarmtable_readable');
+    var alarmtable_findWay =$.language.i18n('alarmtable_findWay');
+
+    $("#alarmSearch").text($.language.i18n("alarmtable_find"));
+    $("#readabled").text($.language.i18n("alarmtable_readable"));
+    //查询
+    function searchPersonnelAlarm() {
+        currentParam = {};
+        var searchMode = $('#searchMode').combobox('getValue');
+        var start = $('#start').datetimebox('getValue').replace("+"," ");
+        var end = $('#end').datetimebox('getValue').replace("+"," ");
+        var sname = $.trim($('#search_name').val()) ;
+
+        if(!searchMode||searchMode.length<1) return;
+       if(searchMode!=0){
+           currentParam.type = searchMode;
+       }
+        if(start.length>1&&end.length>1){
+            currentParam.startTime = start;
+            currentParam.endTime = end;
+        };
+
+        if(sname.length>=1){
+          currentParam.clientName = sname;
+        }
+        //  console.log(currentParam);
+//        var grid = $('#personnelalarm_datagrid');
+//        var options = grid.datagrid('getPager').data("pagination").options;
+//        var pageNumber = options.pageNumber;
+        getData(currentParam,1,size);
+    }
+
+    var currentParam = {};
+    var size = 1;
+    //获取报警类型
+    function getAllWarningType() {
+        $.mkUtil.ajax({
+            type:"GET",
+            url:"/warnType/findAll",
+            contentType:"application/json",
+            dataType:'json',
+            success:function (data) {
+                if(data.success == true){
+                    var temp = [];
+                    temp.push({id:0,name:'不限'});
+                    for (var i=0;i<data.data.length;i++){
+                        var item = data.data[i];
+                        if(item.id!=3){
+                            //排除长按报警
+                            temp.push(item);
+                        }
+                    }
+                    $('#searchMode').combobox({
+                        data:temp,
+                        value:0,
+                        valueField: 'id',
+                        textField: 'name'
+                    });
+                }
+            }
+        })
+    }
+    function  readtime(){
+        var rows = $('#personnelalarm_datagrid').datagrid('getSelections');
+        console.log(rows);
+        if(rows.length==0){
+            $.messager.alert(alarmtable_Warn,alarmtable_Warninfo,'info', function () {
+
+            });
+        }else{
+            var ids=[];
+            var json ={};
+            for(var i = 0; i<rows.length;i++){
+                ids.push(rows[i].id);
+            }
+
+            $.mkUtil.ajax({
+                type:'POST',
+                url:'/warning/updateRead',
+                contentType:'application/json',
+                dataType:'json',
+                data:JSON.stringify({ids:ids}),
+                success:function (data) {
+                    window.location.reload();
+                }});
+        }
+        }
+
+    //获取报警数据
+    function getData(param,page,pageSize) {
+        param.pageNumber = page;
+        param.pageSize = pageSize;//30;
+        $.mkUtil.ajax({
+            type:'GET',
+            url:'/warning/findExLong',
+            contentType:'application/json',
+            dataType:'json',
+            data:param,
+            success:function (data) {
+                console.log(data);
+                initView(data,page);
+            }
+        })
+    }
+    //确认报警
+    function sure(id) {
+        if(!$.mkUtil.user.id) return;
+        var param = {id:id,sureperson:$.mkUtil.user.id};
+        $.mkUtil.ajax({
+            type:'POST',
+            url:'/warning/updateRead',
+            contentType:'application/json',
+            dataType:'json',
+            data:JSON.stringify(param),
+            success:function (data) {
+                if(data.success==true){
+                    window.location.reload();
+                }
+            }
+        })
+    }
+
+    function initView(data,page) {
+        if(!page) page = 1;
+        if(!data){
+            data = {};
+            data.rows = [];
+            data.total = 0;
+        }
+        //console.log(data.rows);
+        $('#personnelalarm_datagrid').datagrid({
+            data:data.rows,
+            singleSelect:true,
+            rownumbers:true,
+            fitColumns:true,
+            pagination:true,
+            pageSize: 30,
+            fit:true,
+            toolbar:'#tb',
+            columns : [[
+                {
+                    width : '100',
+                    title : alarmtbale_name,
+                    field : 'clientName'
+                },
+                {
+                    width : '200',
+                    title : alarmtbale_des,
+                    field : 'des'
+                },
+                {
+                    width : '100',
+                    title : alarmtbale_type,
+                    field : 'warnTypeName'
+                },
+                {
+                    width : '150',
+                    title : alarmtbale_time,
+                    field : 'createAt'
+                },
+                {
+                    width : '150',
+                    title : alarmtbale_sureTime,
+                    field : 'updateAt'
+                },
+                {
+                    width : '100',
+                    title : alarmtbale_sureperson,
+                    field : 'username'
+                },
+                {
+                    width : '100',
+                    title : alarmtbale_action,
+                    field : 'action',
+                    formatter:function (value,row,index) {
+                        if(row.level==3) return '无需确认';
+                        if(row.sureperson) return '已确认';
+                        var str = $.formatString('<a href="javascript:void(0)" class="resource-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'icon-pencil icon-green\'" onclick="sure(\'{0}\');" >'+alarmtbale_action_sure+'</a>', row.id)
+                        return str;
+                    }
+                },{
+                    width :'50',
+                    title : alarmtbale_read,
+                    field : 'readTime',
+                    formatter:function (value,row,index) {
+                        //如果数据库里有记录，表示已经看过
+//                        console.log(data.rows);
+//                        console.log(data.rows.readTime);
+                        if (row.readTime){
+                          return '已读';
+                        }else{
+                            return '未读';
+                        }
+                    }
+                },{
+                    width :'50',
+                    field :'ck',
+                    checkbox:true
+                }
+            ]],
+            singleSelect: false,
+            selectOnCheck: true,
+            checkOnSelect: true
+        });
+        var p = $('#personnelalarm_datagrid').datagrid('getPager');
+        //分页处理
+        p.pagination({
+            showRefresh:false,
+            showPageList:false,
+            total:data.total,
+            pageSize:size,
+            pageNumber:page,
+//            beforePageText:'第',
+//            afterPageText:'页 共 {pages}页',
+//            displayMsg:'显示 {from} 至 {to} 共 {total}条信息',
+            onSelectPage:function(pageNumber, pageSize){
+                getData(currentParam,pageNumber,pageSize);
+            }
+        });
+    }
+
+    $(function () {
+        initView();
+        getAllWarningType();
+        searchPersonnelAlarm();
+        getData(currentParam,1,size);
+    });
+
+</script>
+</html>
